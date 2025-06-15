@@ -1,0 +1,66 @@
+{
+  "name": "mdr-label-icons",
+  "version": "1.0.0",
+  "description": "Easy and light-weight icons compliant with Medical Device Regulation 2017/745",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublishOnly": "npm run build",
+    "version": "npm run build",
+    "postversion": "git push && git push --tags",
+    "deploy": "npm run build && npm publish",
+    "deploy:patch": "npm version patch && npm run deploy",
+    "deploy:minor": "npm version minor && npm run deploy",
+    "deploy:major": "npm version major && npm run deploy"
+  },
+  "keywords": [
+    "mdr",
+    "medical",
+    "device",
+    "regulation",
+    "icons",
+    "svg",
+    "symbols",
+    "medical-device",
+    "eu",
+    "2017/745",
+    "labeling",
+    "compliance",
+    "react",
+    "vue",
+    "angular"
+  ],
+  "author": "Taig Mac Carthy",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/react": "^18.0.0",
+    "react": "^19.1.0",
+    "typescript": "^4.9.0"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/t4dhg/mdr-label-icons.git"
+  },
+  "bugs": {
+    "url": "https://github.com/t4dhg/mdr-label-icons/issues"
+  },
+  "homepage": "https://github.com/t4dhg/mdr-label-icons#readme",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
