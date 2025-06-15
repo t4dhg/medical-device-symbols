@@ -240,10 +240,6 @@ If you encounter any issues or have questions:
 2. Create a new issue if needed
 3. Review the examples in the `examples/` directory
 
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md) for release history and changes.
-
 #### `getIcon(name: string): string | null`
 
 Returns the SVG content for the specified icon name, or null if not found.
