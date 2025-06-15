@@ -1,12 +1,11 @@
 {
   "name": "mdr-label-icons",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "Easy and light-weight icons compliant with Medical Device Regulation 2017/745",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": [
     "lib",
-    "CHANGELOG.md",
     "CONTRIBUTING.md"
   ],
   "scripts": {
