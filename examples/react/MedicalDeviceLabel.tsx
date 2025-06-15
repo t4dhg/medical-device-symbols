@@ -16,47 +16,35 @@ const MedicalDeviceLabel: React.FC = () => {
       <div className="label-section">
         <div className="label-row">
           <div className="icon-container">
-            <CautionIcon
-              className="mdr-icon warning"
-              size={24}
-              title="Caution"
-            />
+            <CautionIcon className="mdr-icon warning" size={24} />
             <span>Read instructions before use</span>
           </div>
         </div>
 
         <div className="label-row">
           <div className="icon-container">
-            <CeIcon className="mdr-icon" size={24} title="CE Marking" />
+            <CeIcon className="mdr-icon" size={24} />
             <span>CE 0123</span>
           </div>
         </div>
 
         <div className="label-row">
           <div className="icon-container">
-            <ManufacturerIcon
-              className="mdr-icon"
-              size={24}
-              title="Manufacturer"
-            />
+            <ManufacturerIcon className="mdr-icon" size={24} />
             <span>ACME Medical Devices Ltd.</span>
           </div>
         </div>
 
         <div className="label-row">
           <div className="icon-container">
-            <ManufactureDateIcon
-              className="mdr-icon"
-              size={24}
-              title="Date of Manufacture"
-            />
+            <ManufactureDateIcon className="mdr-icon" size={24} />
             <span>2024-06</span>
           </div>
         </div>
 
         <div className="label-row">
           <div className="icon-container">
-            <LotIcon className="mdr-icon" size={24} title="Lot Number" />
+            <LotIcon className="mdr-icon" size={24} />
             <span>LOT: ABC123456</span>
           </div>
         </div>
