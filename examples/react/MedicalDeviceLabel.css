@@ -1,0 +1,73 @@
+.medical-device-label {
+  font-family: Arial, sans-serif;
+  max-width: 400px;
+  margin: 20px;
+  padding: 20px;
+  border: 2px solid #333;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.medical-device-label h2 {
+  margin-top: 0;
+  color: #333;
+  text-align: center;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 10px;
+}
+
+.label-section {
+  margin-top: 15px;
+}
+
+.label-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 8px;
+  background-color: white;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
+.icon-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.mdr-icon {
+  width: 24px;
+  height: 24px;
+  fill: #333;
+  flex-shrink: 0;
+}
+
+.mdr-icon.warning {
+  fill: #ff6b35;
+}
+
+.mdr-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.icon-container span {
+  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+  .medical-device-label {
+    max-width: 100%;
+    margin: 10px;
+    padding: 15px;
+  }
+
+  .icon-container span {
+    font-size: 12px;
+  }
+}

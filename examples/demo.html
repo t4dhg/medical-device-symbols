@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MDR Label Icons - Demo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .icon-example {
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .icon-example h3 {
+      margin-top: 0;
+    }
+
+    .code-block {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      overflow-x: auto;
+    }
+
+    .before-after {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .before,
+    .after {
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .before {
+      background-color: #fff3cd;
+      border: 1px solid #ffeaa7;
+    }
+
+    .after {
+      background-color: #d1edff;
+      border: 1px solid #74b9ff;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>MDR Label Icons</h1>
+
+  <p>Your package has been successfully transformed to follow the <strong>@sanity/icons</strong> pattern! 🎉</p>
+
+  <h2>✨ What's Changed</h2>
+
+  <div class="before-after">
+    <div class="before">
+      <h3>❌ Old API (Functions)</h3>
+      <div class="code-block">
+        import { getIcon, ICON_NAMES } from 'mdr-label-icons'
+
+        const caution = getIcon(ICON_NAMES.CAUTION)
+        return &lt;div dangerouslySetInnerHTML={{__html: caution}} /&gt;
+      </div>
+    </div>
+
+    <div class="after">
+      <h3>✅ Current API (React Components)</h3>
+      <div class="code-block">
+        import { CautionIcon } from 'mdr-label-icons'
+
+        return &lt;CautionIcon size={48} /&gt;
+      </div>
+    </div>
+  </div>
+
+  <h2>🚀 Usage Examples</h2>
+
+  <div class="code-block">
+    import { CautionIcon, CeIcon, ManufacturerIcon } from 'mdr-label-icons'
+
+    function App() {
+    return (
+    &lt;div&gt;
+    {/* Simple usage with default size (24px) */}
+    &lt;CautionIcon /&gt;
+
+    {/* Custom size */}
+    &lt;CeIcon size={48} /&gt;
+
+    {/* Custom styling */}
+    &lt;ManufacturerIcon style={{ fontSize: 72, color: 'blue' }} /&gt;
+
+    {/* With event handlers */}
+    &lt;CautionIcon
+    size={32}
+    onClick={() =&gt; console.log('Clicked!')}
+    style={{ cursor: 'pointer' }}
+    /&gt;
+
+    {/* All standard SVG props are supported */}
+    &lt;CeIcon
+    size={40}
+    fill="red"
+    stroke="black"
+    strokeWidth={2}
+    /&gt;
+    &lt;/div&gt;
+    )
+    }
+  </div>
+
+  <h2>📦 Available Icon Components</h2>
+
+  <div class="icon-grid">
+    <div class="icon-example">
+      <h3>CautionIcon</h3>
+      <p>General caution symbol</p>
+    </div>
+
+    <div class="icon-example">
+      <h3>CeIcon</h3>
+      <p>CE marking</p>
+    </div>
+
+    <div class="icon-example">
+      <h3>EcIcon</h3>
+      <p>European Conformity</p>
+    </div>
+
+    <div class="icon-example">
+      <h3>LotIcon</h3>
+      <p>Batch/Lot number</p>
+    </div>
+
+    <div class="icon-example">
+      <h3>ManufacturerIcon</h3>
+      <p>Manufacturer symbol</p>
+    </div>
+
+    <div class="icon-example">
+      <h3>ManufactureDateIcon</h3>
+      <p>Manufacturing date</p>
+    </div>
+
+    <div class="icon-example">
+      <h3>MdIcon</h3>
+      <p>Medical Device</p>
+    </div>
+
+    <div class="icon-example">
+      <h3>ReadIfuIcon</h3>
+      <p>Read Instructions for Use</p>
+    </div>
+
+    <div class="icon-example">
+      <h3>UdiIcon</h3>
+      <p>Unique Device Identifier</p>
+    </div>
+  </div>
+
+  <h2>✅ Benefits of the New API</h2>
+
+  <ul>
+    <li><strong>Tree-shaking support</strong> - Only import the icons you need</li>
+    <li><strong>TypeScript support</strong> - Full type safety and IntelliSense</li>
+    <li><strong>React component props</strong> - Standard SVG props, size, event handlers</li>
+    <li><strong>Better developer experience</strong> - No more string manipulation</li>
+    <li><strong>Consistent with popular libraries</strong> - Follows @sanity/icons pattern</li>
+    <li><strong>Ref forwarding</strong> - Access underlying SVG element when needed</li>
+  </ul>
+
+  <h2>🔄 Migration Guide</h2>
+
+  <p>To migrate from the old API to the new one:</p>
+
+  <div class="code-block">
+    // Old way
+    import { getIcon, ICON_NAMES } from 'mdr-label-icons'
+    const cautionSvg = getIcon(ICON_NAMES.CAUTION)
+
+    // New way
+    import { CautionIcon } from 'mdr-label-icons'
+    &lt;CautionIcon size={24} /&gt;
+  </div>
+
+</body>
+
+</html>
