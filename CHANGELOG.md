@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### 🚀 BREAKING CHANGES
+
+- **Package renamed**: Changed package name from `mdr-label-icons` to `medical-device-symbols`
+- **Broader scope**: Package now emphasizes global compliance with ISO 15223-1:2016 rather than just EU MDR
+- **International focus**: Updated documentation to highlight support for multiple regulatory frameworks worldwide
+
+### Changed
+
+- Package name: `mdr-label-icons` → `medical-device-symbols`
+- Updated all import statements in documentation and examples
+- Enhanced documentation to emphasize international regulatory compliance
+- Updated package description to reflect global scope
+- Added support information for FDA, Health Canada, Japan, Brazil, China, South Korea, and other regulatory frameworks
+
 ## [2.0.0] - 2025-06-15
 
 ### 🚀 BREAKING CHANGES
@@ -34,11 +50,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ```tsx
 // Old API (v1.x)
-import { getIcon, ICON_NAMES } from "mdr-label-icons";
+import { getIcon, ICON_NAMES } from "medical-device-symbols";
 const iconHtml = getIcon(ICON_NAMES.CAUTION);
 
 // New API (v2.x)
-import { CautionIcon } from "mdr-label-icons";
+import { CautionIcon } from "medical-device-symbols";
 <CautionIcon size={24} />;
 ```
 
@@ -46,7 +62,7 @@ import { CautionIcon } from "mdr-label-icons";
 
 ### Added
 
-- Initial release of mdr-label-icons package
+- Initial release of medical-device-symbols package
 - 9 MDR compliant SVG icons:
   - Caution symbol
   - CE marking

@@ -1,7 +1,7 @@
 {
-  "name": "mdr-label-icons",
+  "name": "medical-device-symbols",
   "version": "1.0.0",
-  "description": "Easy and light-weight icons compliant with Medical Device Regulation 2017/745",
+  "description": "Internationally recognized medical device symbols based on ISO 15223-1 for global regulatory compliance",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": [
@@ -21,21 +21,25 @@
     "deploy:major": "npm version major && npm run deploy"
   },
   "keywords": [
+    "medical-device",
+    "symbols",
+    "iso-15223-1",
     "mdr",
-    "medical",
-    "device",
-    "regulation",
+    "ivdr",
+    "fda",
+    "regulatory",
+    "compliance",
     "icons",
     "svg",
-    "symbols",
-    "medical-device",
-    "eu",
-    "2017/745",
+    "international",
+    "global",
+    "medical",
+    "device",
     "labeling",
-    "compliance",
     "react",
     "vue",
-    "angular"
+    "angular",
+    "typescript"
   ],
   "author": "Taig Mac Carthy",
   "license": "MIT",
@@ -50,12 +54,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/t4dhg/mdr-label-icons.git"
+    "url": "git+https://github.com/t4dhg/medical-device-symbols.git"
   },
   "bugs": {
-    "url": "https://github.com/t4dhg/mdr-label-icons/issues"
+    "url": "https://github.com/t4dhg/medical-device-symbols/issues"
   },
-  "homepage": "https://github.com/t4dhg/mdr-label-icons#readme",
+  "homepage": "https://github.com/t4dhg/medical-device-symbols#readme",
   "engines": {
     "node": ">=16.0.0"
   },

@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 27.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 width="213.4px" height="266.7px" viewBox="0 0 213.4 266.7" style="enable-background:new 0 0 213.4 266.7;" xml:space="preserve"
-	>
-<g>
-	<path d="M203.4,10v246.7H10V141l16.7-33.3l17.7,35.4l8.9,17.9l8.9-17.9L80,107.7l17.7,35.4l8.9,17.9l8.9-17.9l17.7-35.4l17.7,35.4
-		l18.9-4.5V10H203.4 M213.4,0H160v138.7l-26.7-53.3l-26.7,53.3L80,85.3l-26.7,53.3L26.7,85.3L0,138.7v128h213.4V0L213.4,0z"/>
-</g>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" version="1.1" xmlns="http://www.w3.org/2000/svg">
+ <g fill="none" stroke="#999" stroke-width="3">
+  <path d="m0 16v-16h16"/>
+  <path d="m200 16v-16h-16"/>
+  <path d="m0 184v16h16"/>
+  <path d="m200 184v16h-16"/>
+ </g>
+ <path d="m135.36 118.66v-82.034h33.408v126.74h-137.53v-44.706l18.981-32.876 16.629 27.978 16.629-27.978 16.629 27.978 16.629-27.978 18.271 31.647" fill="none" stroke="#000" stroke-width="5"/>
 </svg>

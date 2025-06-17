@@ -1,12 +1,10 @@
-# GitHub Copilot Instructions for MDR Label Icons
+# GitHub Copilot Instructions for Medical Device Symbols
 
-This document provides comprehensive guidance for LLMs (Large Language Models) contributing to the MDR Label Icons package.
+This document provides comprehensive guidance for LLMs (Large Language Models) contributing to the Medical Device Symbols package.
 
 ## 📋 Project Overview
 
-**MDR Label Icons** is a React component library providing Medical Device Regulation (2017/745) compliant icons. The package follows the **@sanity/icons** pattern for React component exports.
-
-**Current Version: 2.0.0** - This represents a major breaking change from v1.x function-based API to React components.
+**Medical Device Symbols** is a React component library providing Medical Device Regulation (2017/745) compliant icons. The package follows the **@sanity/icons** pattern for React component exports.
 
 ### Key Architecture Decisions
 
@@ -14,12 +12,11 @@ This document provides comprehensive guidance for LLMs (Large Language Models) c
 - ✅ **TypeScript First**: Full TypeScript support with proper type definitions
 - ✅ **SVG-based**: All icons are embedded SVG content, not external files
 - ✅ **Tree-shakeable**: Individual component imports for optimal bundle size
-- ✅ **MDR Compliant**: Icons follow official Medical Device Regulation 2017/745 specs
 
 ## 🏗️ Project Structure
 
 ```
-mdr-label-icons/
+medical-device-symbols/
 ├── src/
 │   ├── index.tsx              # Main entry point with all icon components
 │   └── icons/                 # Original SVG files (reference only)
@@ -66,20 +63,6 @@ npm run deploy:patch   # Patch version bump + publish
 npm run deploy:minor   # Minor version bump + publish
 npm run deploy:major   # Major version bump + publish
 ```
-
-## 🎯 Available Icons (9 Total)
-
-| Component             | MDR Symbol | Description                                 |
-| --------------------- | ---------- | ------------------------------------------- |
-| `CautionIcon`         | ⚠️         | General caution/warning                     |
-| `CeIcon`              | CE         | Conformité Européenne (European Conformity) |
-| `EcIcon`              | EC         | European Community                          |
-| `LotIcon`             | LOT        | Batch/Lot number                            |
-| `ManufacturerIcon`    | 🏭         | Manufacturer                                |
-| `ManufactureDateIcon` | 📅         | Date of manufacture                         |
-| `MdIcon`              | MD         | Medical Device                              |
-| `ReadIfuIcon`         | 📖         | Read Instructions for Use                   |
-| `UdiIcon`             | UDI        | Unique Device Identifier                    |
 
 ## 📝 Code Patterns & Standards
 
@@ -185,7 +168,7 @@ export interface IconProps extends React.SVGProps<SVGSVGElement> {
 
 ### Testing Checklist
 
-- [ ] **Import test**: `import { CautionIcon } from 'mdr-label-icons'` works
+- [ ] **Import test**: `import { CautionIcon } from 'medical-device-symbols'` works
 - [ ] **Component render**: Icons render as SVG elements in React
 - [ ] **Props work**: Size, className, onClick, and other SVG props function
 - [ ] **TypeScript support**: No type errors in TypeScript projects

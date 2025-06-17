@@ -1,13 +1,13 @@
 {
-  "name": "mdr-label-icons-examples",
+  "name": "medical-device-symbols-examples",
   "version": "1.0.0",
   "private": true,
-  "description": "Examples for using mdr-label-icons package",
+  "description": "Examples for using medical-device-symbols package",
   "scripts": {
     "node-extraction": "node node-svg-extraction.js"
   },
   "dependencies": {
-    "mdr-label-icons": "file:.."
+    "medical-device-symbols": "file:.."
   },
   "devDependencies": {
     "@types/react": "^18.0.0",

@@ -1,6 +1,6 @@
-# Contributing to MDR Label Icons
+# Contributing to Medical Device Symbols
 
-Thank you for your interest in contributing to MDR Label Icons! This document provides guidelines for contributing to this project.
+Thank you for your interest in contributing to Medical Device Symbols! This document provides guidelines for contributing to this project.
 
 ## Table of Contents
 
@@ -88,8 +88,8 @@ export const ICON_NAMES = {
 
 ```bash
 # Clone your fork
-git clone https://github.com/your-username/mdr-label-icons.git
-cd mdr-label-icons
+git clone https://github.com/your-username/medical-device-symbols.git
+cd medical-device-symbols
 
 # Install dependencies
 npm install

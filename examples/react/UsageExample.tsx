@@ -4,7 +4,7 @@ import {
   CeIcon,
   ManufacturerIcon,
   LotIcon,
-} from "mdr-label-icons";
+} from "medical-device-symbols";
 
 // Example usage following the Sanity icons pattern
 function App() {
