@@ -77,7 +77,7 @@
     <div class="before">
       <h3>❌ Old API (Functions)</h3>
       <div class="code-block">
-        import { getIcon, ICON_NAMES } from 'mdr-label-icons'
+        import { getIcon, ICON_NAMES } from 'medical-device-symbols'
 
         const caution = getIcon(ICON_NAMES.CAUTION)
         return &lt;div dangerouslySetInnerHTML={{__html: caution}} /&gt;
@@ -87,7 +87,7 @@
     <div class="after">
       <h3>✅ Current API (React Components)</h3>
       <div class="code-block">
-        import { CautionIcon } from 'mdr-label-icons'
+        import { CautionIcon } from 'medical-device-symbols'
 
         return &lt;CautionIcon size={48} /&gt;
       </div>
@@ -97,7 +97,7 @@
   <h2>🚀 Usage Examples</h2>
 
   <div class="code-block">
-    import { CautionIcon, CeIcon, ManufacturerIcon } from 'mdr-label-icons'
+    import { CautionIcon, CeIcon, ManufacturerIcon } from 'medical-device-symbols'
 
     function App() {
     return (
@@ -196,11 +196,11 @@
 
   <div class="code-block">
     // Old way
-    import { getIcon, ICON_NAMES } from 'mdr-label-icons'
+    import { getIcon, ICON_NAMES } from 'medical-device-symbols'
     const cautionSvg = getIcon(ICON_NAMES.CAUTION)
 
     // New way
-    import { CautionIcon } from 'mdr-label-icons'
+    import { CautionIcon } from 'medical-device-symbols'
     &lt;CautionIcon size={24} /&gt;
   </div>
 
