@@ -3,7 +3,7 @@ import {
   CautionIcon,
   CeIcon,
   ManufacturerIcon,
-  LotIcon,
+  BatchCodeIcon,
 } from "medical-device-symbols";
 
 // Example usage following the Sanity icons pattern
@@ -23,7 +23,7 @@ function App() {
         <ManufacturerIcon style={{ fontSize: 72, color: "blue" }} />
 
         {/* Using standard SVG props */}
-        <LotIcon size={32} fill="red" stroke="black" strokeWidth={1} />
+        <BatchCodeIcon size={32} fill="red" stroke="black" strokeWidth={1} />
 
         {/* Responsive sizing */}
         <CautionIcon size="2rem" />

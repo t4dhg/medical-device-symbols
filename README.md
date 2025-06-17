@@ -57,34 +57,37 @@ function App() {
 
 ## Available Icons
 
-| Ref   | Symbol                                                                                                          | Title                                          |
-| ----- | --------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| 5.1.1 | ![manufacturer](src/icons/manufacturer.svg)                                                                     | Manufacturer                                   |
-| 5.1.3 | ![manufacture-date](src/icons/manufacture-date.svg)                                                             | Date of manufacture                            |
-| 5.1.5 | ![lot](src/icons/lot.svg)                                                                                       | Batch code                                     |
-| 5.1.6 | ![catalogue-number](src/icons/catalogue-number.svg)                                                             | Catalogue number                               |
-| 5.1.7 | ![serial-number](src/icons/serial-number.svg)                                                                   | Serial number                                  |
-| 5.2.1 | ![sterile](src/icons/sterile.svg)                                                                               | Sterile                                        |
-| 5.2.2 | ![sterilized-using-aseptic-processing-techniques](src/icons/sterilized-using-aseptic-processing-techniques.svg) | Sterilized using aseptic processing techniques |
-| 5.2.3 | ![sterilized-using-ethylene-oxide](src/icons/sterilized-using-ethylene-oxide.svg)                               | Sterilized using ethylene oxide                |
-| 5.2.4 | ![sterilized-using-irradiation](src/icons/sterilized-using-irradiation.svg)                                     | Sterilized using irradiation                   |
-| 5.2.5 | ![sterilized-using-steam-or-dry-heat](src/icons/sterilized-using-steam-or-dry-heat.svg)                         | Sterilized using steam or dry heat             |
-| 5.2.8 | ![do-not-use-if-package-is-damaged](src/icons/do-not-use-if-package-is-damaged.svg)                             | Do not use if package is damaged               |
-| 5.3.5 | ![lower-limit-of-temperature](src/icons/lower-limit-of-temperature.svg)                                         | Lower limit of temperature                     |
-| 5.3.6 | ![upper-limit-of-temperature](src/icons/upper-limit-of-temperature.svg)                                         | Upper limit of temperature                     |
-| 5.3.7 | ![temperature-limit](src/icons/temperature-limit.svg)                                                           | Temperature limit                              |
-| 5.3.8 | ![humidity-limitation](src/icons/humidity-limitation.svg)                                                       | Humidity limitation                            |
-| 5.3.9 | ![atmospheric-pressure-limitation](src/icons/atmospheric-pressure-limitation.svg)                               | Atmospheric pressure limitation                |
-| 5.4.2 | ![do-not-re-use](src/icons/do-not-re-use.svg)                                                                   | Do not re-use                                  |
-| 5.4.3 | ![read-ifu](src/icons/read-ifu.svg)                                                                             | Consult instructions for use                   |
-| 5.4.4 | ![caution](src/icons/caution.svg)                                                                               | Caution                                        |
-| 5.4.5 | ![latex](src/icons/latex.svg)                                                                                   | Contains or presence of natural rubber latex   |
-| 5.5.1 | ![in-vitro-diagnostic-medical-device](src/icons/in-vitro-diagnostic-medical-device.svg)                         | In vitro diagnostic medical device             |
-| 5.5.5 | ![ce](src/icons/ce.svg)                                                                                         | Contains sufficient for <n> tests              |
-| 5.5.6 | ![ec](src/icons/ec.svg)                                                                                         | For IVD performance evaluation only            |
-| 5.6.2 | ![fluid-path](src/icons/fluid-path.svg)                                                                         | Fluid path                                     |
-| 5.6.3 | ![non-pyrogenic](src/icons/non-pyrogenic.svg)                                                                   | Non-pyrogenic                                  |
-| 5.6.5 | ![15-micra](src/icons/15-micra.svg)                                                                             | Liquid filter with pore size                   |
+| Component Name                                       | Symbol                                                                                                                    | Title                                               |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| `AtmosphericPressureLimitationIcon`                  | ![atmospheric-pressure-limitation](src/icons/atmospheric-pressure-limitation.svg)                                         | Atmospheric Pressure Limitation                     |
+| `AuthorizedRepresentativeInTheEuropeanCommunityIcon` | ![authorized-representative-in-the-european-community](src/icons/authorized-representative-in-the-european-community.svg) | Authorized Representative In The European Community |
+| `BatchCodeIcon`                                      | ![batch-code](src/icons/batch-code.svg)                                                                                   | Batch Code                                          |
+| `CatalogueNumberIcon`                                | ![catalogue-number](src/icons/catalogue-number.svg)                                                                       | Catalogue Number                                    |
+| `CautionIcon`                                        | ![caution](src/icons/caution.svg)                                                                                         | Caution                                             |
+| `CeBsiIcon`                                          | ![ce-bsi](src/icons/ce-bsi.svg)                                                                                           | Ce Bsi                                              |
+| `CeIcon`                                             | ![ce](src/icons/ce.svg)                                                                                                   | Ce                                                  |
+| `ConsultInstructionsForUseIcon`                      | ![consult-instructions-for-use](src/icons/consult-instructions-for-use.svg)                                               | Consult Instructions For Use                        |
+| `DoNotReUseIcon`                                     | ![do-not-re-use](src/icons/do-not-re-use.svg)                                                                             | Do Not Re Use                                       |
+| `DoNotUseIfPackageIsDamagedIcon`                     | ![do-not-use-if-package-is-damaged](src/icons/do-not-use-if-package-is-damaged.svg)                                       | Do Not Use If Package Is Damaged                    |
+| `FluidPathIcon`                                      | ![fluid-path](src/icons/fluid-path.svg)                                                                                   | Fluid Path                                          |
+| `HumidityLimitationIcon`                             | ![humidity-limitation](src/icons/humidity-limitation.svg)                                                                 | Humidity Limitation                                 |
+| `InVitroDiagnosticMedicalDeviceIcon`                 | ![in-vitro-diagnostic-medical-device](src/icons/in-vitro-diagnostic-medical-device.svg)                                   | In Vitro Diagnostic Medical Device                  |
+| `LatexIcon`                                          | ![latex](src/icons/latex.svg)                                                                                             | Latex                                               |
+| `LiquidFilterWithPoreSizeIcon`                       | ![liquid-filter-with-pore-size](src/icons/liquid-filter-with-pore-size.svg)                                               | Liquid Filter With Pore Size                        |
+| `LowerLimitOfTemperatureIcon`                        | ![lower-limit-of-temperature](src/icons/lower-limit-of-temperature.svg)                                                   | Lower Limit Of Temperature                          |
+| `ManufactureDateIcon`                                | ![manufacture-date](src/icons/manufacture-date.svg)                                                                       | Manufacture Date                                    |
+| `ManufacturerIcon`                                   | ![manufacturer](src/icons/manufacturer.svg)                                                                               | Manufacturer                                        |
+| `MdIcon`                                             | ![md](src/icons/md.svg)                                                                                                   | Md                                                  |
+| `NonPyrogenicIcon`                                   | ![non-pyrogenic](src/icons/non-pyrogenic.svg)                                                                             | Non Pyrogenic                                       |
+| `SerialNumberIcon`                                   | ![serial-number](src/icons/serial-number.svg)                                                                             | Serial Number                                       |
+| `SterileIcon`                                        | ![sterile](src/icons/sterile.svg)                                                                                         | Sterile                                             |
+| `SterilizedUsingAsepticProcessingTechniquesIcon`     | ![sterilized-using-aseptic-processing-techniques](src/icons/sterilized-using-aseptic-processing-techniques.svg)           | Sterilized Using Aseptic Processing Techniques      |
+| `SterilizedUsingEthyleneOxideIcon`                   | ![sterilized-using-ethylene-oxide](src/icons/sterilized-using-ethylene-oxide.svg)                                         | Sterilized Using Ethylene Oxide                     |
+| `SterilizedUsingIrradiationIcon`                     | ![sterilized-using-irradiation](src/icons/sterilized-using-irradiation.svg)                                               | Sterilized Using Irradiation                        |
+| `SterilizedUsingSteamOrDryHeatIcon`                  | ![sterilized-using-steam-or-dry-heat](src/icons/sterilized-using-steam-or-dry-heat.svg)                                   | Sterilized Using Steam Or Dry Heat                  |
+| `TemperatureLimitIcon`                               | ![temperature-limit](src/icons/temperature-limit.svg)                                                                     | Temperature Limit                                   |
+| `UdiIcon`                                            | ![udi](src/icons/udi.svg)                                                                                                 | Udi                                                 |
+| `UpperLimitOfTemperatureIcon`                        | ![upper-limit-of-temperature](src/icons/upper-limit-of-temperature.svg)                                                   | Upper Limit Of Temperature                          |
 
 ## Usage
 

@@ -4,7 +4,7 @@ import {
   CeIcon,
   ManufacturerIcon,
   ManufactureDateIcon,
-  LotIcon,
+  BatchCodeIcon,
 } from "medical-device-symbols";
 import "./MedicalDeviceLabel.css";
 
@@ -44,7 +44,7 @@ const MedicalDeviceLabel: React.FC = () => {
 
         <div className="label-row">
           <div className="icon-container">
-            <LotIcon className="mdr-icon" size={24} />
+            <BatchCodeIcon className="mdr-icon" size={24} />
             <span>LOT: ABC123456</span>
           </div>
         </div>

@@ -1,53 +1,140 @@
-# GitHub Copilot Instructions for Medical Device Symbols
+# Medical Device Symbols Package - Copilot Instructions
 
-This document provides comprehensive guidance for LLMs (Large Language Models) contributing to the Medical Device Symbols package.
+## How This Package Works
 
-## 📋 Project Overview
+This is a medical device symbols package that provides internationally recognized medical device symbols as React components based on ISO 15223-1:2016.
 
-**Medical Device Symbols** is a React component library providing Medical Device Regulation (2017/745) compliant icons. The package follows the **@sanity/icons** pattern for React component exports.
+### Architecture Overview
 
-### Key Architecture Decisions
+The package follows an automated generation approach where all React components are dynamically created from SVG files:
 
-- ✅ **React Component Pattern**: Each icon is a React component with `forwardRef`
-- ✅ **TypeScript First**: Full TypeScript support with proper type definitions
-- ✅ **SVG-based**: All icons are embedded SVG content, not external files
-- ✅ **Tree-shakeable**: Individual component imports for optimal bundle size
+1. **SVG Icons Storage**: All icons are stored as individual SVG files in `src/icons/`
+2. **Automated Generation**: A build script (`scripts/generate-index.js`) automatically generates the main export file
+3. **Component Creation**: Each SVG becomes a React component with proper TypeScript support
+4. **Build Process**: TypeScript compilation creates the final distributable package
 
-## 🏗️ Project Structure
+### File Structure
 
 ```
-medical-device-symbols/
-├── src/
-│   ├── index.tsx              # Main entry point with all icon components
-│   └── icons/                 # Original SVG files (reference only)
-├── lib/                       # Compiled output (auto-generated)
-├── examples/
-│   ├── demo.html             # HTML demo page
-│   ├── node-svg-extraction.js # Node.js usage example
-│   └── react/                # React usage examples
-└── .github/
-    └── copilot-instructions.mdx # This file
+src/
+  icons/           # All SVG source files
+  index.tsx        # Auto-generated exports (DO NOT EDIT MANUALLY)
+scripts/
+  generate-index.js # Script that generates src/index.tsx
+lib/               # Compiled output (auto-generated)
 ```
 
-### Important Files to Know
+### How to Add or Modify Icons
 
-| File             | Purpose           | Notes                                              |
-| ---------------- | ----------------- | -------------------------------------------------- |
-| `src/index.tsx`  | Main source file  | Contains all icon components and SVG data          |
-| `lib/index.js`   | Compiled output   | Auto-generated, don't edit manually                |
-| `lib/index.d.ts` | Type definitions  | Auto-generated TypeScript declarations             |
-| `package.json`   | Package metadata  | Contains scripts, dependencies, and publish config |
-| `tsconfig.json`  | TypeScript config | Configured for JSX compilation                     |
+1. **Adding New Icons**:
 
-## 🔧 Development Workflow
+   - Add new SVG files to `src/icons/` directory
+   - Use kebab-case naming (e.g., `new-symbol.svg`)
+   - Run `npm run generate` to regenerate components
+   - Run `npm run build` to compile
 
-### Building the Package
+2. **Modifying Existing Icons**:
 
-```bash
-npm run build          # Compile TypeScript to JavaScript
-npm run prepare        # Build hook (runs on npm install)
-npm run prepublishOnly # Pre-publish build verification
+   - Edit the SVG file directly in `src/icons/`
+   - Run `npm run generate && npm run build`
+
+3. **Component Naming Convention**:
+   - File: `my-icon.svg` → Component: `MyIconIcon`
+   - File: `liquid-filter-with-pore-size.svg` → Component: `LiquidFilterWithPoreSizeIcon`
+   - **Best Practice**: Use descriptive kebab-case names instead of numbers to avoid awkward component names
+
+### Build Process
+
+The build process consists of:
+
+1. **Generation Step** (`npm run generate`):
+
+   - Scans `src/icons/` for all `.svg` files
+   - Extracts SVG content and viewBox
+   - Generates React components with proper TypeScript types
+   - Creates `src/index.tsx` with all exports
+
+2. **Compilation Step** (`tsc`):
+   - Compiles TypeScript to JavaScript
+   - Generates type definitions
+   - Outputs to `lib/` directory
+
+### Component Generation Script Details
+
+The `scripts/generate-index.js` script:
+
+- **Cleans SVG Content**: Removes XML declarations, comments, style tags
+- **Extracts ViewBox**: Preserves original viewBox for proper scaling
+- **Handles Edge Cases**: Prefixes components starting with numbers
+- **Creates Constants**: Generates `ICON_NAMES` object for programmatic access
+- **TypeScript Support**: Generates proper interfaces and types
+
+### Key Features
+
+1. **Automatic Exports**: All components are automatically exported
+2. **Type Safety**: Full TypeScript support with proper interfaces
+3. **Consistent API**: All components follow the same props interface
+4. **Performance**: Tree-shakeable exports for optimal bundle size
+5. **Maintainability**: Adding icons requires no code changes
+
+### Package Scripts
+
+- `npm run generate`: Regenerate src/index.tsx from SVG files
+- `npm run build`: Full build (generate + compile)
+- `npm run deploy:patch`: Patch version bump and publish
+
+### Important Notes
+
+- **Never manually edit `src/index.tsx`** - it's auto-generated
+- **Always run `npm run generate`** after adding/modifying SVG files
+- **SVG files must be valid** - the script doesn't validate SVG syntax
+- **Use descriptive kebab-case names** - avoid starting filenames with numbers
+- **Component names are derived from filenames** - use descriptive kebab-case names
+
+### TypeScript Interface
+
+All icon components extend this interface:
+
+```typescript
+interface IconProps extends React.SVGProps<SVGSVGElement> {
+  size?: number | string;
+}
 ```
+
+### Usage Examples
+
+```tsx
+import { CautionIcon, ManufacturerIcon } from "medical-device-symbols";
+
+// Basic usage
+<CautionIcon />
+
+// With custom size
+<CautionIcon size={32} />
+
+// With custom styling
+<CautionIcon style={{ color: "red" }} />
+
+// All SVG props supported
+<CautionIcon fill="blue" onClick={handleClick} />
+```
+
+### Regulatory Compliance
+
+All symbols are based on ISO 15223-1:2016 and support:
+
+- EU MDR/IVDR compliance
+- FDA 21 CFR Part 801 requirements
+- International medical device regulations
+
+### Troubleshooting
+
+1. **Build Errors**: Usually caused by invalid SVG syntax or naming issues
+2. **Missing Components**: Ensure `npm run generate` was run after adding SVGs
+3. **TypeScript Errors**: Check that component names don't start with numbers (auto-prefixed with "Icon")
+4. **Size Issues**: Verify SVG viewBox is properly set in source files
+
+This automated approach ensures consistency, reduces maintenance overhead, and makes it easy to add new medical device symbols as they become available or required.
 
 ### Testing
 
