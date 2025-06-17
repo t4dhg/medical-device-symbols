@@ -1,0 +1,216 @@
+/* Comprehensive Demo Styles */
+.comprehensive-demo {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.6;
+  color: #333;
+}
+
+.comprehensive-demo h1 {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 2rem;
+}
+
+.demo-section {
+  margin: 3rem 0;
+  padding: 2rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.demo-section h2 {
+  color: #34495e;
+  border-bottom: 3px solid #3498db;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Medical Label Styles */
+.medical-label {
+  background: white;
+  border: 2px solid #bdc3c7;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.label-header h3 {
+  margin: 0 0 1rem 0;
+  color: #2980b9;
+  text-align: center;
+}
+
+.label-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.label-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: #ecf0f1;
+  border-radius: 6px;
+  border-left: 4px solid #3498db;
+}
+
+.label-item span {
+  font-weight: 500;
+}
+
+/* Icon Styles */
+.icon {
+  flex-shrink: 0;
+}
+
+.icon.warning {
+  color: #e74c3c;
+}
+
+.icon.success {
+  color: #27ae60;
+}
+
+.icon.info {
+  color: #3498db;
+}
+
+/* Specialized Grid */
+.specialized-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.spec-item {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.spec-item:hover {
+  transform: translateY(-2px);
+}
+
+.spec-item h4 {
+  margin: 1rem 0 0.5rem 0;
+  color: #2c3e50;
+}
+
+.spec-item p {
+  margin: 0;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+/* Styling Examples */
+.styling-examples {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.style-group {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.style-group h4 {
+  margin: 0 0 1rem 0;
+  color: #2c3e50;
+}
+
+.size-demo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.color-demo {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.interactive-demo {
+  display: flex;
+  gap: 1rem;
+}
+
+.interactive-icon {
+  transition: all 0.2s ease;
+}
+
+.interactive-icon:hover {
+  transform: scale(1.1);
+  filter: brightness(1.2);
+}
+
+/* All Icons Grid */
+.all-icons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.icon-showcase {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.icon-showcase:hover {
+  transform: translateY(-2px);
+}
+
+.icon-showcase span {
+  font-size: 0.8rem;
+  color: #7f8c8d;
+  text-align: center;
+  word-break: break-all;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .comprehensive-demo {
+    padding: 1rem;
+  }
+
+  .demo-section {
+    padding: 1rem;
+  }
+
+  .label-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .specialized-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+
+  .styling-examples {
+    grid-template-columns: 1fr;
+  }
+
+  .all-icons-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+}
