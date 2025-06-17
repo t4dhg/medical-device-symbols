@@ -5,7 +5,7 @@ import {
   ManufacturerIcon,
   ManufactureDateIcon,
   LotIcon,
-} from "mdr-label-icons";
+} from "medical-device-symbols";
 import "./MedicalDeviceLabel.css";
 
 const MedicalDeviceLabel: React.FC = () => {
