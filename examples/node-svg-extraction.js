@@ -12,7 +12,14 @@ const React = require("react");
 const ReactDOMServer = require("react-dom/server");
 
 // Import the React components
-const { CautionIcon, CeIcon, ManufacturerIcon } = require("../lib/index.js");
+const {
+  CautionIcon,
+  CeIcon,
+  ManufacturerIcon,
+  BatchCodeIcon,
+  SterileIcon,
+  LiquidFilterWithPoreSizeIcon,
+} = require("../lib/index.js");
 
 console.log("🏥 MDR Label Icons - Node.js SVG String Extraction\n");
 
@@ -31,14 +38,24 @@ function renderIconToSVG(IconComponent, props = {}) {
 console.log("1. Testing component access:");
 console.log(`CautionIcon: ${typeof CautionIcon}`);
 console.log(`CautionIcon.displayName: ${CautionIcon.displayName}`);
+console.log(`BatchCodeIcon: ${typeof BatchCodeIcon}`);
+console.log(
+  `LiquidFilterWithPoreSizeIcon: ${typeof LiquidFilterWithPoreSizeIcon}`
+);
 
 console.log("\n2. Attempting to render to SVG string...");
 const cautionSVG = renderIconToSVG(CautionIcon, { size: 48 });
+const batchCodeSVG = renderIconToSVG(BatchCodeIcon, { size: 32 });
 
 if (cautionSVG) {
-  console.log("✅ SVG successfully generated!");
+  console.log("✅ CautionIcon SVG successfully generated!");
   console.log(`Length: ${cautionSVG.length} characters`);
   console.log(`Preview: ${cautionSVG.substring(0, 100)}...`);
+
+  if (batchCodeSVG) {
+    console.log("\n✅ BatchCodeIcon SVG successfully generated!");
+    console.log(`Length: ${batchCodeSVG.length} characters`);
+  }
 } else {
   console.log("❌ SVG rendering failed");
   console.log("\n💡 ALTERNATIVE APPROACHES:");

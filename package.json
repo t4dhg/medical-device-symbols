@@ -9,7 +9,8 @@
     "CONTRIBUTING.md"
   ],
   "scripts": {
-    "build": "tsc",
+    "generate": "node scripts/generate-index.js",
+    "build": "npm run generate && tsc",
     "prepare": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepublishOnly": "npm run build",
