@@ -1,7 +1,7 @@
 {
   "name": "medical-device-symbols",
-  "version": "1.0.0",
-  "description": "Internationally recognized medical device symbols based on ISO 15223-1 for global regulatory compliance",
+  "version": "2.0.1",
+  "description": "Easy and light-weight international medical device symbols based on ISO 15223-1 for regulatory compliance",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": [
@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "generate": "node scripts/generate-index.js",
-    "build": "npm run generate && tsc",
+    "build": "npm run generate && npx tsc",
     "prepare": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepublishOnly": "npm run build",
