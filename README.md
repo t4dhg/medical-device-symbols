@@ -5,11 +5,11 @@
 [![license](https://img.shields.io/npm/l/medical-device-symbols.svg)](https://github.com/t4dhg/medical-device-symbols/blob/master/LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/t4dhg/medical-device-symbols?style=social)](https://github.com/t4dhg/medical-device-symbols)
 
-Internationally recognized medical device symbols based on ISO 15223-1:2016 for global regulatory compliance. This package provides official medical device symbols as React components that can be easily integrated into web applications, documentation, and medical device labeling worldwide.
+Internationally recognized medical device symbols based on ISO 15223-1:2021 for global regulatory compliance. This package provides official medical device symbols as React components that can be easily integrated into web applications, documentation, and medical device labeling worldwide.
 
 ## Features
 
-- 🌍 **Globally Recognized**: Based on ISO 15223-1:2016, the international standard for medical device symbols
+- 🌍 **Globally Recognized**: Based on ISO 15223-1:2021, the international standard for medical device symbols
 - 🏛️ **Multi-Regulatory Compliance**: Supports EU MDR/IVDR, FDA 21 CFR Part 801, Health Canada, and other international frameworks
 - ⚛️ **React Components**: Direct import as React components with TypeScript support
 - 📦 **Lightweight**: Minimal package size with tree-shaking support
@@ -57,37 +57,37 @@ function App() {
 
 ## Available Icons
 
-| Component Name                                       | Symbol                                                                                                                    | Title                                               |
-| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
-| `AtmosphericPressureLimitationIcon`                  | ![atmospheric-pressure-limitation](src/icons/atmospheric-pressure-limitation.svg)                                         | Atmospheric Pressure Limitation                     |
-| `AuthorizedRepresentativeInTheEuropeanCommunityIcon` | ![authorized-representative-in-the-european-community](src/icons/authorized-representative-in-the-european-community.svg) | Authorized Representative In The European Community |
-| `BatchCodeIcon`                                      | ![batch-code](src/icons/batch-code.svg)                                                                                   | Batch Code                                          |
-| `CatalogueNumberIcon`                                | ![catalogue-number](src/icons/catalogue-number.svg)                                                                       | Catalogue Number                                    |
-| `CautionIcon`                                        | ![caution](src/icons/caution.svg)                                                                                         | Caution                                             |
-| `CeBsiIcon`                                          | ![ce-bsi](src/icons/ce-bsi.svg)                                                                                           | Ce Bsi                                              |
-| `CeIcon`                                             | ![ce](src/icons/ce.svg)                                                                                                   | Ce                                                  |
-| `ConsultInstructionsForUseIcon`                      | ![consult-instructions-for-use](src/icons/consult-instructions-for-use.svg)                                               | Consult Instructions For Use                        |
-| `DoNotReUseIcon`                                     | ![do-not-re-use](src/icons/do-not-re-use.svg)                                                                             | Do Not Re Use                                       |
-| `DoNotUseIfPackageIsDamagedIcon`                     | ![do-not-use-if-package-is-damaged](src/icons/do-not-use-if-package-is-damaged.svg)                                       | Do Not Use If Package Is Damaged                    |
-| `FluidPathIcon`                                      | ![fluid-path](src/icons/fluid-path.svg)                                                                                   | Fluid Path                                          |
-| `HumidityLimitationIcon`                             | ![humidity-limitation](src/icons/humidity-limitation.svg)                                                                 | Humidity Limitation                                 |
-| `InVitroDiagnosticMedicalDeviceIcon`                 | ![in-vitro-diagnostic-medical-device](src/icons/in-vitro-diagnostic-medical-device.svg)                                   | In Vitro Diagnostic Medical Device                  |
-| `LatexIcon`                                          | ![latex](src/icons/latex.svg)                                                                                             | Latex                                               |
-| `LiquidFilterWithPoreSizeIcon`                       | ![liquid-filter-with-pore-size](src/icons/liquid-filter-with-pore-size.svg)                                               | Liquid Filter With Pore Size                        |
-| `LowerLimitOfTemperatureIcon`                        | ![lower-limit-of-temperature](src/icons/lower-limit-of-temperature.svg)                                                   | Lower Limit Of Temperature                          |
-| `ManufactureDateIcon`                                | ![manufacture-date](src/icons/manufacture-date.svg)                                                                       | Manufacture Date                                    |
-| `ManufacturerIcon`                                   | ![manufacturer](src/icons/manufacturer.svg)                                                                               | Manufacturer                                        |
-| `MdIcon`                                             | ![md](src/icons/md.svg)                                                                                                   | Md                                                  |
-| `NonPyrogenicIcon`                                   | ![non-pyrogenic](src/icons/non-pyrogenic.svg)                                                                             | Non Pyrogenic                                       |
-| `SerialNumberIcon`                                   | ![serial-number](src/icons/serial-number.svg)                                                                             | Serial Number                                       |
-| `SterileIcon`                                        | ![sterile](src/icons/sterile.svg)                                                                                         | Sterile                                             |
-| `SterilizedUsingAsepticProcessingTechniquesIcon`     | ![sterilized-using-aseptic-processing-techniques](src/icons/sterilized-using-aseptic-processing-techniques.svg)           | Sterilized Using Aseptic Processing Techniques      |
-| `SterilizedUsingEthyleneOxideIcon`                   | ![sterilized-using-ethylene-oxide](src/icons/sterilized-using-ethylene-oxide.svg)                                         | Sterilized Using Ethylene Oxide                     |
-| `SterilizedUsingIrradiationIcon`                     | ![sterilized-using-irradiation](src/icons/sterilized-using-irradiation.svg)                                               | Sterilized Using Irradiation                        |
-| `SterilizedUsingSteamOrDryHeatIcon`                  | ![sterilized-using-steam-or-dry-heat](src/icons/sterilized-using-steam-or-dry-heat.svg)                                   | Sterilized Using Steam Or Dry Heat                  |
-| `TemperatureLimitIcon`                               | ![temperature-limit](src/icons/temperature-limit.svg)                                                                     | Temperature Limit                                   |
-| `UdiIcon`                                            | ![udi](src/icons/udi.svg)                                                                                                 | Udi                                                 |
-| `UpperLimitOfTemperatureIcon`                        | ![upper-limit-of-temperature](src/icons/upper-limit-of-temperature.svg)                                                   | Upper Limit Of Temperature                          |
+| Symbol                                                                                                                    | Component Name                                       | Title                                               |
+| ------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- | --------------------------------------------------- |
+| ![atmospheric-pressure-limitation](src/icons/atmospheric-pressure-limitation.svg)                                         | `AtmosphericPressureLimitationIcon`                  | Atmospheric Pressure Limitation                     |
+| ![authorized-representative-in-the-european-community](src/icons/authorized-representative-in-the-european-community.svg) | `AuthorizedRepresentativeInTheEuropeanCommunityIcon` | Authorized Representative In The European Community |
+| ![batch-code](src/icons/batch-code.svg)                                                                                   | `BatchCodeIcon`                                      | Batch Code                                          |
+| ![catalogue-number](src/icons/catalogue-number.svg)                                                                       | `CatalogueNumberIcon`                                | Catalogue Number                                    |
+| ![caution](src/icons/caution.svg)                                                                                         | `CautionIcon`                                        | Caution                                             |
+| ![ce-bsi](src/icons/ce-bsi.svg)                                                                                           | `CeBsiIcon`                                          | Ce Bsi                                              |
+| ![ce](src/icons/ce.svg)                                                                                                   | `CeIcon`                                             | Ce                                                  |
+| ![consult-instructions-for-use](src/icons/consult-instructions-for-use.svg)                                               | `ConsultInstructionsForUseIcon`                      | Consult Instructions For Use                        |
+| ![do-not-re-use](src/icons/do-not-re-use.svg)                                                                             | `DoNotReUseIcon`                                     | Do Not Re Use                                       |
+| ![do-not-use-if-package-is-damaged](src/icons/do-not-use-if-package-is-damaged.svg)                                       | `DoNotUseIfPackageIsDamagedIcon`                     | Do Not Use If Package Is Damaged                    |
+| ![fluid-path](src/icons/fluid-path.svg)                                                                                   | `FluidPathIcon`                                      | Fluid Path                                          |
+| ![humidity-limitation](src/icons/humidity-limitation.svg)                                                                 | `HumidityLimitationIcon`                             | Humidity Limitation                                 |
+| ![in-vitro-diagnostic-medical-device](src/icons/in-vitro-diagnostic-medical-device.svg)                                   | `InVitroDiagnosticMedicalDeviceIcon`                 | In Vitro Diagnostic Medical Device                  |
+| ![latex](src/icons/latex.svg)                                                                                             | `LatexIcon`                                          | Latex                                               |
+| ![liquid-filter-with-pore-size](src/icons/liquid-filter-with-pore-size.svg)                                               | `LiquidFilterWithPoreSizeIcon`                       | Liquid Filter With Pore Size                        |
+| ![lower-limit-of-temperature](src/icons/lower-limit-of-temperature.svg)                                                   | `LowerLimitOfTemperatureIcon`                        | Lower Limit Of Temperature                          |
+| ![manufacture-date](src/icons/manufacture-date.svg)                                                                       | `ManufactureDateIcon`                                | Manufacture Date                                    |
+| ![manufacturer](src/icons/manufacturer.svg)                                                                               | `ManufacturerIcon`                                   | Manufacturer                                        |
+| ![md](src/icons/md.svg)                                                                                                   | `MdIcon`                                             | Md                                                  |
+| ![non-pyrogenic](src/icons/non-pyrogenic.svg)                                                                             | `NonPyrogenicIcon`                                   | Non Pyrogenic                                       |
+| ![serial-number](src/icons/serial-number.svg)                                                                             | `SerialNumberIcon`                                   | Serial Number                                       |
+| ![sterile](src/icons/sterile.svg)                                                                                         | `SterileIcon`                                        | Sterile                                             |
+| ![sterilized-using-aseptic-processing-techniques](src/icons/sterilized-using-aseptic-processing-techniques.svg)           | `SterilizedUsingAsepticProcessingTechniquesIcon`     | Sterilized Using Aseptic Processing Techniques      |
+| ![sterilized-using-ethylene-oxide](src/icons/sterilized-using-ethylene-oxide.svg)                                         | `SterilizedUsingEthyleneOxideIcon`                   | Sterilized Using Ethylene Oxide                     |
+| ![sterilized-using-irradiation](src/icons/sterilized-using-irradiation.svg)                                               | `SterilizedUsingIrradiationIcon`                     | Sterilized Using Irradiation                        |
+| ![sterilized-using-steam-or-dry-heat](src/icons/sterilized-using-steam-or-dry-heat.svg)                                   | `SterilizedUsingSteamOrDryHeatIcon`                  | Sterilized Using Steam Or Dry Heat                  |
+| ![temperature-limit](src/icons/temperature-limit.svg)                                                                     | `TemperatureLimitIcon`                               | Temperature Limit                                   |
+| ![udi](src/icons/udi.svg)                                                                                                 | `UdiIcon`                                            | Udi                                                 |
+| ![upper-limit-of-temperature](src/icons/upper-limit-of-temperature.svg)                                                   | `UpperLimitOfTemperatureIcon`                        | Upper Limit Of Temperature                          |
 
 ## Usage
 
@@ -237,11 +237,11 @@ Common SVG props include:
 
 ## International Regulatory Compliance
 
-All symbols in this package are based on **ISO 15223-1:2016** - the international standard for medical device symbols. This standard is recognized and referenced by regulatory frameworks worldwide, including:
+All symbols in this package are based on **ISO 15223-1:2021** - the international standard for medical device symbols. This standard is recognized and referenced by regulatory frameworks worldwide, including:
 
 ### Primary Standards
 
-- **ISO 15223-1:2016** - Medical devices — Symbols to be used with medical device labels, labelling and information to be supplied
+- **ISO 15223-1:2021** - Medical devices — Symbols to be used with medical device labels, labelling and information to be supplied
 
 ### Regional & National Regulatory Frameworks
 
@@ -352,7 +352,7 @@ The SVG icons can be styled using CSS:
 
 This package provides symbols that are compliant with:
 
-- **ISO 15223-1:2016**: The primary international standard for medical device symbols
+- **ISO 15223-1:2021**: The primary international standard for medical device symbols
 - **EU MDR 2017/745 & IVDR 2017/746**: European medical device regulations
 - **FDA 21 CFR Part 801**: US medical device labeling requirements
 - **Health Canada MDR**: Canadian medical device regulations
@@ -374,4 +374,4 @@ MIT © [Taig Mac Carthy](https://github.com/t4dhg)
 
 ---
 
-**Note**: This package provides symbols based on ISO 15223-1:2016 for informational and development purposes. While these symbols are internationally recognized, always verify compliance with current regulations in your target markets and consult with regulatory experts for official medical device labeling requirements specific to your jurisdiction.
+**Note**: This package provides symbols based on ISO 15223-1:2021 for informational and development purposes. While these symbols are internationally recognized, always verify compliance with current regulations in your target markets and consult with regulatory experts for official medical device labeling requirements specific to your jurisdiction.
