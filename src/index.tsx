@@ -84,30 +84,31 @@ const cataloguenumberSvgContent = `<g fill="none">
   </g>`;
 
 // SVG content for caution
-const cautionSvgContent = `<g>
-    <path class="st1" d="M0,16V0h16" />
-    <path class="st1" d="M200,16V0h-16" />
-    <path class="st1" d="M0,184v16h16" />
-    <path class="st1" d="M200,184v16h-16" />
+const cautionSvgContent = `<g fill="none" stroke="transparent" stroke-width="3">
+    <path d="M0,16V0h16" />
+    <path d="M200,16V0h-16" />
+    <path d="M0,184v16h16" />
+    <path d="M200,184v16h-16" />
   </g>
-  <polygon class="st0" points="100 35.7 25.7 164.3 174.3 164.3 100 35.7" />
-  <rect x="94.2" y="63.2" width="11.7" height="67.9" />
-  <circle cx="100" cy="146.8" r="8" />`;
+  <polygon fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="6"
+    points="100 35.7 25.7 164.3 174.3 164.3 100 35.7" />
+  <rect x="94.2" y="63.2" width="11.7" height="67.9" fill="#000" />
+  <circle cx="100" cy="146.8" r="8" fill="#000" />`;
 
 // SVG content for ce-bsi
-const cebsiSvgContent = `<g>
-    <path class="st1" d="M0,16V0h16" />
-    <path class="st1" d="M200,16V0h-16" />
-    <path class="st1" d="M0,184v16h16" />
-    <path class="st1" d="M200,184v16h-16" />
+const cebsiSvgContent = `<g fill="none" stroke="transparent" stroke-width="3">
+    <path d="M0,16V0h16" />
+    <path d="M200,16V0h-16" />
+    <path d="M0,184v16h16" />
+    <path d="M200,184v16h-16" />
   </g>
-  <g>
-    <path class="st0"
+  <g fill="#000" fill-rule="evenodd">
+    <path
       d="M82.5,130.4c-1.9.2-3.9.3-5.8.3-32.2,0-58.3-26.1-58.3-58.3S44.4,14,76.7,14s3.9,0,5.8.3v17.5c-1.9-.2-3.9-.3-5.8-.3-22.6,0-40.8,18.3-40.8,40.8s18.3,40.8,40.8,40.8c1.9,0,3.9,0,5.8-.3v17.5Z" />
-    <path class="st0"
+    <path
       d="M181.7,130.4c-1.9.2-3.9.3-5.8.3-32.2,0-58.3-26.1-58.3-58.3s26.1-58.3,58.3-58.3,3.9,0,5.8.3v17.5c-1.9-.2-3.9-.3-5.8-.3-19.2,0-35.8,13.3-39.9,32.1h34.1v17.5h-34.1c4.1,18.7,20.7,32.1,39.9,32.1,1.9,0,3.9,0,5.8-.3v17.5Z" />
   </g>
-  <g>
+  <g fill="#000">
     <path
       d="M70.9,175.4v6.2h-23.5c.2-2.4,1-4.6,2.3-6.7s3.8-4.9,7.5-8.4c3-2.8,4.9-4.7,5.6-5.7.9-1.4,1.4-2.7,1.4-4.1s-.4-2.6-1.2-3.4c-.8-.8-1.9-1.2-3.3-1.2s-2.5.4-3.3,1.3c-.8.8-1.3,2.2-1.4,4.2l-6.7-.7c.4-3.7,1.6-6.3,3.7-7.9,2.1-1.6,4.7-2.4,7.9-2.4s6.1.9,8.1,2.8,3,4.2,3,6.9-.3,3.1-.8,4.5-1.5,2.9-2.7,4.5c-.8,1-2.3,2.5-4.4,4.4s-3.4,3.2-4,3.9-1,1.2-1.4,1.9h13.3Z" />
     <path
@@ -119,16 +120,16 @@ const cebsiSvgContent = `<g>
   </g>`;
 
 // SVG content for ce
-const ceSvgContent = `<g>
-    <path class="st1" d="M0,16V0h16" />
-    <path class="st1" d="M200,16V0h-16" />
-    <path class="st1" d="M0,184v16h16" />
-    <path class="st1" d="M200,184v16h-16" />
+const ceSvgContent = `<g fill="none" stroke="transparent" stroke-width="3">
+    <path d="M0,16V0h16" />
+    <path d="M200,16V0h-16" />
+    <path d="M0,184v16h16" />
+    <path d="M200,184v16h-16" />
   </g>
-  <g>
-    <path class="st0"
+  <g fill="#000" fill-rule="evenodd">
+    <path
       d="M82.5,158c-1.9.2-3.9.3-5.8.3-32.2,0-58.3-26.1-58.3-58.3s26.1-58.3,58.3-58.3,3.9,0,5.8.3v17.5c-1.9-.2-3.9-.3-5.8-.3-22.6,0-40.8,18.3-40.8,40.8s18.3,40.8,40.8,40.8c1.9,0,3.9,0,5.8-.3v17.5Z" />
-    <path class="st0"
+    <path
       d="M181.7,158c-1.9.2-3.9.3-5.8.3-32.2,0-58.3-26.1-58.3-58.3s26.1-58.3,58.3-58.3,3.9,0,5.8.3v17.5c-1.9-.2-3.9-.3-5.8-.3-19.2,0-35.8,13.3-39.9,32.1h34.1v17.5h-34.1c4.1,18.7,20.7,32.1,39.9,32.1,1.9,0,3.9,0,5.8-.3v17.5Z" />
   </g>`;
 
