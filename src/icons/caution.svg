@@ -1,31 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 200 200">
-  <defs>
-    <style>
-      .st0 {
-        stroke: #000;
-        stroke-miterlimit: 10;
-        stroke-width: 6px;
-      }
-
-      .st0,
-      .st1 {
-        fill: none;
-      }
-
-      .st1 {
-        stroke: transparent;
-        stroke-width: 3px;
-      }
-    </style>
-  </defs>
-  <g>
-    <path class="st1" d="M0,16V0h16" />
-    <path class="st1" d="M200,16V0h-16" />
-    <path class="st1" d="M0,184v16h16" />
-    <path class="st1" d="M200,184v16h-16" />
+  <g fill="none" stroke="transparent" stroke-width="3">
+    <path d="M0,16V0h16" />
+    <path d="M200,16V0h-16" />
+    <path d="M0,184v16h16" />
+    <path d="M200,184v16h-16" />
   </g>
-  <polygon class="st0" points="100 35.7 25.7 164.3 174.3 164.3 100 35.7" />
-  <rect x="94.2" y="63.2" width="11.7" height="67.9" />
-  <circle cx="100" cy="146.8" r="8" />
+  <polygon fill="none" stroke="#000" stroke-miterlimit="10" stroke-width="6"
+    points="100 35.7 25.7 164.3 174.3 164.3 100 35.7" />
+  <rect x="94.2" y="63.2" width="11.7" height="67.9" fill="#000" />
+  <circle cx="100" cy="146.8" r="8" fill="#000" />
 </svg>

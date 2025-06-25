@@ -5,12 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.0.4] - 2025-06-25
+
+### Fixed
+
+- **SVG rendering issues**: Fixed CSS class-based styling causing display problems in caution.svg, ce.svg, and ce-bsi.svg
+- **Inline styling**: Converted CSS classes to inline SVG attributes for consistent rendering across environments
+- **Cross-platform compatibility**: Eliminated external CSS dependencies that could interfere with icon display
+
+### Changed
+
+- **React 19 support**: Updated peerDependencies to include React 19.0.0
+- **Documentation**: Improved README table layout with icons displayed first for better visual browsing
+
+## [2.0.3] - 2025-06-15
 
 ### 🚀 BREAKING CHANGES
 
 - **Package renamed**: Changed package name from `mdr-label-icons` to `medical-device-symbols`
-- **Broader scope**: Package now emphasizes global compliance with ISO 15223-1:2016 rather than just EU MDR
+- **Broader scope**: Package now emphasizes global compliance with ISO 15223-1:2021 rather than just EU MDR
 - **International focus**: Updated documentation to highlight support for multiple regulatory frameworks worldwide
 
 ### Changed
