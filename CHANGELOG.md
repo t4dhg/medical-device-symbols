@@ -5,20 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.4] - 2025-06-25
+## [2.1.0] - 2025-06-25
 
 ### Fixed
 
-- **SVG rendering issues**: Fixed CSS class-based styling causing display problems in caution.svg, ce.svg, and ce-bsi.svg
 - **Inline styling**: Converted CSS classes to inline SVG attributes for consistent rendering across environments
-- **Cross-platform compatibility**: Eliminated external CSS dependencies that could interfere with icon display
+- **Cross-platform compatibility**: Eliminated redundant CSS dependencies
 
 ### Changed
 
-- **React 19 support**: Updated peerDependencies to include React 19.0.0
+- **React 19 support**: Updated `peerDependencies` to include React 19.0.0
 - **Documentation**: Improved README table layout with icons displayed first for better visual browsing
 
-## [2.0.3] - 2025-06-15
+## [2.0.1] - 2025-06-15
 
 ### 🚀 BREAKING CHANGES
 
