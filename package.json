@@ -1,6 +1,6 @@
 {
   "name": "medical-device-symbols",
-  "version": "2.0.3",
+  "version": "2.1.0",
   "description": "Easy and light-weight international medical device symbols based on ISO 15223-1 for regulatory compliance",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
