@@ -1,9 +1,13 @@
 name: Release
 
 # Publishes to npm with provenance when a version tag (e.g. v2.2.0) is pushed.
-# Requires a repository secret named NPM_TOKEN (an npm automation or granular
-# publish token). Provenance is generated automatically from this workflow via
-# the id-token permission below.
+#
+# Uses npm Trusted Publishing (OIDC): no token or secret is stored. Configure it
+# once on npmjs.com for this package under Settings > Trusted Publisher:
+#   Publisher:  GitHub Actions
+#   Repository: t4dhg/medical-device-symbols
+#   Workflow:   release.yml
+#   Environment: (leave blank)
 
 on:
   push:
@@ -19,12 +23,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           registry-url: https://registry.npmjs.org
           cache: npm
+      - run: npm install -g npm@latest # Trusted Publishing needs npm >= 11.5.1
       - run: npm ci
       - run: npm run build
       - run: npm test
       - run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
