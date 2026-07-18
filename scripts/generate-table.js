@@ -9,8 +9,9 @@ const fs = require("fs");
 const path = require("path");
 
 const REPO = "t4dhg/medical-device-symbols";
-const BRANCH = "master";
-const CDN = `https://cdn.jsdelivr.net/gh/${REPO}@${BRANCH}/src/icons`;
+// Pin gallery images to the current release tag so the README is reproducible.
+const REF = "v" + require("../package.json").version;
+const CDN = `https://cdn.jsdelivr.net/gh/${REPO}@${REF}/src/icons`;
 
 // Readable titles for symbols whose auto-derived title would be an acronym or
 // grammatically awkward. Everything else falls back to Title Case of the file name.

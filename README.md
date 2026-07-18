@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/assets/banner.png" alt="Medical Device Symbols" width="880" />
+  <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/assets/banner.png" alt="Medical Device Symbols" width="880" />
 </p>
 
 <p align="center">
@@ -65,35 +65,35 @@ function App() {
 
 | Symbol | Component | Title |
 | :----: | --------- | ----- |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/atmospheric-pressure-limitation.svg" width="44" height="44" alt="Atmospheric Pressure Limitation" /> | `AtmosphericPressureLimitationIcon` | Atmospheric Pressure Limitation |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/authorized-representative-in-the-european-community.svg" width="44" height="44" alt="Authorized Representative In The European Community" /> | `AuthorizedRepresentativeInTheEuropeanCommunityIcon` | Authorized Representative In The European Community |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/batch-code.svg" width="44" height="44" alt="Batch Code" /> | `BatchCodeIcon` | Batch Code |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/catalogue-number.svg" width="44" height="44" alt="Catalogue Number" /> | `CatalogueNumberIcon` | Catalogue Number |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/caution.svg" width="44" height="44" alt="Caution" /> | `CautionIcon` | Caution |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/ce-bsi.svg" width="44" height="44" alt="CE marking (Notified Body 2797)" /> | `CeBsiIcon` | CE marking (Notified Body 2797) |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/ce.svg" width="44" height="44" alt="CE marking" /> | `CeIcon` | CE marking |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/consult-instructions-for-use.svg" width="44" height="44" alt="Consult Instructions For Use" /> | `ConsultInstructionsForUseIcon` | Consult Instructions For Use |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/do-not-re-use.svg" width="44" height="44" alt="Do not reuse" /> | `DoNotReUseIcon` | Do not reuse |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/do-not-use-if-package-is-damaged.svg" width="44" height="44" alt="Do Not Use If Package Is Damaged" /> | `DoNotUseIfPackageIsDamagedIcon` | Do Not Use If Package Is Damaged |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/fluid-path.svg" width="44" height="44" alt="Fluid Path" /> | `FluidPathIcon` | Fluid Path |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/humidity-limitation.svg" width="44" height="44" alt="Humidity Limitation" /> | `HumidityLimitationIcon` | Humidity Limitation |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/in-vitro-diagnostic-medical-device.svg" width="44" height="44" alt="In vitro diagnostic medical device" /> | `InVitroDiagnosticMedicalDeviceIcon` | In vitro diagnostic medical device |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/latex.svg" width="44" height="44" alt="Latex" /> | `LatexIcon` | Latex |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/liquid-filter-with-pore-size.svg" width="44" height="44" alt="Liquid Filter With Pore Size" /> | `LiquidFilterWithPoreSizeIcon` | Liquid Filter With Pore Size |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/lower-limit-of-temperature.svg" width="44" height="44" alt="Lower Limit Of Temperature" /> | `LowerLimitOfTemperatureIcon` | Lower Limit Of Temperature |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/manufacture-date.svg" width="44" height="44" alt="Manufacture Date" /> | `ManufactureDateIcon` | Manufacture Date |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/manufacturer.svg" width="44" height="44" alt="Manufacturer" /> | `ManufacturerIcon` | Manufacturer |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/md.svg" width="44" height="44" alt="Medical device" /> | `MdIcon` | Medical device |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/non-pyrogenic.svg" width="44" height="44" alt="Non Pyrogenic" /> | `NonPyrogenicIcon` | Non Pyrogenic |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/serial-number.svg" width="44" height="44" alt="Serial Number" /> | `SerialNumberIcon` | Serial Number |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/sterile.svg" width="44" height="44" alt="Sterile" /> | `SterileIcon` | Sterile |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/sterilized-using-aseptic-processing-techniques.svg" width="44" height="44" alt="Sterilized Using Aseptic Processing Techniques" /> | `SterilizedUsingAsepticProcessingTechniquesIcon` | Sterilized Using Aseptic Processing Techniques |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/sterilized-using-ethylene-oxide.svg" width="44" height="44" alt="Sterilized Using Ethylene Oxide" /> | `SterilizedUsingEthyleneOxideIcon` | Sterilized Using Ethylene Oxide |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/sterilized-using-irradiation.svg" width="44" height="44" alt="Sterilized Using Irradiation" /> | `SterilizedUsingIrradiationIcon` | Sterilized Using Irradiation |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/sterilized-using-steam-or-dry-heat.svg" width="44" height="44" alt="Sterilized Using Steam Or Dry Heat" /> | `SterilizedUsingSteamOrDryHeatIcon` | Sterilized Using Steam Or Dry Heat |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/temperature-limit.svg" width="44" height="44" alt="Temperature Limit" /> | `TemperatureLimitIcon` | Temperature Limit |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/udi.svg" width="44" height="44" alt="Unique Device Identifier" /> | `UdiIcon` | Unique Device Identifier |
-| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@master/src/icons/upper-limit-of-temperature.svg" width="44" height="44" alt="Upper Limit Of Temperature" /> | `UpperLimitOfTemperatureIcon` | Upper Limit Of Temperature |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/atmospheric-pressure-limitation.svg" width="44" height="44" alt="Atmospheric Pressure Limitation" /> | `AtmosphericPressureLimitationIcon` | Atmospheric Pressure Limitation |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/authorized-representative-in-the-european-community.svg" width="44" height="44" alt="Authorized Representative In The European Community" /> | `AuthorizedRepresentativeInTheEuropeanCommunityIcon` | Authorized Representative In The European Community |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/batch-code.svg" width="44" height="44" alt="Batch Code" /> | `BatchCodeIcon` | Batch Code |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/catalogue-number.svg" width="44" height="44" alt="Catalogue Number" /> | `CatalogueNumberIcon` | Catalogue Number |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/caution.svg" width="44" height="44" alt="Caution" /> | `CautionIcon` | Caution |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/ce-bsi.svg" width="44" height="44" alt="CE marking (Notified Body 2797)" /> | `CeBsiIcon` | CE marking (Notified Body 2797) |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/ce.svg" width="44" height="44" alt="CE marking" /> | `CeIcon` | CE marking |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/consult-instructions-for-use.svg" width="44" height="44" alt="Consult Instructions For Use" /> | `ConsultInstructionsForUseIcon` | Consult Instructions For Use |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/do-not-re-use.svg" width="44" height="44" alt="Do not reuse" /> | `DoNotReUseIcon` | Do not reuse |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/do-not-use-if-package-is-damaged.svg" width="44" height="44" alt="Do Not Use If Package Is Damaged" /> | `DoNotUseIfPackageIsDamagedIcon` | Do Not Use If Package Is Damaged |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/fluid-path.svg" width="44" height="44" alt="Fluid Path" /> | `FluidPathIcon` | Fluid Path |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/humidity-limitation.svg" width="44" height="44" alt="Humidity Limitation" /> | `HumidityLimitationIcon` | Humidity Limitation |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/in-vitro-diagnostic-medical-device.svg" width="44" height="44" alt="In vitro diagnostic medical device" /> | `InVitroDiagnosticMedicalDeviceIcon` | In vitro diagnostic medical device |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/latex.svg" width="44" height="44" alt="Latex" /> | `LatexIcon` | Latex |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/liquid-filter-with-pore-size.svg" width="44" height="44" alt="Liquid Filter With Pore Size" /> | `LiquidFilterWithPoreSizeIcon` | Liquid Filter With Pore Size |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/lower-limit-of-temperature.svg" width="44" height="44" alt="Lower Limit Of Temperature" /> | `LowerLimitOfTemperatureIcon` | Lower Limit Of Temperature |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/manufacture-date.svg" width="44" height="44" alt="Manufacture Date" /> | `ManufactureDateIcon` | Manufacture Date |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/manufacturer.svg" width="44" height="44" alt="Manufacturer" /> | `ManufacturerIcon` | Manufacturer |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/md.svg" width="44" height="44" alt="Medical device" /> | `MdIcon` | Medical device |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/non-pyrogenic.svg" width="44" height="44" alt="Non Pyrogenic" /> | `NonPyrogenicIcon` | Non Pyrogenic |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/serial-number.svg" width="44" height="44" alt="Serial Number" /> | `SerialNumberIcon` | Serial Number |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/sterile.svg" width="44" height="44" alt="Sterile" /> | `SterileIcon` | Sterile |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/sterilized-using-aseptic-processing-techniques.svg" width="44" height="44" alt="Sterilized Using Aseptic Processing Techniques" /> | `SterilizedUsingAsepticProcessingTechniquesIcon` | Sterilized Using Aseptic Processing Techniques |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/sterilized-using-ethylene-oxide.svg" width="44" height="44" alt="Sterilized Using Ethylene Oxide" /> | `SterilizedUsingEthyleneOxideIcon` | Sterilized Using Ethylene Oxide |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/sterilized-using-irradiation.svg" width="44" height="44" alt="Sterilized Using Irradiation" /> | `SterilizedUsingIrradiationIcon` | Sterilized Using Irradiation |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/sterilized-using-steam-or-dry-heat.svg" width="44" height="44" alt="Sterilized Using Steam Or Dry Heat" /> | `SterilizedUsingSteamOrDryHeatIcon` | Sterilized Using Steam Or Dry Heat |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/temperature-limit.svg" width="44" height="44" alt="Temperature Limit" /> | `TemperatureLimitIcon` | Temperature Limit |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/udi.svg" width="44" height="44" alt="Unique Device Identifier" /> | `UdiIcon` | Unique Device Identifier |
+| <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/upper-limit-of-temperature.svg" width="44" height="44" alt="Upper Limit Of Temperature" /> | `UpperLimitOfTemperatureIcon` | Upper Limit Of Temperature |
 
 ## Usage
 
