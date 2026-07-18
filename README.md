@@ -38,6 +38,24 @@ yarn add medical-device-symbols
 pnpm add medical-device-symbols
 ```
 
+## Migrating from `mdr-label-icons`
+
+This package is the maintained successor to [`mdr-label-icons`](https://www.npmjs.com/package/mdr-label-icons), which is now deprecated. Switching is a rename plus three icon renames:
+
+```bash
+npm rm mdr-label-icons && npm i medical-device-symbols
+```
+
+Six components kept their names (`CautionIcon`, `CeIcon`, `ManufacturerIcon`, `ManufactureDateIcon`, `MdIcon`, `UdiIcon`). Three were renamed to their full ISO 15223-1 titles:
+
+| `mdr-label-icons` | `medical-device-symbols` |
+| ----------------- | ------------------------ |
+| `EcIcon` | `AuthorizedRepresentativeInTheEuropeanCommunityIcon` |
+| `LotIcon` | `BatchCodeIcon` |
+| `ReadIfuIcon` | `ConsultInstructionsForUseIcon` |
+
+The last `mdr-label-icons` release just re-exports this package (with the old names aliased back), so existing installs keep working, but only `medical-device-symbols` receives new symbols and fixes.
+
 ## Quick Start
 
 ```tsx
