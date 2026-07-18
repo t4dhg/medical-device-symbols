@@ -2,31 +2,28 @@
 
 ## Supported Versions
 
+Only the latest 2.x release line receives security updates.
+
 | Version | Supported          |
 | ------- | ------------------ |
-| 1.1.x   | :white_check_mark: |
-| 1.0.x   | :white_check_mark: |
-| < 1.0   | :x:                |
+| 2.x     | :white_check_mark: |
+| < 2.0   | :x:                |
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in this package, please report it by:
+Please do not report security vulnerabilities through public GitHub issues.
 
-1. **Do not** open a public issue
-2. Email the maintainer directly at: [your-email@example.com]
-3. Include a detailed description of the vulnerability
-4. Include steps to reproduce if applicable
+Instead, use GitHub's private vulnerability reporting: open the repository's **Security** tab and choose **Report a vulnerability**, or go directly to https://github.com/t4dhg/medical-device-symbols/security/advisories/new.
 
-We will respond to security reports within 48 hours and provide a timeline for fixes.
+Please include a description of the issue, the affected version(s), and steps to reproduce where applicable. You can expect an initial response within a few days.
 
-## Security Considerations
+## Security Model
 
-This package:
+This package ships static, self-contained React SVG icon components. Its attack surface is intentionally minimal:
 
-- Contains only CSS and TypeScript code
-- Has no runtime dependencies
-- Uses only CSS counters (no JavaScript execution)
-- Does not process user input at runtime
-- Does not make network requests
+- **Zero runtime dependencies.** React is a peer dependency; nothing else is pulled in at runtime.
+- **No I/O at runtime.** The components make no network requests and do not touch the file system or environment.
+- **No runtime user input is processed.** Icon markup is inlined from trusted SVG source files at build time. Each component passes that build-time-constant markup to React's `dangerouslySetInnerHTML`; no caller-supplied or end-user-supplied value is ever injected into it, so there is no user-controlled markup-injection path.
+- **Props are handled by React.** Any props you pass (`size`, `className`, `style`, event handlers, and other SVG attributes) are applied to the outer `<svg>` element through React's normal, escaped rendering path.
 
-The package is designed to be secure by default with minimal attack surface.
+If you render untrusted data alongside these icons in your own application, standard application-level sanitisation of that data still applies.

@@ -6,5 +6,5 @@
     <path d="m0 184v16h16" />
     <path d="m200 184v16h-16" />
   </g>
-  <path d="m165.67 33.333v132.33h-132.33v-13h118.33v-106h-118.33v-13.333z" fill="none" stroke="#000" stroke-width="5" />
+  <path d="m165.67 33.333v132.33h-132.33v-13h118.33v-106h-118.33v-13.333z" fill="none" stroke="currentColor" stroke-width="5" />
 </svg>
