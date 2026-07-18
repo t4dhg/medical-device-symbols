@@ -1,6 +1,6 @@
 {
   "name": "medical-device-symbols",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "React components for ISO 15223-1:2021 medical device symbols: EU MDR/IVDR, FDA, and global labeling compliance. TypeScript, themeable, zero runtime dependencies.",
   "main": "./lib/index.js",
   "module": "./lib/index.mjs",
