@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="200" height="200" version="1.1" viewBox="0 0 200 200" xml:space="preserve"
   xmlns="http://www.w3.org/2000/svg">
+  <style>svg{fill:currentColor;color:#1f2328}@media(prefers-color-scheme:dark){svg{color:#e6edf3}}</style>
   <g fill="none">
     <g stroke="transparent" stroke-width="3">
       <path d="m0 16v-16h16" />
