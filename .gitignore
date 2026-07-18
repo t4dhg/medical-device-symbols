@@ -35,3 +35,14 @@ coverage/
 # Temporary folders
 tmp/
 temp/
+
+# AI assistant / local tooling config (never commit: may leak internal workflow details)
+.claude/
+CLAUDE.md
+CLAUDE.local.md
+AGENTS.md
+.mcp.json
+.cursor/
+.cursorrules
+.aider*
+.windsurfrules

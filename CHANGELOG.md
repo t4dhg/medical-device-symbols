@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-07-18
+
+### Fixed
+
+- **CE marking symbols**: removed the stray spike on the top terminals of the "C" and "E" in `ce.svg` and `ce-bsi.svg` (#1).
+- **Theming**: all 29 symbols now inherit `currentColor` instead of hardcoded black, so the `color` and `fill` props (and dark mode) work consistently across the whole set.
+- **Documentation**: rewrote the README to match the current React component API, removing an outdated string-based API section, duplicate sections, and a broken `LotIcon` example. The icon gallery now renders on npm as well as GitHub.
+- Corrected `SECURITY.md`, which previously described an unrelated project.
+- `LICENSE` now names the copyright holder.
+
+### Added
+
+- **Dual ESM + CommonJS build** with an `exports` map and `sideEffects: false`, so the package is genuinely tree-shakeable.
+- **`title` prop** on every icon: when set, the icon renders with `role="img"` and an `aria-label` for accessible labeling.
+- GitHub Actions **CI** (build and test on Node 18/20/22), a **provenance-enabled release** workflow, and **Dependabot**.
+- Hero banner and an accessibility usage section in the README.
+
+### Changed
+
+- Build now uses **tsup** (was `tsc`); upgraded to **TypeScript 5** and **@types/react 19**; minimum Node raised to **18**.
+- Icon components no longer error when passed `children`.
+- Removed the inaccurate `vue` and `angular` keywords, sharpened the package description, marked `sideEffects: false`, and removed the redundant `.npmignore`.
+
 ## [2.1.0] - 2025-06-25
 
 ### Fixed

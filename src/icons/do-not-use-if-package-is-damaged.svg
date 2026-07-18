@@ -7,7 +7,7 @@
     <path d="m0 184v16h16" />
     <path d="m200 184v16h-16" />
   </g>
-  <g fill="none" stroke="#000" stroke-linecap="butt" stroke-width="5">
+  <g fill="none" stroke="currentColor" stroke-linecap="butt" stroke-width="5">
     <circle cx="100" cy="100" r="71.3" />
     <path d="m49.741 49.409 100.81 100.86" />
     <path d="m54.646 79.621 45.609-27.218 44.167 36.029v31.454l-44.167 27.001-45.609-37.974z" />

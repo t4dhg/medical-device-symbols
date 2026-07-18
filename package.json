@@ -1,18 +1,30 @@
 {
   "name": "medical-device-symbols",
   "version": "2.1.0",
-  "description": "Easy and light-weight international medical device symbols based on ISO 15223-1 for regulatory compliance",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "description": "React components for ISO 15223-1:2021 medical device symbols: EU MDR/IVDR, FDA, and global labeling compliance. TypeScript, themeable, zero runtime dependencies.",
+  "main": "./lib/index.js",
+  "module": "./lib/index.mjs",
+  "types": "./lib/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.mjs",
+      "require": "./lib/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "files": [
     "lib",
+    "CHANGELOG.md",
     "CONTRIBUTING.md"
   ],
   "scripts": {
     "generate": "node scripts/generate-index.js",
-    "build": "npm run generate && npx tsc",
+    "build": "npm run generate && tsup",
     "prepare": "npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "pretest": "npm run build",
+    "test": "node test-package.js && node test-icons.js",
     "prepublishOnly": "npm run build",
     "version": "npm run build",
     "postversion": "git push && git push --tags",
@@ -37,18 +49,19 @@
     "medical",
     "device",
     "labeling",
+    "healthcare",
     "react",
-    "vue",
-    "angular",
+    "react-component",
     "typescript"
   ],
   "author": "Taig Mac Carthy",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^18.0.0",
-    "@types/react": "^18.0.0",
+    "@types/node": "^20.0.0",
+    "@types/react": "^19.0.0",
     "react": "^19.1.0",
-    "typescript": "^4.9.0"
+    "tsup": "^8.0.0",
+    "typescript": "^5.7.0"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
@@ -62,7 +75,7 @@
   },
   "homepage": "https://github.com/t4dhg/medical-device-symbols#readme",
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   },
   "publishConfig": {
     "access": "public"

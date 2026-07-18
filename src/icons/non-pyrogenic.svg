@@ -6,7 +6,7 @@
     <path d="m0 184v16h16" />
     <path d="m200 184v16h-16" />
   </g>
-  <g fill="none" stroke="#000" stroke-width="5">
+  <g fill="none" stroke="currentColor" stroke-width="5">
     <path d="m22.226 22.226 155.55 155.55" />
     <path d="m177.77 22.226-155.55 155.55" />
     <path
