@@ -1,159 +1,93 @@
 # Contributing to Medical Device Symbols
 
-Thank you for your interest in contributing to Medical Device Symbols! This document provides guidelines for contributing to this project.
+Thank you for your interest in contributing! This guide explains how the package is built and how to add or update symbols.
 
 ## Table of Contents
 
 - [Code of Conduct](#code-of-conduct)
+- [How It Works](#how-it-works)
 - [Getting Started](#getting-started)
-- [How to Contribute](#how-to-contribute)
-- [Adding New Icons](#adding-new-icons)
-- [Development Setup](#development-setup)
+- [Adding or Updating a Symbol](#adding-or-updating-a-symbol)
 - [Submitting Changes](#submitting-changes)
 
 ## Code of Conduct
 
-This project and everyone participating in it is governed by our Code of Conduct. By participating, you are expected to uphold this code.
+Be respectful and constructive. By participating, you agree to keep the project a welcoming space for everyone.
+
+## How It Works
+
+Symbols are authored as plain SVG files and compiled into React components automatically:
+
+- `src/icons/` holds one SVG per symbol (the source of truth).
+- `scripts/generate-index.js` reads those SVGs and generates `src/index.tsx`.
+- `src/index.tsx` is generated. Do not edit it by hand; it is overwritten on every build.
+- `tsc` compiles `src/index.tsx` into `lib/` (the published output).
+
+```
+src/
+  icons/          # SVG source files (edit these)
+  index.tsx       # generated, do not edit
+scripts/
+  generate-index.js  # generates src/index.tsx from the SVGs
+  generate-table.js   # prints the README "Available Icons" table
+lib/              # compiled output (generated, gitignored)
+```
 
 ## Getting Started
 
-1. Fork the repository on GitHub
-2. Clone your fork locally
-3. Install dependencies: `npm install`
-4. Build the project: `npm run build`
-5. Run examples to verify setup: `node examples/basic-usage.js`
-
-## How to Contribute
-
-### Reporting Bugs
-
-- Use the GitHub issue tracker
-- Include a clear title and description
-- Provide as much relevant information as possible
-- Include code samples if applicable
-
-### Suggesting Features
-
-- Open an issue with a clear title and detailed description
-- Explain why this feature would be useful
-- Provide examples of how it would be used
-
-### Pull Requests
-
-- Fork the repo and create your branch from `main`
-- If you've added code that should be tested, add tests
-- Ensure the build passes: `npm run build`
-- Make sure your code follows the existing style
-- Write a clear and descriptive commit message
-
-## Adding New Icons
-
-When adding new MDR-compliant icons:
-
-1. **Verify Compliance**: Ensure the icon follows Medical Device Regulation 2017/745 standards
-2. **SVG Format**: Icons must be in SVG format
-3. **File Naming**: Use kebab-case naming (e.g., `new-icon.svg`)
-4. **File Location**: Place SVG files in `src/icons/`
-5. **Update Code**: Add the new icon to `src/index.ts`:
-
-```typescript
-export const getNewIcon = (): string => {
-  return fs.readFileSync(path.join(__dirname, "icons", "new-icon.svg"), "utf8");
-};
-
-// Add to icons object
-export const icons: Record<string, () => string> = {
-  // ...existing icons...
-  "new-icon": getNewIcon,
-};
-
-// Add to ICON_NAMES constant
-export const ICON_NAMES = {
-  // ...existing constants...
-  NEW_ICON: "new-icon",
-} as const;
-```
-
-6. **Update Documentation**: Add the new icon to the README.md table
-7. **Update Examples**: Include the new icon in usage examples if relevant
-
-## Development Setup
-
-### Prerequisites
-
-- Node.js 16.0.0 or higher
-- npm or yarn
-
-### Local Development
+Requirements: Node.js 18 or later and npm.
 
 ```bash
-# Clone your fork
-git clone https://github.com/your-username/medical-device-symbols.git
+# Fork and clone your fork
+git clone https://github.com/<your-username>/medical-device-symbols.git
 cd medical-device-symbols
 
 # Install dependencies
 npm install
 
-# Build the project
+# Build (runs the generator, then tsc)
 npm run build
 
-# Test the build
-node examples/basic-usage.js
+# Run the smoke tests
+npm test
 ```
 
-### File Structure
+## Adding or Updating a Symbol
 
-```
-src/
-├── index.ts          # Main entry point
-└── icons/            # SVG icon files
-lib/                  # Compiled JavaScript (generated)
-examples/             # Usage examples
-```
+1. **Add the SVG** to `src/icons/` using a kebab-case file name, for example `new-symbol.svg`.
+2. **Match the conventions** of the existing icons:
+   - Use a `viewBox="0 0 200 200"`.
+   - Use `fill="currentColor"` / `stroke="currentColor"` (not hard-coded `#000`) so the symbol inherits the consumer's color and works in dark mode. The generator normalises stray black fills, but authoring in `currentColor` keeps the source clean.
+   - Verify the symbol matches the official **ISO 15223-1:2021** artwork.
+3. **Regenerate** the components:
+   ```bash
+   npm run generate   # rewrites src/index.tsx
+   npm run build      # compiles to lib/
+   npm test           # verifies the exports
+   ```
+   The component name is derived automatically (`new-symbol.svg` becomes `NewSymbolIcon`).
+4. **Update the README gallery**. Regenerate the table with `node scripts/generate-table.js` and paste the output into the "Available Icons" section, or add the single new row.
+5. **Update the CHANGELOG** under the `[Unreleased]` heading.
 
 ## Submitting Changes
 
-1. **Create a Branch**: `git checkout -b feature/your-feature-name`
-2. **Make Changes**: Implement your changes
-3. **Test**: Ensure all examples work: `npm run build && node examples/basic-usage.js`
-4. **Commit**: Use clear, descriptive commit messages
-5. **Push**: `git push origin feature/your-feature-name`
-6. **Pull Request**: Open a PR with a clear title and description
+1. Create a branch from `master`: `git checkout -b feature/my-symbol`.
+2. Make your changes and ensure `npm run build && npm test` passes.
+3. Write clear commit messages in the imperative mood, referencing issues where relevant.
+4. Open a pull request against `master` with a short description of the change.
 
-### Commit Message Guidelines
-
-- Use present tense ("Add feature" not "Added feature")
-- Use imperative mood ("Move cursor to..." not "Moves cursor to...")
-- Limit the first line to 72 characters or less
-- Reference issues and pull requests when applicable
-
-Example:
+### Commit message example
 
 ```
-Add UDI icon for unique device identification
+Add non-sterile symbol
 
-- Added udi.svg icon file
-- Updated index.ts with getUdiIcon function
-- Added UDI to ICON_NAMES constants
-- Updated README with new icon documentation
+- Add non-sterile.svg to src/icons/
+- Regenerate components and the README gallery
+- Note the addition in the changelog
 
-Fixes #123
+Closes #123
 ```
-
-## Medical Device Regulation Compliance
-
-When contributing icons, ensure they comply with:
-
-- **EU MDR 2017/745**: Medical Device Regulation
-- **ISO 15223-1**: Medical devices - Symbols to be used with medical device labels
-- **IEC 60601-1**: Medical electrical equipment standards
 
 ## Questions?
 
-Feel free to:
-
-- Open an issue for questions
-- Start a discussion in the Discussions tab
-- Contact the maintainers
-
-Thank you for contributing! 🏥
+Open an [issue](https://github.com/t4dhg/medical-device-symbols/issues) or start a [discussion](https://github.com/t4dhg/medical-device-symbols/discussions). Thank you for contributing!
