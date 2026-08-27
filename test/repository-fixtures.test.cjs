@@ -43,11 +43,12 @@ test("the repository fixture validator rejects a missing required file", () => {
   }
 });
 
-test("the assertive unit test script replaces the print-only root scripts", () => {
+test("the assertive test scripts replace the print-only root scripts", () => {
   const pkg = require("../package.json");
 
   assert.equal(existsSync(join(root, "test-package.js")), false);
   assert.equal(existsSync(join(root, "test-icons.js")), false);
   assert.equal(pkg.scripts["test:unit"], "node --test test/*.test.cjs");
-  assert.equal(pkg.scripts.test, "npm run build && npm run test:unit");
+  assert.equal(pkg.scripts["test:package"], "node scripts/test-package.mjs");
+  assert.equal(pkg.scripts.test, "npm run test:unit && npm run test:package");
 });

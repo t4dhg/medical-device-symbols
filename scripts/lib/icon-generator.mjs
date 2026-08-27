@@ -119,7 +119,7 @@ const createIcon = (
 
   output += "// Icon components\n";
   for (const icon of iconData) {
-    output += `export const ${icon.componentName} = createIcon(\n`;
+    output += `export const ${icon.componentName} = /* @__PURE__ */ createIcon(\n`;
     output += `  "${icon.componentName}",\n`;
     output += `  ${icon.variableName}SvgContent,\n`;
     output += `  "${icon.viewBox}"\n`;

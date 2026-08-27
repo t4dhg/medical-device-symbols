@@ -128,7 +128,8 @@ test("package scripts use only the local direct-tool workflow", () => {
     typecheck: "tsc --noEmit",
     build: "npm run generate:check && node scripts/build.mjs",
     "test:unit": "node --test test/*.test.cjs",
-    test: "npm run build && npm run test:unit",
+    "test:package": "node scripts/test-package.mjs",
+    test: "npm run test:unit && npm run test:package",
   });
 });
 

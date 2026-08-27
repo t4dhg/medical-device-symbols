@@ -128,175 +128,175 @@ const udiSvgContent = `<g fill="none" stroke="transparent" stroke-width="3"><pat
 const upperlimitoftemperatureSvgContent = `<g fill="none"><g stroke="transparent" stroke-width="3"><path d="m0 16v-16h16"/><path d="m200 16v-16h-16"/><path d="m0 184v16h16"/><path d="m200 184v16h-16"/></g><path d="m96.189 4.1133c-5.0979 0-9.2305 4.1326-9.2305 9.2305 0 0.03524 0.001554 0.07032 0.001954 0.10547 3.5e-5 0.0033-4e-5 0.006465 0 0.009765v94.604l-35.83 55.281 4.7598 3.084 31.07-47.939v44.199c-5.562 3.2003-9.3086 9.1985-9.3086 16.076 0 10.239 8.2998 18.541 18.539 18.541 10.239 0 18.539-8.3017 18.539-18.541 0-6.8782-3.7477-12.876-9.3106-16.076v-72.682l34.531-53.277h18.18v-5.6719h-21.26l-31.451 48.525v-66.133h-0.00195c3.9e-4 -0.03514 0.00195-0.07023 0.00195-0.10547 0-5.0979-4.1326-9.2305-9.2305-9.2305zm0.001953 5.4688c2.1354 0 3.8652 1.7318 3.8652 3.8672v8.2754 66.133l-7.7324 11.93v-78.061-8.2773c0-2.1354 1.7318-3.8672 3.8672-3.8672z" fill="currentColor" fill-rule="evenodd"/></g>`;
 
 // Icon components
-export const AtmosphericPressureLimitationIcon = createIcon(
+export const AtmosphericPressureLimitationIcon = /* @__PURE__ */ createIcon(
   "AtmosphericPressureLimitationIcon",
   atmosphericpressurelimitationSvgContent,
   "0 0 200 200"
 );
 
-export const AuthorizedRepresentativeInTheEuropeanCommunityIcon = createIcon(
+export const AuthorizedRepresentativeInTheEuropeanCommunityIcon = /* @__PURE__ */ createIcon(
   "AuthorizedRepresentativeInTheEuropeanCommunityIcon",
   authorizedrepresentativeintheeuropeancommunitySvgContent,
   "0 0 200 200"
 );
 
-export const BatchCodeIcon = createIcon(
+export const BatchCodeIcon = /* @__PURE__ */ createIcon(
   "BatchCodeIcon",
   batchcodeSvgContent,
   "0 0 200 200"
 );
 
-export const CatalogueNumberIcon = createIcon(
+export const CatalogueNumberIcon = /* @__PURE__ */ createIcon(
   "CatalogueNumberIcon",
   cataloguenumberSvgContent,
   "0 0 200 200"
 );
 
-export const CautionIcon = createIcon(
+export const CautionIcon = /* @__PURE__ */ createIcon(
   "CautionIcon",
   cautionSvgContent,
   "0 0 200 200"
 );
 
-export const CeBsiIcon = createIcon(
+export const CeBsiIcon = /* @__PURE__ */ createIcon(
   "CeBsiIcon",
   cebsiSvgContent,
   "0 0 200 200"
 );
 
-export const CeIcon = createIcon(
+export const CeIcon = /* @__PURE__ */ createIcon(
   "CeIcon",
   ceSvgContent,
   "0 0 200 200"
 );
 
-export const ConsultInstructionsForUseIcon = createIcon(
+export const ConsultInstructionsForUseIcon = /* @__PURE__ */ createIcon(
   "ConsultInstructionsForUseIcon",
   consultinstructionsforuseSvgContent,
   "0 0 200 200"
 );
 
-export const DoNotReUseIcon = createIcon(
+export const DoNotReUseIcon = /* @__PURE__ */ createIcon(
   "DoNotReUseIcon",
   donotreuseSvgContent,
   "0 0 200 200"
 );
 
-export const DoNotUseIfPackageIsDamagedIcon = createIcon(
+export const DoNotUseIfPackageIsDamagedIcon = /* @__PURE__ */ createIcon(
   "DoNotUseIfPackageIsDamagedIcon",
   donotuseifpackageisdamagedSvgContent,
   "0 0 200 200"
 );
 
-export const FluidPathIcon = createIcon(
+export const FluidPathIcon = /* @__PURE__ */ createIcon(
   "FluidPathIcon",
   fluidpathSvgContent,
   "0 0 200 200"
 );
 
-export const HumidityLimitationIcon = createIcon(
+export const HumidityLimitationIcon = /* @__PURE__ */ createIcon(
   "HumidityLimitationIcon",
   humiditylimitationSvgContent,
   "0 0 200 200"
 );
 
-export const InVitroDiagnosticMedicalDeviceIcon = createIcon(
+export const InVitroDiagnosticMedicalDeviceIcon = /* @__PURE__ */ createIcon(
   "InVitroDiagnosticMedicalDeviceIcon",
   invitrodiagnosticmedicaldeviceSvgContent,
   "0 0 200 200"
 );
 
-export const LatexIcon = createIcon(
+export const LatexIcon = /* @__PURE__ */ createIcon(
   "LatexIcon",
   latexSvgContent,
   "0 0 200 200"
 );
 
-export const LiquidFilterWithPoreSizeIcon = createIcon(
+export const LiquidFilterWithPoreSizeIcon = /* @__PURE__ */ createIcon(
   "LiquidFilterWithPoreSizeIcon",
   liquidfilterwithporesizeSvgContent,
   "0 0 200 200"
 );
 
-export const LowerLimitOfTemperatureIcon = createIcon(
+export const LowerLimitOfTemperatureIcon = /* @__PURE__ */ createIcon(
   "LowerLimitOfTemperatureIcon",
   lowerlimitoftemperatureSvgContent,
   "0 0 200 200"
 );
 
-export const ManufactureDateIcon = createIcon(
+export const ManufactureDateIcon = /* @__PURE__ */ createIcon(
   "ManufactureDateIcon",
   manufacturedateSvgContent,
   "0 0 200 200"
 );
 
-export const ManufacturerIcon = createIcon(
+export const ManufacturerIcon = /* @__PURE__ */ createIcon(
   "ManufacturerIcon",
   manufacturerSvgContent,
   "0 0 200 200"
 );
 
-export const MdIcon = createIcon(
+export const MdIcon = /* @__PURE__ */ createIcon(
   "MdIcon",
   mdSvgContent,
   "0 0 200 200"
 );
 
-export const NonPyrogenicIcon = createIcon(
+export const NonPyrogenicIcon = /* @__PURE__ */ createIcon(
   "NonPyrogenicIcon",
   nonpyrogenicSvgContent,
   "0 0 200 200"
 );
 
-export const SerialNumberIcon = createIcon(
+export const SerialNumberIcon = /* @__PURE__ */ createIcon(
   "SerialNumberIcon",
   serialnumberSvgContent,
   "0 0 200 200"
 );
 
-export const SterileIcon = createIcon(
+export const SterileIcon = /* @__PURE__ */ createIcon(
   "SterileIcon",
   sterileSvgContent,
   "0 0 200 200"
 );
 
-export const SterilizedUsingAsepticProcessingTechniquesIcon = createIcon(
+export const SterilizedUsingAsepticProcessingTechniquesIcon = /* @__PURE__ */ createIcon(
   "SterilizedUsingAsepticProcessingTechniquesIcon",
   sterilizedusingasepticprocessingtechniquesSvgContent,
   "0 0 200 200"
 );
 
-export const SterilizedUsingEthyleneOxideIcon = createIcon(
+export const SterilizedUsingEthyleneOxideIcon = /* @__PURE__ */ createIcon(
   "SterilizedUsingEthyleneOxideIcon",
   sterilizedusingethyleneoxideSvgContent,
   "0 0 200 200"
 );
 
-export const SterilizedUsingIrradiationIcon = createIcon(
+export const SterilizedUsingIrradiationIcon = /* @__PURE__ */ createIcon(
   "SterilizedUsingIrradiationIcon",
   sterilizedusingirradiationSvgContent,
   "0 0 200 200"
 );
 
-export const SterilizedUsingSteamOrDryHeatIcon = createIcon(
+export const SterilizedUsingSteamOrDryHeatIcon = /* @__PURE__ */ createIcon(
   "SterilizedUsingSteamOrDryHeatIcon",
   sterilizedusingsteamordryheatSvgContent,
   "0 0 200 200"
 );
 
-export const TemperatureLimitIcon = createIcon(
+export const TemperatureLimitIcon = /* @__PURE__ */ createIcon(
   "TemperatureLimitIcon",
   temperaturelimitSvgContent,
   "0 0 200 200"
 );
 
-export const UdiIcon = createIcon(
+export const UdiIcon = /* @__PURE__ */ createIcon(
   "UdiIcon",
   udiSvgContent,
   "0 0 200 200"
 );
 
-export const UpperLimitOfTemperatureIcon = createIcon(
+export const UpperLimitOfTemperatureIcon = /* @__PURE__ */ createIcon(
   "UpperLimitOfTemperatureIcon",
   upperlimitoftemperatureSvgContent,
   "0 0 200 200"
