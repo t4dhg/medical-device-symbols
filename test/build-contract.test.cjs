@@ -124,12 +124,15 @@ test("package scripts use only the local direct-tool workflow", () => {
   assert.deepEqual(pkg.scripts, {
     generate: "node scripts/generate-index.mjs",
     "generate:check": "node scripts/generate-index.mjs --check",
+    "gallery:update": "node scripts/generate-table.mjs",
+    "gallery:check": "node scripts/generate-table.mjs --check",
     clean: "node scripts/build.mjs --clean-only",
     typecheck: "tsc --noEmit",
     build: "npm run generate:check && node scripts/build.mjs",
     "test:unit": "node --test test/*.test.cjs",
     "test:package": "node scripts/test-package.mjs",
     test: "npm run test:unit && npm run test:package",
+    verify: "npm run gallery:check && npm run typecheck && npm run build && npm test",
   });
 });
 

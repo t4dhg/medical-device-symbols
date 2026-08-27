@@ -40,12 +40,12 @@
 .mdr-icon {
   width: 24px;
   height: 24px;
-  fill: #333;
+  color: #333;
   flex-shrink: 0;
 }
 
 .mdr-icon.warning {
-  fill: #ff6b35;
+  color: #ff6b35;
 }
 
 .mdr-icon svg {

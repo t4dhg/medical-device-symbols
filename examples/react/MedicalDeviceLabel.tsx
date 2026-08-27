@@ -24,7 +24,7 @@ const MedicalDeviceLabel: React.FC = () => {
         <div className="label-row">
           <div className="icon-container">
             <CeIcon className="mdr-icon" size={24} />
-            <span>CE 0123</span>
+            <span>CE mark</span>
           </div>
         </div>
 

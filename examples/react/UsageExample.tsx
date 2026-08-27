@@ -22,8 +22,8 @@ function App() {
         {/* Custom styling with style prop */}
         <ManufacturerIcon style={{ fontSize: 72, color: "blue" }} />
 
-        {/* Using standard SVG props */}
-        <BatchCodeIcon size={32} fill="red" stroke="black" strokeWidth={1} />
+        {/* Recoloring currentColor artwork */}
+        <BatchCodeIcon size={32} color="red" />
 
         {/* Responsive sizing */}
         <CautionIcon size="2rem" />

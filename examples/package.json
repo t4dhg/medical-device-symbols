@@ -1,18 +1,16 @@
 {
   "name": "medical-device-symbols-examples",
-  "version": "1.0.0",
   "private": true,
-  "description": "Examples for using medical-device-symbols package",
+  "description": "Local development examples for medical-device-symbols",
   "scripts": {
     "node-extraction": "node node-svg-extraction.js"
   },
-  "dependencies": {
-    "medical-device-symbols": "file:.."
-  },
   "devDependencies": {
-    "@types/react": "^18.0.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "typescript": "^4.9.0"
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.5",
+    "medical-device-symbols": "file:..",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "typescript": "5.9.3"
   }
 }

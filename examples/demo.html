@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MDR Label Icons - Demo</title>
+  <title>Medical Device Symbols - Demo</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -67,9 +67,9 @@
 </head>
 
 <body>
-  <h1>MDR Label Icons</h1>
+  <h1>Medical Device Symbols</h1>
 
-  <p>Your package has been successfully transformed to follow the <strong>@sanity/icons</strong> pattern! 🎉</p>
+  <p>React component examples for ISO 15223-1 symbols and separate regulatory marks.</p>
 
   <h2>✨ What's Changed</h2>
 
@@ -118,13 +118,15 @@
     style={{ cursor: 'pointer' }}
     /&gt;
 
-    {/* All standard SVG props are supported */}
+    {/* Recolor currentColor artwork with the color prop */}
     &lt;BatchCodeIcon
     size={40}
-    fill="red"
-    stroke="black"
-    strokeWidth={2}
+    color="red"
     /&gt;
+
+    {/* Decorative and labeled accessibility patterns */}
+    &lt;CautionIcon aria-hidden="true" /&gt;
+    &lt;CautionIcon title="Caution" role="img" /&gt;
     &lt;/div&gt;
     )
     }

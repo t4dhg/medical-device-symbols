@@ -19,17 +19,18 @@ Be respectful and constructive. By participating, you agree to keep the project 
 Symbols are authored as plain SVG files and compiled into React components automatically:
 
 - `src/icons/` holds one SVG per symbol (the source of truth).
-- `scripts/generate-index.js` reads those SVGs and generates `src/index.tsx`.
+- `scripts/generate-index.mjs` reads those SVGs and generates `src/index.tsx`.
 - `src/index.tsx` is generated. Do not edit it by hand; it is overwritten on every build.
-- `tsc` compiles `src/index.tsx` into `lib/` (the published output).
+- `scripts/build.mjs` compiles `src/index.tsx` into the ESM, CommonJS, and declaration files in `lib/`.
 
 ```
 src/
   icons/          # SVG source files (edit these)
   index.tsx       # generated, do not edit
 scripts/
-  generate-index.js  # generates src/index.tsx from the SVGs
-  generate-table.js   # prints the README "Available Icons" table
+  generate-index.mjs  # generates src/index.tsx from the SVGs
+  generate-table.mjs  # updates or checks the README gallery
+  build.mjs           # builds lib/
 lib/              # compiled output (generated, gitignored)
 ```
 
@@ -45,34 +46,34 @@ cd medical-device-symbols
 # Install dependencies
 npm install
 
-# Build (runs the generator, then tsc)
+# Build both module formats and declarations
 npm run build
 
-# Run the smoke tests
-npm test
+# Run every generator, type, unit, and packed-consumer check
+npm run verify
 ```
 
 ## Adding or Updating a Symbol
 
 1. **Add the SVG** to `src/icons/` using a kebab-case file name, for example `new-symbol.svg`.
 2. **Match the conventions** of the existing icons:
-   - Use a `viewBox="0 0 200 200"`.
+   - Include an explicit `viewBox` with positive width and height.
    - Use `fill="currentColor"` / `stroke="currentColor"` (not hard-coded `#000`) so the symbol inherits the consumer's color and works in dark mode. The generator normalises stray black fills, but authoring in `currentColor` keeps the source clean.
-   - Verify the symbol matches the official **ISO 15223-1:2021** artwork.
+   - Confirm the source and applicability of the artwork. ISO 15223-1 symbols and separate regulatory marks are not interchangeable.
 3. **Regenerate** the components:
    ```bash
-   npm run generate   # rewrites src/index.tsx
-   npm run build      # compiles to lib/
-   npm test           # verifies the exports
+   npm run generate        # rewrites src/index.tsx
+   npm run gallery:update  # atomically updates the README gallery
+   npm run verify          # checks generated output, types, tests, and package consumers
    ```
    The component name is derived automatically (`new-symbol.svg` becomes `NewSymbolIcon`).
-4. **Update the README gallery**. Regenerate the table with `node scripts/generate-table.js` and paste the output into the "Available Icons" section, or add the single new row.
+4. **Update the README gallery** with `npm run gallery:update`. CI-style checks use `npm run gallery:check`, which reports drift without rewriting the README.
 5. **Update the CHANGELOG** under the `[Unreleased]` heading.
 
 ## Submitting Changes
 
 1. Create a branch from `master`: `git checkout -b feature/my-symbol`.
-2. Make your changes and ensure `npm run build && npm test` passes.
+2. Make your changes and ensure `npm run verify` passes.
 3. Write clear commit messages in the imperative mood, referencing issues where relevant.
 4. Open a pull request against `master` with a short description of the change.
 

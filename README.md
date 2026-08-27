@@ -12,15 +12,14 @@
 
 # Medical Device Symbols
 
-Internationally recognized medical device symbols based on **ISO 15223-1:2021**, delivered as React components you can drop into web apps, dashboards, documentation, and digital device labeling. Each symbol is a plain SVG component: size it, color it, and give it an accessible label like any other icon.
+A React component package containing **ISO 15223-1 symbols and separate regulatory marks** for medical-device interfaces and labeling workflows. Each component renders a plain SVG: size it, recolor it through CSS `color`, and choose whether it is decorative or labeled.
 
 ## Features
 
-- 🌍 **Standards based**: every symbol follows ISO 15223-1:2021, the international standard for medical device labeling symbols.
-- 🏛️ **Multi-regulatory**: the same symbol set is referenced by EU MDR/IVDR, FDA 21 CFR Part 801, Health Canada, and other frameworks worldwide.
+- 🌍 **Clear scope**: ISO 15223-1 symbols are identified separately from CE and notified-body marks, which have their own applicability requirements.
 - ⚛️ **React components**: import each symbol directly, with `forwardRef` and full TypeScript types.
 - 🎨 **Themeable**: icons inherit `currentColor`, so they match surrounding text and adapt to light and dark themes. Recolor by setting `color`.
-- ♿ **Accessible ready**: pass `title` for a labeled icon, or standard ARIA props for full control.
+- ♿ **Accessibility ready**: mark decorative icons `aria-hidden`, or pass `title` and `role="img"` for a labeled icon.
 - 🌳 **Tree-shakeable**: ships ESM and CommonJS and is marked side-effect-free, so bundlers keep only the icons you import.
 - 📦 **Zero runtime dependencies**: React is the only peer dependency.
 
@@ -138,15 +137,15 @@ Because the artwork uses `currentColor`, a plain `fill` prop only affects the ro
 
 ### Accessibility
 
-By default an icon has no ARIA semantics, so you decide how it is announced:
+By default an icon has no ARIA semantics, so you decide how it is announced. A decorative icon should be hidden from assistive technology; a labeled icon can use the tested `title` behavior:
 
 ```tsx
 {/* Decorative: the neighbouring text already conveys the meaning */}
-<CautionIcon aria-hidden />
+<CautionIcon aria-hidden="true" />
 <span>Read the instructions before use</span>
 
-{/* Meaningful: pass `title` to get role="img" and an accessible label */}
-<CautionIcon title="Caution" />
+{/* Labeled: title supplies the accessible name */}
+<CautionIcon title="Caution" role="img" />
 
 {/* ...or set the ARIA attributes yourself, if you prefer */}
 <CautionIcon role="img" aria-label="Caution" />
@@ -177,8 +176,8 @@ function DeviceLabel() {
       </div>
 
       <div className="info">
-        <BatchCodeIcon size={16} aria-hidden /> <span>LOT: ABC123</span>
-        <ManufactureDateIcon size={16} aria-hidden /> <span>2024-06</span>
+        <BatchCodeIcon size={16} aria-hidden="true" /> <span>LOT: ABC123</span>
+        <ManufactureDateIcon size={16} aria-hidden="true" /> <span>2024-06</span>
       </div>
     </div>
   );
@@ -207,7 +206,7 @@ Every icon accepts:
 | Prop       | Type                            | Default | Description                             |
 | ---------- | ------------------------------- | ------- | --------------------------------------- |
 | `size`     | `number \| string`              | `24`    | Width and height, in pixels or any CSS length |
-| `title`    | `string`                        | -       | Accessible label. Sets `role="img"` and `aria-label`; omit for decorative icons |
+| `title`    | `string`                        | -       | Accessible label. Sets `role="img"` and `aria-label`; use `aria-hidden="true"` for decorative icons |
 | `...props` | `React.SVGProps<SVGSVGElement>` | -       | Any standard SVG prop (`className`, `style`, `fill`, `stroke`, `onClick`, `aria-*`, `role`, `ref`, and so on) |
 
 ## API
@@ -222,16 +221,13 @@ import {
 } from "medical-device-symbols";
 ```
 
-## Regulatory compliance
+## Regulatory scope
 
-All symbols follow **ISO 15223-1:2021** (Medical devices, symbols to be used with information to be supplied by the manufacturer). That standard is recognized or referenced by regulatory frameworks worldwide, including:
+[ISO 15223-1:2021](https://www.iso.org/standard/77326.html) specifies symbols used to express information supplied for a medical device. This package also includes separate regulatory marks; their presence in the package does not make them applicable to a product.
 
-- **European Union**: EU MDR 2017/745 and EU IVDR 2017/746
-- **United States**: FDA 21 CFR Part 801
-- **Canada**: Medical Devices Regulations (SOR/98-282)
-- **Japan, Brazil, China, South Korea, Australia**: PMD Act, ANVISA, NMPA, MFDS, and TGA requirements
+`CeBsiIcon` includes the CE mark with **BSI 2797**. Use it only when the relevant conformity-assessment facts make BSI 2797 applicable to that device. `CeIcon` provides the CE artwork without a notified-body number.
 
-These symbols are provided for development and informational use. Always confirm the exact symbol, form, and usage required by the current regulations in your target markets, and consult a regulatory expert for official labeling.
+The package artwork is an implementation aid, not a regulatory determination. Confirm the current requirements, the device's conformity-assessment facts, and the exact mark or symbol before using it in labeling.
 
 ## Contributing
 

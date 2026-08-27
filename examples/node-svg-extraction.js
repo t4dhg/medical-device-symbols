@@ -19,9 +19,9 @@ const {
   BatchCodeIcon,
   SterileIcon,
   LiquidFilterWithPoreSizeIcon,
-} = require("../lib/index.js");
+} = require("medical-device-symbols");
 
-console.log("🏥 MDR Label Icons - Node.js SVG String Extraction\n");
+console.log("Medical Device Symbols - Node.js SVG String Extraction\n");
 
 // Function to render React component to SVG string
 function renderIconToSVG(IconComponent, props = {}) {
@@ -44,8 +44,16 @@ console.log(
 );
 
 console.log("\n2. Attempting to render to SVG string...");
-const cautionSVG = renderIconToSVG(CautionIcon, { size: 48 });
-const batchCodeSVG = renderIconToSVG(BatchCodeIcon, { size: 32 });
+const cautionSVG = renderIconToSVG(CautionIcon, {
+  size: 48,
+  title: "Caution",
+  role: "img",
+  color: "red",
+});
+const batchCodeSVG = renderIconToSVG(BatchCodeIcon, {
+  size: 32,
+  "aria-hidden": "true",
+});
 
 if (cautionSVG) {
   console.log("✅ CautionIcon SVG successfully generated!");
@@ -60,8 +68,7 @@ if (cautionSVG) {
   console.log("❌ SVG rendering failed");
   console.log("\n💡 ALTERNATIVE APPROACHES:");
   console.log("1. Use this package in a React application (recommended)");
-  console.log("2. Access the SVG files directly from src/icons/ directory");
-  console.log("3. Use a different icon library designed for Node.js");
+  console.log("2. Use a different icon library designed for Node.js");
 }
 
 console.log("\n⚠️  IMPORTANT:");

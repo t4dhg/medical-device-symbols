@@ -38,7 +38,7 @@ const ComprehensiveDemo: React.FC = () => {
 
             <div className="label-item">
               <CeIcon className="icon" size={24} />
-              <span>CE 0123</span>
+              <span>CE mark</span>
             </div>
 
             <div className="label-item">

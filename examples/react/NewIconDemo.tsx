@@ -2,7 +2,9 @@ import React from "react";
 import { CeBsiIcon, CeIcon, MdIcon } from "medical-device-symbols";
 
 /**
- * Demonstration of the new CE-BSI icon alongside related regulatory icons
+ * Demonstration of CE and BSI 2797 artwork alongside an ISO symbol.
+ * The CE/notified-body combination is only applicable when supported by the
+ * device's conformity-assessment facts.
  */
 export default function NewIconDemo() {
   return (
@@ -14,7 +16,7 @@ export default function NewIconDemo() {
         margin: "0 auto",
       }}
     >
-      <h1>New CE-BSI Icon Demo</h1>
+      <h1>CE and Medical Device Marks</h1>
 
       <div
         style={{
@@ -33,10 +35,16 @@ export default function NewIconDemo() {
             backgroundColor: "#f9f9f9",
           }}
         >
-          <CeBsiIcon size={48} />
-          <p style={{ marginTop: "10px", fontWeight: "bold" }}>CE-BSI</p>
+          <CeBsiIcon
+            size={48}
+            title="CE marking with BSI Notified Body 2797"
+            role="img"
+          />
+          <p style={{ marginTop: "10px", fontWeight: "bold" }}>
+            CE + BSI 2797
+          </p>
           <p style={{ fontSize: "12px", color: "#666" }}>
-            New BSI notified body marking
+            Use only when BSI 2797 is applicable to the device
           </p>
         </div>
 
@@ -75,6 +83,10 @@ export default function NewIconDemo() {
           borderRadius: "8px",
         }}
       >
+        <p>
+          This example is artwork, not a regulatory determination. Confirm the
+          device's applicable conformity-assessment facts before use.
+        </p>
         <h3>Usage Example</h3>
         <pre
           style={{
@@ -90,7 +102,11 @@ export default function NewIconDemo() {
 function MyLabel() {
   return (
     <div>
-      <CeBsiIcon size={32} />
+      <CeBsiIcon
+        size={32}
+        title="CE marking with BSI Notified Body 2797"
+        role="img"
+      />
       <span>BSI Notified Body</span>
     </div>
   );
