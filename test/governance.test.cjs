@@ -81,6 +81,138 @@ function tableRows(source, expectedHeaders) {
   return rows;
 }
 
+function appendToSection(source, heading, sentence) {
+  const headingMarker = `## ${heading}`;
+  const headingIndex = source.indexOf(headingMarker);
+  assert.notEqual(headingIndex, -1, `missing section: ${heading}`);
+  const nextHeadingIndex = source.indexOf(
+    "\n## ",
+    headingIndex + headingMarker.length,
+  );
+  const insertionIndex =
+    nextHeadingIndex === -1 ? source.length : nextHeadingIndex;
+  return `${source.slice(0, insertionIndex).trimEnd()}\n\n${sentence}\n${source.slice(insertionIndex)}`;
+}
+
+function markdownSection(source, heading) {
+  const headingMarker = `## ${heading}`;
+  const headingIndex = source.indexOf(headingMarker);
+  assert.notEqual(headingIndex, -1, `missing section: ${heading}`);
+  const nextHeadingIndex = source.indexOf(
+    "\n## ",
+    headingIndex + headingMarker.length,
+  );
+  return source.slice(
+    headingIndex,
+    nextHeadingIndex === -1 ? source.length : nextHeadingIndex,
+  );
+}
+
+function assertNoAffirmativeLiveState(section, subjects) {
+  const state = String.raw`(?:is|are|was|were|has\s+been|have\s+been)\s+(?!not\b)(?:currently\s+)?(?:enabled|active|applied|configured|live|created|set\s+up)\b`;
+  const claim = new RegExp(
+    String.raw`\b(?:${subjects})\b.{0,100}\b${state}`,
+    "i",
+  );
+
+  for (const line of section.split("\n")) assert.doesNotMatch(line, claim);
+}
+
+function validateSecurityPolicy(security) {
+  assert.deepEqual(tableRows(security, ["Version", "Supported"]), [
+    ["2.x", ":white_check_mark:"],
+    ["< 2.0", ":x:"],
+  ]);
+  assert.match(security, /do not.*public.*(?:issue|discussion)/is);
+  assert.match(security, new RegExp(privateReportUrl.replaceAll("/", "\\/")));
+
+  const reporting = markdownSection(security, "Reporting a Vulnerability");
+  assert.match(
+    reporting,
+    /Reports are handled as maintainer availability permits; no response or resolution time is promised\./,
+  );
+  const responseTerm = String.raw`\b(?:acknowledg(?:e|es|ed|ing|ements?|ments?)|repl(?:y|ies|ied)|respond(?:s|ed|ing)?|responses?)\b`;
+  const numberWord = String.raw`(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:-(?:one|two|three|four|five|six|seven|eight|nine))?`;
+  const quantity = String.raw`(?:a|an|a\s+few|few|several|${numberWord}|\d+)`;
+  const deadline = String.raw`(?:within|in)\s+${quantity}\s+(?:business\s+)?(?:hours?|days?|weeks?)`;
+  const promptTiming = String.raw`(?:promptly|immediately|quickly|swiftly|without\s+(?:undue\s+)?delay|as\s+soon\s+as\s+possible)`;
+  const timing = String.raw`(?:${deadline}|${promptTiming})`;
+  const timingCommitment = new RegExp(
+    String.raw`(?:${responseTerm}.{0,100}\b${timing}\b|\b${timing}\b.{0,100}${responseTerm})`,
+    "i",
+  );
+  for (const sentence of reporting.split(/(?:\r?\n)+|(?<=[.!?])\s+/)) {
+    assert.doesNotMatch(sentence, timingCommitment);
+  }
+}
+
+function validateRepositorySettings(settings) {
+  assert.match(
+    settings,
+    /^# Repository settings\n\n> \*\*Proposed — not yet applied\.\*\*/,
+  );
+  for (const term of [
+    "quality",
+    "refs/heads/master",
+    "refs/tags/v*",
+    "npm-publish",
+    "private vulnerability reporting",
+    "Dependabot security updates",
+    "CodeQL",
+  ]) {
+    assert.match(
+      settings,
+      new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"),
+    );
+  }
+
+  for (const term of [
+    "require a pull request",
+    "require linear history",
+    "require conversation resolution",
+    "block force pushes",
+    "restrict deletions",
+    "bypass list: none",
+    "after GitHub records a successful `quality` check",
+    "restrict updates",
+    "do not restrict creations",
+    "secret scanning",
+    "push protection",
+    "Dependabot alerts",
+    "full-length commit SHA",
+    "squash merging only",
+    "automatically delete head branches",
+    "enable GitHub Discussions",
+    "owner: `t4dhg`",
+    "repository: `medical-device-symbols`",
+    "workflow: `release.yml`",
+    "allowed action: `npm publish`",
+    "deferred pending separate release implementation and separately authorized external execution",
+  ]) {
+    assert.match(
+      settings,
+      new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"),
+    );
+  }
+
+  assertNoAffirmativeLiveState(
+    markdownSection(settings, "Branch ruleset"),
+    "branch ruleset|ruleset",
+  );
+  assertNoAffirmativeLiveState(
+    markdownSection(settings, "Release-tag ruleset"),
+    "release-tag ruleset|tag ruleset|ruleset",
+  );
+  assertNoAffirmativeLiveState(
+    markdownSection(settings, "Security features"),
+    "secret scanning|push protection|private vulnerability reporting|Dependabot alerts?|Dependabot security updates?|CodeQL(?: default setup)?",
+  );
+  assertNoAffirmativeLiveState(
+    markdownSection(settings, "Publication prerequisites"),
+    "npm-publish environment|publication environment|environment|npm trusted publisher|trusted publisher",
+  );
+}
+
 test("Dependabot groups non-major development updates and preserves the TypeScript exclusion", () => {
   const dependabot = parseRequiredYaml(".github/dependabot.yml");
 
@@ -223,16 +355,51 @@ test("conduct and security policies define private, promise-free reporting", () 
   }
   assert.match(conduct, new RegExp(privateReportUrl.replaceAll("/", "\\/")));
 
-  assert.deepEqual(tableRows(security, ["Version", "Supported"]), [
-    ["2.x", ":white_check_mark:"],
-    ["< 2.0", ":x:"],
-  ]);
-  assert.match(security, /do not.*public.*(?:issue|discussion)/is);
-  assert.match(security, new RegExp(privateReportUrl.replaceAll("/", "\\/")));
-  assert.doesNotMatch(
-    security,
-    /(?:response|reply).{0,80}(?:within|in)\s+(?:a|an|\d+|few|several)\s+(?:business\s+)?(?:hours?|days?|weeks?)/is,
+  validateSecurityPolicy(security);
+});
+
+test("security policy requires the reviewed no-response-time boundary", () => {
+  const security = readRequired("SECURITY.md").replace(
+    "Reports are handled as maintainer availability permits; no response or resolution time is promised.",
+    "Reports are reviewed by the maintainers.",
   );
+
+  assert.throws(() => validateSecurityPolicy(security), assert.AssertionError);
+});
+
+for (const [description, promise] of [
+  [
+    "a spelled-number response deadline",
+    "You can expect an initial response within two days.",
+  ],
+  ["a prompt reply commitment", "Maintainers will reply promptly."],
+  [
+    "an immediate acknowledgment commitment",
+    "This independent sentence deliberately separates the claim from the reviewed boundary so the assertion exercises its own terminology without relying on nearby words. An acknowledgment will be sent immediately.",
+  ],
+]) {
+  test(`security policy rejects ${description}`, () => {
+    const security = appendToSection(
+      readRequired("SECURITY.md"),
+      "Reporting a Vulnerability",
+      promise,
+    );
+
+    assert.throws(
+      () => validateSecurityPolicy(security),
+      assert.AssertionError,
+    );
+  });
+}
+
+test("security policy allows unrelated immediate handling", () => {
+  const security = appendToSection(
+    readRequired("SECURITY.md"),
+    "Reporting a Vulnerability",
+    "Sensitive reproduction files are deleted immediately after review.",
+  );
+
+  assert.doesNotThrow(() => validateSecurityPolicy(security));
 });
 
 test("dependency risk records the complete zero-finding audit snapshot", () => {
@@ -265,51 +432,41 @@ test("dependency risk records the complete zero-finding audit snapshot", () => {
 test("repository settings remain an exact proposal with no live-state claim", () => {
   const settings = readRequired("docs/REPOSITORY_SETTINGS.md");
 
-  assert.match(
-    settings,
-    /^# Repository settings\n\n> \*\*Proposed — not yet applied\.\*\*/,
-  );
-  for (const term of [
-    "quality",
-    "refs/heads/master",
-    "refs/tags/v*",
-    "npm-publish",
-    "private vulnerability reporting",
-    "Dependabot security updates",
-    "CodeQL",
-  ]) {
-    assert.match(
-      settings,
-      new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"),
-    );
-  }
-
-  for (const term of [
-    "require a pull request",
-    "require linear history",
-    "require conversation resolution",
-    "block force pushes",
-    "restrict deletions",
-    "bypass list: none",
-    "after GitHub records a successful `quality` check",
-    "restrict updates",
-    "do not restrict creations",
-    "secret scanning",
-    "push protection",
-    "Dependabot alerts",
-    "full-length commit SHA",
-    "squash merging only",
-    "automatically delete head branches",
-    "enable GitHub Discussions",
-    "owner: `t4dhg`",
-    "repository: `medical-device-symbols`",
-    "workflow: `release.yml`",
-    "allowed action: `npm publish`",
-    "deferred pending separate release implementation and separately authorized external execution",
-  ]) {
-    assert.match(
-      settings,
-      new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"),
-    );
-  }
+  validateRepositorySettings(settings);
 });
+
+for (const [description, heading, claim] of [
+  [
+    "currently enabled security control",
+    "Security features",
+    "Secret scanning is currently enabled in the live repository.",
+  ],
+  [
+    "live applied ruleset",
+    "Branch ruleset",
+    "The branch ruleset is live and applied.",
+  ],
+  [
+    "configured publication environment",
+    "Publication prerequisites",
+    "The npm-publish environment is currently configured.",
+  ],
+  [
+    "configured trusted publisher",
+    "Publication prerequisites",
+    "The trusted publisher has been configured and is active.",
+  ],
+]) {
+  test(`repository settings reject a ${description} claim`, () => {
+    const settings = appendToSection(
+      readRequired("docs/REPOSITORY_SETTINGS.md"),
+      heading,
+      claim,
+    );
+
+    assert.throws(
+      () => validateRepositorySettings(settings),
+      assert.AssertionError,
+    );
+  });
+}
