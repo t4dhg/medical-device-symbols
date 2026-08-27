@@ -33,6 +33,24 @@ const repositoryRoot = resolve(scriptsDirectory, "..");
 const expectedApi = JSON.parse(
   readFileSync(join(repositoryRoot, "test", "fixtures", "public-api.json"), "utf8"),
 );
+let activeRoot;
+
+function cleanupActiveRoot() {
+  if (activeRoot === undefined) return;
+  const root = activeRoot;
+  rmSync(root, { recursive: true, force: true });
+  activeRoot = undefined;
+}
+
+for (const signal of ["SIGINT", "SIGTERM"]) {
+  process.once(signal, () => {
+    try {
+      cleanupActiveRoot();
+    } finally {
+      process.kill(process.pid, signal);
+    }
+  });
+}
 
 function invoke(command, args, options = {}) {
   const result = spawnSync(command, args, {
@@ -223,7 +241,7 @@ function runTreeShakingConsumer(consumerDirectory) {
   assert.doesNotMatch(bundle, /\bicons\b/u);
 }
 
-function verifyConsumer({ root, cacheDirectory, tarball, reactVersion, runNpm }) {
+async function verifyConsumer({ root, cacheDirectory, tarball, reactVersion, runNpm }) {
   const consumerDirectory = join(root, `react-${reactVersion}`);
   mkdirSync(consumerDirectory);
   writeFileSync(
@@ -253,6 +271,7 @@ function verifyConsumer({ root, cacheDirectory, tarball, reactVersion, runNpm })
     ],
     { cwd: consumerDirectory },
   );
+  await new Promise((resolve_) => setImmediate(resolve_));
   assertInstalledPackageIsIsolated(consumerDirectory);
   runNpm(["ls", "--all", "--cache", cacheDirectory], {
     cwd: consumerDirectory,
@@ -267,7 +286,8 @@ function verifyConsumer({ root, cacheDirectory, tarball, reactVersion, runNpm })
 
 async function main() {
   const suppliedTarball = parseSuppliedTarballArgs(process.argv.slice(2));
-  const root = mkdtempSync(join(tmpdir(), "medical-device-symbols-consumers-"));
+  activeRoot = mkdtempSync(join(tmpdir(), "medical-device-symbols-consumers-"));
+  const root = activeRoot;
   try {
     const cacheDirectory = join(root, "npm-cache");
     mkdirSync(cacheDirectory);
@@ -275,11 +295,11 @@ async function main() {
     const tarball = suppliedTarball ?? packOnce(root, runNpm);
     validateTarball(readFileSync(tarball));
     for (const reactVersion of REACT_VERSIONS) {
-      verifyConsumer({ root, cacheDirectory, tarball, reactVersion, runNpm });
+      await verifyConsumer({ root, cacheDirectory, tarball, reactVersion, runNpm });
     }
     console.log(`verified exact tarball across ${REACT_VERSIONS.length} isolated consumers`);
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    cleanupActiveRoot();
   }
 }
 

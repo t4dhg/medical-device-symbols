@@ -1,6 +1,8 @@
 const assert = require("node:assert/strict");
-const { spawnSync } = require("node:child_process");
+const { spawn, spawnSync } = require("node:child_process");
+const { once } = require("node:events");
 const {
+  existsSync,
   mkdtempSync,
   mkdirSync,
   readFileSync,
@@ -158,6 +160,10 @@ const output = process.argv.slice(2).find((arg) => arg.startsWith("--outfile="))
 writeFileSync(output, "import React from 'react';\nconst CautionIcon = true;\nexport { CautionIcon as default };\n");
 `);
 }
+if (process.env.FAKE_NPM_SIGNAL_PARENT) {
+  writeFileSync(process.env.FAKE_NPM_ROOT_RECORD, dirname(process.cwd()));
+  process.kill(process.ppid, process.env.FAKE_NPM_SIGNAL_PARENT);
+}
 }
 
 const fakeNpmSource = `(${fakeNpmMain.toString()})();\n`;
@@ -223,5 +229,64 @@ test("supplied mode runs the real consumer CLI without invoking npm pack", () =>
     assert.deepEqual(readdirSync(consumerTmp), []);
   } finally {
     rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("signalled runners remove their exact disposable root and preserve the signal", { timeout: 30_000 }, async () => {
+  for (const expectedSignal of ["SIGINT", "SIGTERM"]) {
+    const directory = mkdtempSync(join(tmpdir(), "medical-symbols-signal-cleanup-"));
+    const consumerTmp = join(directory, "consumer-tmp");
+    const tarball = join(directory, "fixture.tgz");
+    const fakeNpm = join(directory, "npm-cli.js");
+    const record = join(directory, "npm-argv.jsonl");
+    const rootRecord = join(directory, "consumer-root.txt");
+    mkdirSync(consumerTmp);
+    writeFileSync(tarball, makeRepositoryTarball());
+    writeFileSync(fakeNpm, fakeNpmSource);
+    writeFileSync(record, "");
+
+    let child;
+    let timer;
+    let stdout = "";
+    let stderr = "";
+    try {
+      child = spawn(process.execPath, [runner, "--tarball", tarball], {
+        cwd: root,
+        env: {
+          ...process.env,
+          FAKE_NPM_RECORD: record,
+          FAKE_NPM_ROOT_RECORD: rootRecord,
+          FAKE_NPM_SIGNAL_PARENT: expectedSignal,
+          TMPDIR: consumerTmp,
+          npm_execpath: fakeNpm,
+        },
+        shell: false,
+        stdio: "pipe",
+      });
+      child.stdout.on("data", (chunk) => { stdout += chunk; });
+      child.stderr.on("data", (chunk) => { stderr += chunk; });
+      const completed = once(child, "close");
+      const timedOut = new Promise((_, reject) => {
+        timer = setTimeout(() => {
+          child.kill("SIGKILL");
+          reject(new Error(`runner did not terminate after ${expectedSignal}`));
+        }, 10_000);
+      });
+      const [code, signal] = await Promise.race([completed, timedOut]);
+      clearTimeout(timer);
+      timer = undefined;
+
+      assert.equal(code, null, `stdout:\n${stdout}\nstderr:\n${stderr}`);
+      assert.equal(signal, expectedSignal);
+      const createdRoot = readFileSync(rootRecord, "utf8").trim();
+      assert.equal(existsSync(createdRoot), false, `leaked ${createdRoot}`);
+      assert.deepEqual(readdirSync(consumerTmp), []);
+    } finally {
+      if (timer !== undefined) clearTimeout(timer);
+      if (child && child.exitCode === null && child.signalCode === null) {
+        child.kill("SIGKILL");
+      }
+      rmSync(directory, { recursive: true, force: true });
+    }
   }
 });

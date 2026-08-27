@@ -47,6 +47,7 @@ function tarHeader({
   deviceMajor = 0,
   deviceMinor = 0,
   reservedByte = 0,
+  numericMutations = [],
 }) {
   const header = Buffer.alloc(512);
   writeTarString(header, 0, 100, name);
@@ -66,6 +67,8 @@ function tarHeader({
   writeTarString(header, 337, 8, `${deviceMinor.toString(8).padStart(7, "0")}\0`);
   writeTarString(header, 345, 155, prefix);
   header[500] = reservedByte;
+  if (base256Size) header[124] = 0x80;
+  for (const [offset, byte] of numericMutations) header[offset] = byte;
   const checksum = header.reduce((sum, byte) => sum + byte, 0);
   writeTarString(
     header,
@@ -73,7 +76,6 @@ function tarHeader({
     8,
     `${(checksum + (corruptChecksum ? 1 : 0)).toString(8).padStart(6, "0")}\0 `,
   );
-  if (base256Size) header[124] = 0x80;
   return header;
 }
 
@@ -229,9 +231,23 @@ test("archive headers reject corrupt checksums and hostile numeric metadata", as
     { deviceMajor: 1 },
     { deviceMinor: 1 },
     { reservedByte: 1 },
+    { numericMutations: [[137, 0xb0]] },
+    { numericMutations: [[145, 0xb7]] },
+    { numericMutations: [[137, 0x09]] },
   ]) {
     const entries = replaceEntry(repositoryEntries(), "README.md", replacement);
     assert.throws(() => validateTarball(makeTar(entries)));
+  }
+});
+
+test("gzip wrapper rejects a second member and trailing bytes", async () => {
+  const { validateTarball } = await modulePromise;
+  const tarball = makeTar(repositoryEntries());
+  for (const suffix of [
+    gzipSync(Buffer.alloc(0), { mtime: 0 }),
+    Buffer.from([0]),
+  ]) {
+    assert.throws(() => validateTarball(Buffer.concat([tarball, suffix])));
   }
 });
 

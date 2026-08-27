@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { lstatSync, readFileSync } from "node:fs";
 import { basename, dirname, isAbsolute, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { gunzipSync } from "node:zlib";
+import { gunzipSync, inflateRawSync } from "node:zlib";
 
 const BLOCK_SIZE = 512;
 const scriptsDirectory = dirname(fileURLToPath(import.meta.url));
@@ -63,7 +63,16 @@ function parseOctalField(
   { allowBlankZero = false } = {},
 ) {
   const field = header.subarray(offset, offset + length);
-  assert.equal((field[0] ?? 0) & 0x80, 0, `${label} uses base-256 encoding`);
+  assert.ok(
+    field.every((byte) => (byte & 0x80) === 0),
+    `${label} uses high-bit numeric encoding`,
+  );
+  assert.ok(
+    field.every(
+      (byte) => byte === 0 || byte === 0x20 || (byte >= 0x30 && byte <= 0x37),
+    ),
+    `${label} contains an invalid raw byte`,
+  );
   const text = field.toString("ascii").replace(/[\0 ]+$/u, "").trimStart();
   if (text === "" && allowBlankZero) return 0;
   assert.match(text, /^[0-7]+$/u, `${label} is not strict octal`);
@@ -155,9 +164,48 @@ export function validatePackReport(report, tarball) {
   return entry;
 }
 
+function skipGzipTerminatedField(buffer, offset, label) {
+  const terminator = buffer.indexOf(0, offset);
+  assert.ok(terminator !== -1, `${label} is not NUL-terminated`);
+  return terminator + 1;
+}
+
+function gunzipSingleMember(buffer) {
+  assert.ok(buffer.length >= 18, "gzip stream is too short");
+  assert.equal(buffer[0], 0x1f, "invalid gzip magic");
+  assert.equal(buffer[1], 0x8b, "invalid gzip magic");
+  assert.equal(buffer[2], 8, "unsupported gzip compression method");
+  const flags = buffer[3];
+  assert.equal(flags & 0xe0, 0, "gzip reserved flags must be zero");
+
+  let offset = 10;
+  if ((flags & 0x04) !== 0) {
+    assert.ok(offset + 2 <= buffer.length - 8, "truncated gzip extra length");
+    const extraLength = buffer.readUInt16LE(offset);
+    offset += 2 + extraLength;
+    assert.ok(offset <= buffer.length - 8, "truncated gzip extra field");
+  }
+  if ((flags & 0x08) !== 0) {
+    offset = skipGzipTerminatedField(buffer, offset, "gzip file name");
+  }
+  if ((flags & 0x10) !== 0) {
+    offset = skipGzipTerminatedField(buffer, offset, "gzip comment");
+  }
+  if ((flags & 0x02) !== 0) offset += 2;
+  assert.ok(offset <= buffer.length - 8, "truncated gzip header");
+
+  const result = inflateRawSync(buffer.subarray(offset), { info: true });
+  assert.equal(
+    offset + result.engine.bytesWritten + 8,
+    buffer.length,
+    "gzip input must contain exactly one member and no trailing bytes",
+  );
+  return gunzipSync(buffer);
+}
+
 export function validateTarball(buffer) {
   assert.ok(Buffer.isBuffer(buffer), "tarball must be a Buffer");
-  const archive = gunzipSync(buffer);
+  const archive = gunzipSingleMember(buffer);
   assert.ok(archive.length >= BLOCK_SIZE * 2, "tar archive is too short");
   assert.equal(archive.length % BLOCK_SIZE, 0, "tar archive length is not block-aligned");
 
