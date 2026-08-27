@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **CE marking symbols**: removed the stray spike on the top terminals of the "C" and "E" in `ce.svg` and `ce-bsi.svg` (#1).
-- **Theming**: all 29 symbols now inherit `currentColor` instead of hardcoded black, so the `color` and `fill` props (and dark mode) work consistently across the whole set.
+- **Theming**: all 29 symbols now inherit `currentColor` instead of hardcoded black. Use the `color` prop or CSS `color` to recolor them; a plain `fill` prop does not recolor artwork paths that use `currentColor`.
 - **Documentation**: rewrote the README to match the current React component API, removing an outdated string-based API section, duplicate sections, and a broken `LotIcon` example. The icon gallery now renders on npm as well as GitHub.
 - Corrected `SECURITY.md`, which previously described an unrelated project.
 - `LICENSE` now names the copyright holder.

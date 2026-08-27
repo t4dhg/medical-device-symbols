@@ -5,6 +5,26 @@ const test = require("node:test");
 
 const root = join(__dirname, "..");
 
+function validatePackageDescription(description) {
+  assert.match(
+    description,
+    /ISO 15223-1 symbols and separate regulatory marks/i,
+  );
+  assert.doesNotMatch(description, /\bcompliance\b/i);
+}
+
+function validateRecoloringGuidance(guidance) {
+  const normalized = guidance.replaceAll("`", "");
+  assert.doesNotMatch(
+    normalized,
+    /\b(?:color\s+(?:and|or)\s+fill|fill\s+(?:and|or)\s+color)\b.{0,100}\b(?:work|recolor|consistent)/is,
+  );
+  assert.doesNotMatch(
+    normalized,
+    /\bfill\b.{0,60}\b(?:recolors every|recolors all|supported recoloring)/is,
+  );
+}
+
 function repositoryDocuments() {
   const read = (relativePath) => readFileSync(join(root, relativePath), "utf8");
   return {
@@ -38,7 +58,10 @@ function validateDocumentation(documents) {
     rootPackage,
   } = documents;
   const publicExamples = [readme, demo, extraction, reactExamples].join("\n");
+  const publicGuidance = [publicExamples, changelog, rootPackage.description]
+    .join("\n");
 
+  validatePackageDescription(rootPackage.description);
   assert.match(readme, /ISO 15223-1 symbols and separate regulatory marks/i);
   assert.match(readme, /BSI 2797.*only when.*applicable/is);
   assert.match(readme, /artwork.*not.*regulatory determination/is);
@@ -52,6 +75,7 @@ function validateDocumentation(documents) {
   );
   assert.match(publicExamples, /(?:\bcolor\s*=|\bcolor\s*:)/i);
   assert.doesNotMatch(publicExamples, /\bCE\s+0123\b/);
+  validateRecoloringGuidance(publicGuidance);
 
   assert.match(changelog, /^## \[Unreleased\]/m);
   assert.doesNotMatch(changelog, /^## \[2\.0\.[23]\]/m);
@@ -92,6 +116,16 @@ test("public guidance matches the tested component and maintenance behavior", ()
   validateDocumentation(repositoryDocuments());
 });
 
+test("package metadata distinguishes symbols from regulatory marks", () => {
+  const { rootPackage } = repositoryDocuments();
+  validatePackageDescription(rootPackage.description);
+});
+
+test("changelog guidance does not claim fill recolors currentColor artwork", () => {
+  const { changelog } = repositoryDocuments();
+  validateRecoloringGuidance(changelog);
+});
+
 test("the documentation validator rejects an omitted BSI applicability warning", () => {
   const documents = repositoryDocuments();
   documents.readme = documents.readme.replace(
@@ -101,9 +135,25 @@ test("the documentation validator rejects an omitted BSI applicability warning",
   assert.throws(() => validateDocumentation(documents), assert.AssertionError);
 });
 
+test("the documentation validator rejects conflated compliance metadata", () => {
+  const documents = repositoryDocuments();
+  documents.rootPackage.description =
+    "React components for ISO 15223-1 symbols for EU MDR, FDA, and global labeling compliance.";
+  assert.throws(() => validateDocumentation(documents), assert.AssertionError);
+});
+
 test("the documentation validator rejects fill-based recoloring guidance", () => {
   const documents = repositoryDocuments();
   documents.demo = documents.demo.replace(/color=/i, "fill=");
+  assert.throws(() => validateDocumentation(documents), assert.AssertionError);
+});
+
+test("the documentation validator rejects misleading changelog fill guidance", () => {
+  const documents = repositoryDocuments();
+  documents.changelog = documents.changelog.replace(
+    "### Fixed",
+    "### Fixed\n\n- The fill prop is a supported recoloring mechanism for every icon.",
+  );
   assert.throws(() => validateDocumentation(documents), assert.AssertionError);
 });
 
