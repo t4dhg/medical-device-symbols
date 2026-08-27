@@ -49,5 +49,5 @@ test("the assertive unit test script replaces the print-only root scripts", () =
   assert.equal(existsSync(join(root, "test-package.js")), false);
   assert.equal(existsSync(join(root, "test-icons.js")), false);
   assert.equal(pkg.scripts["test:unit"], "node --test test/*.test.cjs");
-  assert.equal(pkg.scripts.test, "npm run test:unit");
+  assert.equal(pkg.scripts.test, "npm run build && npm run test:unit");
 });

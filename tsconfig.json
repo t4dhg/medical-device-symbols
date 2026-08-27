@@ -18,8 +18,7 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": false,
-    "types": ["node"]
+    "noEmit": true
   },
   "include": [
     "src/**/*"

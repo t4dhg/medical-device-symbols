@@ -8,9 +8,14 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "types": "./lib/index.d.ts",
-      "import": "./lib/index.mjs",
-      "require": "./lib/index.js"
+      "import": {
+        "types": "./lib/index.d.mts",
+        "default": "./lib/index.mjs"
+      },
+      "require": {
+        "types": "./lib/index.d.ts",
+        "default": "./lib/index.js"
+      }
     },
     "./package.json": "./package.json"
   },
@@ -22,18 +27,11 @@
   "scripts": {
     "generate": "node scripts/generate-index.mjs",
     "generate:check": "node scripts/generate-index.mjs --check",
-    "build": "npm run generate && tsup",
-    "prepare": "npm run build",
-    "pretest": "npm run build",
+    "clean": "node scripts/build.mjs --clean-only",
+    "typecheck": "tsc --noEmit",
+    "build": "npm run generate:check && node scripts/build.mjs",
     "test:unit": "node --test test/*.test.cjs",
-    "test": "npm run test:unit",
-    "prepublishOnly": "npm run build",
-    "version": "npm run build",
-    "postversion": "git push && git push --tags",
-    "deploy": "npm run build && npm publish",
-    "deploy:patch": "npm version patch && npm run deploy",
-    "deploy:minor": "npm version minor && npm run deploy",
-    "deploy:major": "npm version major && npm run deploy"
+    "test": "npm run build && npm run test:unit"
   },
   "keywords": [
     "medical-device",
@@ -59,14 +57,13 @@
   "author": "Taig Mac Carthy",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^26.1.1",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.5",
+    "esbuild": "0.28.2",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "saxes": "6.0.0",
-    "tsup": "^8.0.0",
-    "typescript": "^5.7.0"
+    "typescript": "5.9.3"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
