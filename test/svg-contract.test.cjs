@@ -47,9 +47,40 @@ const invalidCases = [
   ["rejects a missing viewBox", "missing-viewbox.svg", /viewBox/i],
   ["rejects an invalid viewBox", "invalid-viewbox.svg", /viewBox/i],
   [
+    "rejects malformed viewBox separators",
+    "malformed-viewbox-separators.svg",
+    /viewBox/i,
+  ],
+  ["rejects malformed path data", "malformed-path-data.svg", /path data/i],
+  [
+    "rejects non-finite path numbers",
+    "non-finite-path-number.svg",
+    /path data/i,
+  ],
+  [
+    "rejects malformed polygon points",
+    "malformed-points.svg",
+    /polygon points/i,
+  ],
+  [
+    "rejects non-finite matrix values",
+    "non-finite-matrix.svg",
+    /transform/i,
+  ],
+  [
     "rejects non-finite drawing numbers",
     "non-finite-drawing-number.svg",
     /numeric/i,
+  ],
+  ["rejects a negative drawing width", "negative-width.svg", /width/i],
+  ["rejects a negative drawing height", "negative-height.svg", /height/i],
+  ["rejects a negative circle radius", "negative-radius.svg", /\br\b/i],
+  ["rejects a negative x radius", "negative-rx.svg", /rx/i],
+  ["rejects a negative y radius", "negative-ry.svg", /ry/i],
+  [
+    "rejects a negative stroke width",
+    "negative-stroke-width.svg",
+    /stroke-width/i,
   ],
   [
     "rejects non-finite root numbers",

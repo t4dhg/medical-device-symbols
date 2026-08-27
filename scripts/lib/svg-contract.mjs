@@ -8,14 +8,25 @@ const XLINK_NAMESPACE = "http://www.w3.org/1999/xlink";
 const NUMBER_SOURCE =
   "[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?";
 const NUMBER = new RegExp(`^${NUMBER_SOURCE}$`);
-const VIEW_BOX = new RegExp(
-  `^\\s*(${NUMBER_SOURCE})[\\s,]+(${NUMBER_SOURCE})[\\s,]+(${NUMBER_SOURCE})[\\s,]+(${NUMBER_SOURCE})\\s*$`,
+const SVG_WHITESPACE_SOURCE = "[\\t\\n\\r ]";
+const NUMBER_LIST = new RegExp(
+  `^${SVG_WHITESPACE_SOURCE}*${NUMBER_SOURCE}(?:(?:${SVG_WHITESPACE_SOURCE}*,${SVG_WHITESPACE_SOURCE}*|${SVG_WHITESPACE_SOURCE}+)${NUMBER_SOURCE})*${SVG_WHITESPACE_SOURCE}*$`,
 );
-const PATH_DATA = /^[MmZzLlHhVvCcSsQqTtAa0-9+.,\-\sEe]+$/;
-const POINTS = /^[0-9+.,\-\sEe]+$/;
-const MATRIX = new RegExp(
-  `^matrix\\(\\s*${NUMBER_SOURCE}(?:[\\s,]+${NUMBER_SOURCE}){5}\\s*\\)$`,
-);
+const NUMBER_TOKEN = new RegExp(NUMBER_SOURCE, "g");
+const PATH_NUMBER = new RegExp(NUMBER_SOURCE, "y");
+const PATH_COMMAND = /^[MmZzLlHhVvCcSsQqTtAa]$/;
+const PATH_COMMAND_ARITY = new Map([
+  ["a", 7],
+  ["c", 6],
+  ["h", 1],
+  ["l", 2],
+  ["m", 2],
+  ["q", 4],
+  ["s", 4],
+  ["t", 2],
+  ["v", 1],
+  ["z", 0],
+]);
 
 export const ALLOWED_ELEMENTS = new Set([
   "svg",
@@ -107,6 +118,15 @@ const NUMERIC_ATTRIBUTES = new Set([
   "width",
   "x",
   "y",
+]);
+
+const NON_NEGATIVE_ATTRIBUTES = new Set([
+  "height",
+  "r",
+  "rx",
+  "ry",
+  "stroke-width",
+  "width",
 ]);
 
 function fail(filename, message) {
@@ -212,17 +232,145 @@ function parseStrictSvg(source, filename) {
   return root;
 }
 
+function parseFiniteNumberList(value) {
+  if (!NUMBER_LIST.test(value)) {
+    return undefined;
+  }
+  const numbers = Array.from(value.matchAll(NUMBER_TOKEN), (match) =>
+    Number(match[0]),
+  );
+  return numbers.every(Number.isFinite) ? numbers : undefined;
+}
+
+function isSvgWhitespace(character) {
+  return (
+    character === " " ||
+    character === "\t" ||
+    character === "\n" ||
+    character === "\r"
+  );
+}
+
+function tokenizePathData(value) {
+  const tokens = [];
+  let index = 0;
+
+  while (index < value.length) {
+    const whitespaceStart = index;
+    while (index < value.length && isSvgWhitespace(value[index])) {
+      index += 1;
+    }
+    const hadWhitespace = index > whitespaceStart;
+    let hadComma = false;
+
+    if (value[index] === ",") {
+      if (tokens.at(-1)?.type !== "number") {
+        return undefined;
+      }
+      hadComma = true;
+      index += 1;
+      while (index < value.length && isSvgWhitespace(value[index])) {
+        index += 1;
+      }
+    }
+
+    if (index === value.length) {
+      return hadComma ? undefined : tokens;
+    }
+
+    const character = value[index];
+    if (PATH_COMMAND.test(character)) {
+      if (hadComma) {
+        return undefined;
+      }
+      tokens.push({ type: "command", value: character });
+      index += 1;
+      continue;
+    }
+
+    PATH_NUMBER.lastIndex = index;
+    const match = PATH_NUMBER.exec(value);
+    if (match === null) {
+      return undefined;
+    }
+    if (
+      tokens.at(-1)?.type === "number" &&
+      !hadWhitespace &&
+      !hadComma &&
+      !/^[+.\-]/.test(match[0])
+    ) {
+      return undefined;
+    }
+    const number = Number(match[0]);
+    if (!Number.isFinite(number)) {
+      return undefined;
+    }
+    tokens.push({ raw: match[0], type: "number", value: number });
+    index = PATH_NUMBER.lastIndex;
+  }
+
+  return tokens;
+}
+
+function isValidPathData(value) {
+  const tokens = tokenizePathData(value);
+  if (
+    tokens === undefined ||
+    tokens.length === 0 ||
+    tokens[0].type !== "command" ||
+    tokens[0].value.toLowerCase() !== "m"
+  ) {
+    return false;
+  }
+
+  let index = 0;
+  while (index < tokens.length) {
+    const command = tokens[index];
+    if (command.type !== "command") {
+      return false;
+    }
+    const normalizedCommand = command.value.toLowerCase();
+    const arity = PATH_COMMAND_ARITY.get(normalizedCommand);
+    index += 1;
+
+    const parametersStart = index;
+    while (index < tokens.length && tokens[index].type === "number") {
+      index += 1;
+    }
+    const parameterCount = index - parametersStart;
+    if (
+      arity === undefined ||
+      (arity === 0 && parameterCount !== 0) ||
+      (arity !== 0 && (parameterCount === 0 || parameterCount % arity !== 0))
+    ) {
+      return false;
+    }
+
+    if (normalizedCommand === "a") {
+      for (let offset = parametersStart; offset < index; offset += arity) {
+        if (
+          tokens[offset].value < 0 ||
+          tokens[offset + 1].value < 0 ||
+          (tokens[offset + 3].raw !== "0" && tokens[offset + 3].raw !== "1") ||
+          (tokens[offset + 4].raw !== "0" && tokens[offset + 4].raw !== "1")
+        ) {
+          return false;
+        }
+      }
+    }
+  }
+
+  return true;
+}
+
 function validateViewBox(value, filename) {
   if (value === undefined) {
     fail(filename, "root viewBox is required");
   }
-  const match = VIEW_BOX.exec(value);
-  if (match === null) {
-    fail(filename, `invalid viewBox ${JSON.stringify(value)}`);
-  }
-  const values = match.slice(1).map(Number);
+  const values = parseFiniteNumberList(value);
   if (
-    values.some((number) => !Number.isFinite(number)) ||
+    values === undefined ||
+    values.length !== 4 ||
     values[2] <= 0 ||
     values[3] <= 0
   ) {
@@ -276,11 +424,13 @@ function validateAttributeValue(name, value, filename) {
   if (/^on/i.test(name) || name === "href" || name === "xlink:href") {
     fail(filename, `forbidden attribute ${JSON.stringify(name)}`);
   }
-  if (
-    NUMERIC_ATTRIBUTES.has(name) &&
-    (!NUMBER.test(value) || !Number.isFinite(Number(value)))
-  ) {
-    fail(filename, `invalid numeric ${name} ${JSON.stringify(value)}`);
+  if (NUMERIC_ATTRIBUTES.has(name)) {
+    if (!NUMBER.test(value) || !Number.isFinite(Number(value))) {
+      fail(filename, `invalid numeric ${name} ${JSON.stringify(value)}`);
+    }
+    if (NON_NEGATIVE_ATTRIBUTES.has(name) && Number(value) < 0) {
+      fail(filename, `invalid non-negative ${name} ${JSON.stringify(value)}`);
+    }
   }
   if (
     (name === "fill" && !/^(?:currentColor|none)$/.test(value)) ||
@@ -294,14 +444,21 @@ function validateAttributeValue(name, value, filename) {
   if (name === "stroke-linecap" && value !== "butt" && value !== "square") {
     fail(filename, `invalid stroke-linecap ${JSON.stringify(value)}`);
   }
-  if (name === "d" && (value === "" || !PATH_DATA.test(value))) {
+  if (name === "d" && !isValidPathData(value)) {
     fail(filename, `invalid path data ${JSON.stringify(value)}`);
   }
-  if (name === "points" && (value === "" || !POINTS.test(value))) {
-    fail(filename, `invalid polygon points ${JSON.stringify(value)}`);
+  if (name === "points") {
+    const points = parseFiniteNumberList(value);
+    if (points === undefined || points.length < 2 || points.length % 2 !== 0) {
+      fail(filename, `invalid polygon points ${JSON.stringify(value)}`);
+    }
   }
-  if (name === "transform" && !MATRIX.test(value)) {
-    fail(filename, `invalid transform ${JSON.stringify(value)}`);
+  if (name === "transform") {
+    const match = /^matrix\(([\s\S]*)\)$/.exec(value);
+    const matrix = match === null ? undefined : parseFiniteNumberList(match[1]);
+    if (matrix === undefined || matrix.length !== 6) {
+      fail(filename, `invalid transform ${JSON.stringify(value)}`);
+    }
   }
   if (name === "aria-label" && !/^[A-Za-z0-9 ._-]+$/.test(value)) {
     fail(filename, `invalid aria-label ${JSON.stringify(value)}`);
