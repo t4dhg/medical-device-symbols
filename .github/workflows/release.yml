@@ -109,7 +109,10 @@ jobs:
           RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
         run: |
           set -euo pipefail
-          test -n "$EXPECTED_ARTIFACT_DIGEST"
+          case "$EXPECTED_ARTIFACT_DIGEST" in
+            ""|*[!0-9a-f]*) exit 1 ;;
+          esac
+          test "${#EXPECTED_ARTIFACT_DIGEST}" -eq 64 || exit 1
           test "$(sha256sum "$RUNNER_TEMP/release-bundle/release-manifest.json" | cut -d ' ' -f 1)" = "$EXPECTED_MANIFEST_SHA256"
           test "$(sha256sum "$RUNNER_TEMP/release-bundle/check-release.mjs" | cut -d ' ' -f 1)" = "$EXPECTED_VERIFIER_SHA256"
           node "$RUNNER_TEMP/release-bundle/check-release.mjs" validate-bundle --bundle "$RUNNER_TEMP/release-bundle" --tag "$RELEASE_TAG" --commit "$RELEASE_COMMIT"
@@ -170,7 +173,7 @@ jobs:
             :
           elif [ "$http_status" = 404 ] && [ "$request_status" -ne 0 ]; then
             set +e
-            env -u NODE_AUTH_TOKEN -u NPM_TOKEN -u GITHUB_TOKEN gh release create "$RELEASE_TAG" --verify-tag --generate-notes --title "$RELEASE_TAG"
+            env -u NODE_AUTH_TOKEN -u NPM_TOKEN -u GITHUB_TOKEN gh release create "$RELEASE_TAG" --verify-tag --generate-notes --title "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY"
             create_status=$?
             set -e
             printf 'release create exit status: %s; verifying authoritative post-state\n' "$create_status"

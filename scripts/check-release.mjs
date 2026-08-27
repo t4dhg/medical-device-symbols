@@ -180,9 +180,9 @@ function validateCommit(value, scope = "release preflight") {
   return value;
 }
 
-function git(repositoryRoot, args) {
+function git(repositoryRoot, args, subprocess) {
   try {
-    return runSubprocess("git", args, { cwd: repositoryRoot }).stdout.trim();
+    return subprocess("git", args, { cwd: repositoryRoot }).stdout.trim();
   } catch (error) {
     throw new Error(`release preflight: git ${args[0]} failed`, {
       cause: error,
@@ -213,7 +213,7 @@ function readPackage(repositoryRoot, scope) {
 export function preflightRelease({
   repositoryRoot = defaultRepositoryRoot,
   environment = process.env,
-  fetch = true,
+  subprocess = runSubprocess,
 } = {}) {
   const scope = "release preflight";
   if (environment.GITHUB_EVENT_NAME !== "push") {
@@ -242,31 +242,39 @@ export function preflightRelease({
     `git@github.com:${releaseRepository}`,
     `git@github.com:${releaseRepository}.git`,
   ]);
-  const origin = git(repositoryRoot, ["remote", "get-url", "origin"]);
+  const origin = git(
+    repositoryRoot,
+    ["remote", "get-url", "origin"],
+    subprocess,
+  );
   if (!allowedOrigins.has(origin))
     fail(scope, "origin is not the release repository");
   if (
-    git(repositoryRoot, ["rev-parse", "--is-shallow-repository"]) !== "false"
+    git(
+      repositoryRoot,
+      ["rev-parse", "--is-shallow-repository"],
+      subprocess,
+    ) !== "false"
   ) {
     fail(scope, "checkout must not be shallow");
   }
   const tagRef = `refs/tags/${tag}`;
-  if (git(repositoryRoot, ["cat-file", "-t", tagRef]) !== "tag") {
+  if (git(repositoryRoot, ["cat-file", "-t", tagRef], subprocess) !== "tag") {
     fail(scope, "release tag must be annotated");
   }
   const peeledTag = validateCommit(
-    git(repositoryRoot, ["rev-parse", `${tagRef}^{commit}`]),
+    git(repositoryRoot, ["rev-parse", `${tagRef}^{commit}`], subprocess),
     scope,
   );
   const peeledEvent = validateCommit(
-    git(repositoryRoot, ["rev-parse", `${eventCommit}^{commit}`]),
+    git(repositoryRoot, ["rev-parse", `${eventCommit}^{commit}`], subprocess),
     scope,
   );
   if (peeledTag !== eventCommit || peeledEvent !== eventCommit) {
     fail(scope, "tag, event SHA, and peeled commit differ");
   }
-  if (fetch) {
-    runSubprocess(
+  try {
+    subprocess(
       "git",
       [
         "fetch",
@@ -276,17 +284,26 @@ export function preflightRelease({
       ],
       { cwd: repositoryRoot },
     );
+  } catch (error) {
+    throw new Error(`${scope}: mandatory master fetch failed`, {
+      cause: error,
+    });
   }
   validateCommit(
-    git(repositoryRoot, ["rev-parse", "refs/remotes/origin/master"]),
+    git(
+      repositoryRoot,
+      ["rev-parse", "refs/remotes/origin/master"],
+      subprocess,
+    ),
     scope,
   );
-  const ancestry = spawnRaw(
-    "git",
-    ["merge-base", "--is-ancestor", peeledTag, "refs/remotes/origin/master"],
-    { cwd: repositoryRoot },
-  );
-  if (ancestry.error || ancestry.signal || ancestry.status !== 0) {
+  try {
+    subprocess(
+      "git",
+      ["merge-base", "--is-ancestor", peeledTag, "refs/remotes/origin/master"],
+      { cwd: repositoryRoot },
+    );
+  } catch {
     fail(scope, "release commit must be an ancestor of fresh origin/master");
   }
   return { name: releasePackageName, version, tag, commit: peeledTag };
@@ -381,6 +398,9 @@ function validateArchive(buffer, name, version) {
     }
     if (header.subarray(257, 263).toString("latin1") !== "ustar\0") {
       fail("release bundle", "unsupported tar format");
+    }
+    if (!header.subarray(345, 500).every((byte) => byte === 0)) {
+      fail("release bundle", "USTAR prefix must be empty");
     }
     if (![0, 0x30].includes(header[156])) {
       fail("release bundle", "archive entries must be regular files");
@@ -923,14 +943,17 @@ function inspectRegistry(bundleDirectory) {
       { env: process.env },
     );
     const report = parseJson(packed.stdout, "registry tarball");
+    const expectedFilename = `${manifest.name}-${manifest.version}.tgz`;
     if (
       !Array.isArray(report) ||
       report.length !== 1 ||
-      typeof report[0]?.filename !== "string"
+      report[0]?.name !== manifest.name ||
+      report[0]?.version !== manifest.version ||
+      report[0]?.filename !== expectedFilename
     ) {
       fail("registry tarball", "npm pack report is not exact");
     }
-    const downloadedPath = join(downloadRoot, basename(report[0].filename));
+    const downloadedPath = join(downloadRoot, expectedFilename);
     validateRegistryTarball({
       metadata: state.metadata,
       downloadedTarball: readRegularFile(downloadedPath, "registry tarball"),

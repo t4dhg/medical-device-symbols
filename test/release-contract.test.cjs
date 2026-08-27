@@ -1,13 +1,16 @@
 const assert = require("node:assert/strict");
 const { execFileSync, spawnSync } = require("node:child_process");
+const { createHash } = require("node:crypto");
 const {
   chmodSync,
   cpSync,
+  existsSync,
   lstatSync,
   mkdtempSync,
   mkdirSync,
   readFileSync,
   readdirSync,
+  realpathSync,
   rmSync,
   symlinkSync,
   writeFileSync,
@@ -17,6 +20,7 @@ const { basename, join, resolve } = require("node:path");
 const test = require("node:test");
 const { pathToFileURL } = require("node:url");
 const { parse } = require("yaml");
+const { gunzipSync, gzipSync } = require("node:zlib");
 
 const root = resolve(__dirname, "..");
 const releaseScript = join(root, "scripts", "check-release.mjs");
@@ -33,7 +37,7 @@ let packFixture;
 const temporaryRoots = [];
 
 function temporaryRoot(prefix = "medical-symbols-release-") {
-  const directory = mkdtempSync(join(tmpdir(), prefix));
+  const directory = realpathSync(mkdtempSync(join(tmpdir(), prefix)));
   temporaryRoots.push(directory);
   return directory;
 }
@@ -67,15 +71,45 @@ function writeExecutable(path, source) {
   chmodSync(path, 0o755);
 }
 
-function createGitFixture() {
-  const directory = temporaryRoot("medical-symbols-release-git-");
-  run("git", ["init", "--initial-branch=master"], { cwd: directory });
-  run("git", ["config", "user.name", "Release Test"], { cwd: directory });
+function rebindBundleTarball(bundleDirectory, tarball) {
+  const manifestPath = join(bundleDirectory, "release-manifest.json");
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  writeFileSync(join(bundleDirectory, manifest.tarball), tarball);
+  manifest.size = tarball.length;
+  manifest.integrity = `sha512-${createHash("sha512").update(tarball).digest("base64")}`;
+  manifest.sha256 = createHash("sha256").update(tarball).digest("hex");
+  manifest.sha512 = createHash("sha512").update(tarball).digest("hex");
+  writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+}
+
+function addRecomputedUstarPrefix(tarball) {
+  const archive = gunzipSync(tarball);
+  const header = archive.subarray(0, 512);
+  header[345] = 0x78;
+  header.fill(0x20, 148, 156);
+  let checksum = 0;
+  for (const byte of header) checksum += byte;
+  header.write(checksum.toString(8).padStart(6, "0"), 148, 6, "ascii");
+  header[154] = 0;
+  header[155] = 0x20;
+  return gzipSync(archive);
+}
+
+function createGitFixture({ shallow = false } = {}) {
+  const fixtureRoot = temporaryRoot("medical-symbols-release-git-");
+  const originDirectory = join(fixtureRoot, "origin.git");
+  const seedDirectory = join(fixtureRoot, "seed");
+  const directory = join(fixtureRoot, "checkout");
+  run("git", ["init", "--bare", "--initial-branch=master", originDirectory]);
+  run("git", ["init", "--initial-branch=master", seedDirectory]);
+  run("git", ["config", "user.name", "Release Test"], {
+    cwd: seedDirectory,
+  });
   run("git", ["config", "user.email", "release@example.invalid"], {
-    cwd: directory,
+    cwd: seedDirectory,
   });
   writeFileSync(
-    join(directory, "package.json"),
+    join(seedDirectory, "package.json"),
     `${JSON.stringify({
       name: packageName,
       version: packageVersion,
@@ -85,26 +119,110 @@ function createGitFixture() {
       },
     })}\n`,
   );
-  run("git", ["add", "package.json"], { cwd: directory });
-  run("git", ["commit", "-m", "fixture"], { cwd: directory });
-  const fixtureCommit = run("git", ["rev-parse", "HEAD"], { cwd: directory });
-  run("git", ["tag", "-a", tag, "-m", tag], { cwd: directory });
-  run("git", ["remote", "add", "origin", "."], { cwd: directory });
+  run("git", ["add", "package.json"], { cwd: seedDirectory });
+  run("git", ["commit", "-m", "fixture"], { cwd: seedDirectory });
+  const fixtureCommit = run("git", ["rev-parse", "HEAD"], {
+    cwd: seedDirectory,
+  });
+  run("git", ["tag", "-a", tag, "-m", tag], { cwd: seedDirectory });
+  run("git", ["remote", "add", "origin", originDirectory], {
+    cwd: seedDirectory,
+  });
+  run("git", ["push", "origin", "master", `refs/tags/${tag}`], {
+    cwd: seedDirectory,
+  });
+  run("git", [
+    "clone",
+    ...(shallow ? ["--depth", "1"] : []),
+    pathToFileURL(originDirectory).href,
+    directory,
+  ]);
+  run("git", ["config", "user.name", "Release Test"], { cwd: directory });
+  run("git", ["config", "user.email", "release@example.invalid"], {
+    cwd: directory,
+  });
   run(
     "git",
     [
-      "config",
-      "remote.origin.url",
+      "remote",
+      "set-url",
+      "origin",
       "https://github.com/t4dhg/medical-device-symbols.git",
     ],
-    {
-      cwd: directory,
-    },
+    { cwd: directory },
   );
-  run("git", ["update-ref", "refs/remotes/origin/master", fixtureCommit], {
-    cwd: directory,
+  const subprocessCalls = [];
+  return {
+    directory,
+    originDirectory,
+    seedDirectory,
+    commit: fixtureCommit,
+    subprocessCalls,
+    subprocess(baseRunner) {
+      return (command, args, options = {}) => {
+        subprocessCalls.push([command, ...args]);
+        if (command !== "git" || args[0] !== "fetch") {
+          return baseRunner(command, args, options);
+        }
+        return baseRunner(command, args, {
+          ...options,
+          env: {
+            ...process.env,
+            GIT_CONFIG_COUNT: "1",
+            GIT_CONFIG_KEY_0: `url.${pathToFileURL(originDirectory).href}.insteadOf`,
+            GIT_CONFIG_VALUE_0:
+              "https://github.com/t4dhg/medical-device-symbols.git",
+          },
+        });
+      };
+    },
+  };
+}
+
+function advanceOriginMaster(fixture) {
+  const marker = "later";
+  writeFileSync(join(fixture.seedDirectory, marker), `${marker}\n`);
+  run("git", ["add", marker], { cwd: fixture.seedDirectory });
+  run("git", ["commit", "-m", marker], { cwd: fixture.seedDirectory });
+  const advanced = run("git", ["rev-parse", "HEAD"], {
+    cwd: fixture.seedDirectory,
   });
-  return { directory, commit: fixtureCommit };
+  run("git", ["push", "origin", "master"], {
+    cwd: fixture.seedDirectory,
+  });
+  return advanced;
+}
+
+function replaceOriginMasterWithUnrelated(fixture) {
+  run("git", ["checkout", "--orphan", "unrelated"], {
+    cwd: fixture.seedDirectory,
+  });
+  run("git", ["rm", "-rf", "."], { cwd: fixture.seedDirectory });
+  writeFileSync(
+    join(fixture.seedDirectory, "package.json"),
+    `${JSON.stringify({
+      name: packageName,
+      version: packageVersion,
+      repository: {
+        type: "git",
+        url: "git+https://github.com/t4dhg/medical-device-symbols.git",
+      },
+    })}\n`,
+  );
+  writeFileSync(join(fixture.seedDirectory, "unrelated"), "unrelated\n");
+  run("git", ["add", "package.json", "unrelated"], {
+    cwd: fixture.seedDirectory,
+  });
+  run("git", ["commit", "-m", "unrelated"], {
+    cwd: fixture.seedDirectory,
+  });
+  const unrelated = run("git", ["rev-parse", "HEAD"], {
+    cwd: fixture.seedDirectory,
+  });
+  run("git", ["push", "--force", "origin", "HEAD:master"], {
+    cwd: fixture.seedDirectory,
+  });
+  return unrelated;
 }
 
 function releaseEnvironment(fixtureCommit, overrides = {}) {
@@ -240,6 +358,184 @@ function auditFixture(sha512Hex, statement = provenanceStatement(sha512Hex)) {
   };
 }
 
+function validateWorkflowSemantics(workflow) {
+  assert.deepEqual(workflow.on, { push: { tags: ["v*"] } });
+  const { prepare, publish, "github-release": githubRelease } = workflow.jobs;
+  const identity = (step) => step.name ?? step.uses;
+  assert.deepEqual(prepare.steps.map(identity), [
+    "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+    "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020",
+    "Bind the annotated tag to fresh master",
+    "Install the pinned publication client",
+    "Install reviewed dependencies",
+    "Run the complete quality gate",
+    "Pack and verify the release archive",
+    "Bind independent release-file hashes",
+    "Upload the reviewed release bundle",
+  ]);
+  assert.deepEqual(publish.steps.map(identity), [
+    "actions/setup-node@820762786026740c76f36085b0efc47a31fe5020",
+    "Download the reviewed bundle by artifact ID",
+    "Bind and validate the downloaded bundle",
+    "Install the pinned publication client",
+    "Classify the exact registry version",
+    "Publish the exact reviewed archive",
+    "Prove registry bytes, signatures, and provenance",
+  ]);
+  assert.deepEqual(githubRelease.steps.map(identity), [
+    "Verify the annotated tag and create or recover the release",
+  ]);
+  const checkout = prepare.steps[0];
+  assert.deepEqual(checkout.with, {
+    "fetch-depth": 0,
+    "persist-credentials": false,
+  });
+  assert.deepEqual(prepare.outputs, {
+    "artifact-id": "${{ steps.upload.outputs.artifact-id }}",
+    "artifact-digest": "${{ steps.upload.outputs.artifact-digest }}",
+    "manifest-sha256": "${{ steps.bind.outputs.manifest-sha256 }}",
+    "verifier-sha256": "${{ steps.bind.outputs.verifier-sha256 }}",
+    commit: "${{ steps.preflight.outputs.commit }}",
+    tag: "${{ steps.preflight.outputs.tag }}",
+  });
+  const download = publish.steps[1];
+  assert.equal(
+    download.with["artifact-ids"],
+    "${{ needs.prepare.outputs.artifact-id }}",
+  );
+  const bind = publish.steps[2];
+  assert.deepEqual(bind.env, {
+    EXPECTED_ARTIFACT_DIGEST: "${{ needs.prepare.outputs.artifact-digest }}",
+    EXPECTED_MANIFEST_SHA256: "${{ needs.prepare.outputs.manifest-sha256 }}",
+    EXPECTED_VERIFIER_SHA256: "${{ needs.prepare.outputs.verifier-sha256 }}",
+    RELEASE_COMMIT: "${{ needs.prepare.outputs.commit }}",
+    RELEASE_TAG: "${{ needs.prepare.outputs.tag }}",
+  });
+  assert.deepEqual(
+    publish.steps
+      .filter((step) => step["continue-on-error"] !== undefined)
+      .map((step) => [step.id, step["continue-on-error"]]),
+    [["publish", true]],
+  );
+  assert.equal(
+    publish.steps[5].if,
+    "${{ steps.registry.outputs.state == 'missing' }}",
+  );
+  assert.equal(publish.steps[6].if, "${{ success() }}");
+}
+
+function readStepOutputs(path) {
+  if (!existsSync(path)) return {};
+  return Object.fromEntries(
+    readFileSync(path, "utf8")
+      .trim()
+      .split("\n")
+      .filter(Boolean)
+      .map((line) => {
+        const separator = line.indexOf("=");
+        assert.ok(separator > 0, `invalid step output: ${line}`);
+        return [line.slice(0, separator), line.slice(separator + 1)];
+      }),
+  );
+}
+
+function fileSha256(path) {
+  return createHash("sha256").update(readFileSync(path)).digest("hex");
+}
+
+async function runPublishJob({
+  sourceBundle,
+  fakeRoot,
+  environment,
+  downloadFailure = false,
+  artifactDigest = "ab".repeat(32),
+  manifestSha256,
+  verifierSha256,
+  mutateDownloadedBundle = () => {},
+}) {
+  const workflow = parse(readFileSync(workflowPath, "utf8"));
+  const steps = workflow.jobs.publish.steps;
+  const runnerBundle = join(fakeRoot, "release-bundle");
+  const outputs = {};
+  const executions = [];
+  for (let index = 0; index < steps.length; index += 1) {
+    const step = steps[index];
+    const label = step.name ?? step.uses;
+    if (step.uses?.startsWith("actions/setup-node@")) {
+      executions.push({ label, status: 0, simulated: "setup-node" });
+      continue;
+    }
+    if (step.uses?.startsWith("actions/download-artifact@")) {
+      if (downloadFailure) {
+        executions.push({ label, status: 1, simulated: "download" });
+        return { status: 1, failureStep: label, executions, outputs };
+      }
+      cpSync(sourceBundle, runnerBundle, { recursive: true });
+      mutateDownloadedBundle(runnerBundle);
+      executions.push({ label, status: 0, simulated: "download" });
+      continue;
+    }
+    if (step.id === "publish" && outputs.registry?.state !== "missing") {
+      executions.push({ label, status: 0, skipped: true });
+      continue;
+    }
+    const outputPath = join(fakeRoot, `step-${index}-output`);
+    const stepEnvironment = {
+      ...process.env,
+      ...environment,
+      GITHUB_OUTPUT: outputPath,
+      GITHUB_REF_NAME: tag,
+      RUNNER_TEMP: fakeRoot,
+    };
+    for (const key of [
+      "NODE_AUTH_TOKEN",
+      "NPM_TOKEN",
+      "GH_TOKEN",
+      "GITHUB_TOKEN",
+    ]) {
+      delete stepEnvironment[key];
+    }
+    if (step.name === "Bind and validate the downloaded bundle") {
+      stepEnvironment.EXPECTED_ARTIFACT_DIGEST = artifactDigest;
+      stepEnvironment.EXPECTED_MANIFEST_SHA256 =
+        manifestSha256 ??
+        fileSha256(join(runnerBundle, "release-manifest.json"));
+      stepEnvironment.EXPECTED_VERIFIER_SHA256 =
+        verifierSha256 ?? fileSha256(join(runnerBundle, "check-release.mjs"));
+      stepEnvironment.RELEASE_COMMIT = commit;
+      stepEnvironment.RELEASE_TAG = tag;
+    }
+    if (step.id === "publish") {
+      stepEnvironment.NODE_AUTH_TOKEN = "npm_secret_value";
+      stepEnvironment.NPM_TOKEN = "npm_legacy_secret";
+      stepEnvironment.GH_TOKEN = "github_cli_secret";
+      stepEnvironment.GITHUB_TOKEN = "github_actions_secret";
+    }
+    const result = spawnSync("bash", ["-c", step.run], {
+      cwd: fakeRoot,
+      encoding: "utf8",
+      env: stepEnvironment,
+    });
+    executions.push({
+      label,
+      id: step.id,
+      status: result.status,
+      stdout: result.stdout,
+      stderr: result.stderr,
+    });
+    if (step.id) outputs[step.id] = readStepOutputs(outputPath);
+    if (result.status !== 0 && step["continue-on-error"] !== true) {
+      return {
+        status: result.status,
+        failureStep: label,
+        executions,
+        outputs,
+      };
+    }
+  }
+  return { status: 0, executions, outputs };
+}
+
 test("stable release tags accept canonical SemVer only", async () => {
   const { validateStableTag } = await loadReleaseModule();
   assert.equal(validateStableTag("v0.0.0"), "0.0.0");
@@ -291,13 +587,14 @@ test("runSubprocess never uses a shell and fails closed on process uncertainty",
   );
 });
 
-test("preflight binds the push event, annotated tag, checkout, and fresh master", async () => {
-  const { preflightRelease } = await loadReleaseModule();
+test("preflight always fetches exact fresh master before checking ancestry", async () => {
+  const { preflightRelease, runSubprocess } = await loadReleaseModule();
   const fixture = createGitFixture();
+  const advanced = advanceOriginMaster(fixture);
   const result = preflightRelease({
     repositoryRoot: fixture.directory,
     environment: releaseEnvironment(fixture.commit),
-    fetch: false,
+    subprocess: fixture.subprocess(runSubprocess),
   });
   assert.deepEqual(result, {
     name: packageName,
@@ -305,10 +602,30 @@ test("preflight binds the push event, annotated tag, checkout, and fresh master"
     tag,
     commit: fixture.commit,
   });
+  assert.equal(
+    run("git", ["rev-parse", "refs/remotes/origin/master"], {
+      cwd: fixture.directory,
+    }),
+    advanced,
+  );
+  const fetch = fixture.subprocessCalls.findIndex(
+    (call) => call[0] === "git" && call[1] === "fetch",
+  );
+  const ancestry = fixture.subprocessCalls.findIndex(
+    (call) => call[0] === "git" && call[1] === "merge-base",
+  );
+  assert.deepEqual(fixture.subprocessCalls[fetch], [
+    "git",
+    "fetch",
+    "--no-tags",
+    "origin",
+    "refs/heads/master:refs/remotes/origin/master",
+  ]);
+  assert.ok(fetch >= 0 && ancestry > fetch);
 });
 
 test("preflight rejects every event and repository identity mismatch", async () => {
-  const { preflightRelease } = await loadReleaseModule();
+  const { preflightRelease, runSubprocess } = await loadReleaseModule();
   const fixture = createGitFixture();
   for (const overrides of [
     { GITHUB_EVENT_NAME: "workflow_dispatch" },
@@ -323,15 +640,15 @@ test("preflight rejects every event and repository identity mismatch", async () 
         preflightRelease({
           repositoryRoot: fixture.directory,
           environment: releaseEnvironment(fixture.commit, overrides),
-          fetch: false,
+          subprocess: fixture.subprocess(runSubprocess),
         }),
       /release preflight/u,
     );
   }
 });
 
-test("preflight rejects lightweight tags, wrong origin, shallow state, and non-ancestor tags", async () => {
-  const { preflightRelease } = await loadReleaseModule();
+test("preflight rejects lightweight tags and wrong origins", async () => {
+  const { preflightRelease, runSubprocess } = await loadReleaseModule();
   const lightweight = createGitFixture();
   run("git", ["tag", "-d", tag], { cwd: lightweight.directory });
   run("git", ["tag", tag], { cwd: lightweight.directory });
@@ -340,7 +657,7 @@ test("preflight rejects lightweight tags, wrong origin, shallow state, and non-a
       preflightRelease({
         repositoryRoot: lightweight.directory,
         environment: releaseEnvironment(lightweight.commit),
-        fetch: false,
+        subprocess: lightweight.subprocess(runSubprocess),
       }),
     /annotated/u,
   );
@@ -358,47 +675,85 @@ test("preflight rejects lightweight tags, wrong origin, shallow state, and non-a
       preflightRelease({
         repositoryRoot: wrongOrigin.directory,
         environment: releaseEnvironment(wrongOrigin.commit),
-        fetch: false,
+        subprocess: wrongOrigin.subprocess(runSubprocess),
       }),
     /origin/u,
   );
+});
 
-  const stale = createGitFixture();
-  writeFileSync(join(stale.directory, "later"), "later\n");
-  run("git", ["add", "later"], { cwd: stale.directory });
-  run("git", ["commit", "-m", "later"], { cwd: stale.directory });
-  const later = run("git", ["rev-parse", "HEAD"], { cwd: stale.directory });
-  run("git", ["update-ref", "refs/remotes/origin/master", later], {
-    cwd: stale.directory,
-  });
-  run("git", ["checkout", "--orphan", "unrelated"], { cwd: stale.directory });
-  run("git", ["rm", "-rf", "."], { cwd: stale.directory });
-  writeFileSync(
-    join(stale.directory, "package.json"),
-    `${JSON.stringify({
-      name: packageName,
-      version: packageVersion,
-      repository: {
-        type: "git",
-        url: "git+https://github.com/t4dhg/medical-device-symbols.git",
-      },
-    })}\n`,
+test("preflight rejects a true shallow file clone", async () => {
+  const { preflightRelease, runSubprocess } = await loadReleaseModule();
+  const shallow = createGitFixture({ shallow: true });
+  assert.equal(
+    run("git", ["rev-parse", "--is-shallow-repository"], {
+      cwd: shallow.directory,
+    }),
+    "true",
   );
-  writeFileSync(join(stale.directory, "unrelated"), "unrelated\n");
-  run("git", ["add", "package.json", "unrelated"], { cwd: stale.directory });
-  run("git", ["commit", "-m", "unrelated"], { cwd: stale.directory });
-  const unrelated = run("git", ["rev-parse", "HEAD"], { cwd: stale.directory });
-  run("git", ["update-ref", "refs/remotes/origin/master", unrelated], {
-    cwd: stale.directory,
+  assert.throws(
+    () =>
+      preflightRelease({
+        repositoryRoot: shallow.directory,
+        environment: releaseEnvironment(shallow.commit),
+        subprocess: shallow.subprocess(runSubprocess),
+      }),
+    /shallow/u,
+  );
+});
+
+test("preflight refuses a missing fresh master ref", async () => {
+  const { preflightRelease, runSubprocess } = await loadReleaseModule();
+  const missing = createGitFixture();
+  run("git", [
+    "--git-dir",
+    missing.originDirectory,
+    "update-ref",
+    "-d",
+    "refs/heads/master",
+  ]);
+  assert.throws(
+    () =>
+      preflightRelease({
+        repositoryRoot: missing.directory,
+        environment: releaseEnvironment(missing.commit),
+        subprocess: missing.subprocess(runSubprocess),
+      }),
+    /release preflight|fetch/u,
+  );
+});
+
+test("preflight refuses a freshly fetched non-ancestor master", async () => {
+  const { preflightRelease, runSubprocess } = await loadReleaseModule();
+  const unrelated = createGitFixture();
+  replaceOriginMasterWithUnrelated(unrelated);
+  assert.throws(
+    () =>
+      preflightRelease({
+        repositoryRoot: unrelated.directory,
+        environment: releaseEnvironment(unrelated.commit),
+        subprocess: unrelated.subprocess(runSubprocess),
+      }),
+    /release preflight|fetch|ancestor/u,
+  );
+});
+
+test("preflight rejects a real event commit that differs from the tag peel", async () => {
+  const { preflightRelease, runSubprocess } = await loadReleaseModule();
+  const fixture = createGitFixture();
+  writeFileSync(join(fixture.directory, "local-later"), "later\n");
+  run("git", ["add", "local-later"], { cwd: fixture.directory });
+  run("git", ["commit", "-m", "local later"], { cwd: fixture.directory });
+  const later = run("git", ["rev-parse", "HEAD"], {
+    cwd: fixture.directory,
   });
   assert.throws(
     () =>
       preflightRelease({
-        repositoryRoot: stale.directory,
-        environment: releaseEnvironment(stale.commit),
-        fetch: false,
+        repositoryRoot: fixture.directory,
+        environment: releaseEnvironment(later),
+        subprocess: fixture.subprocess(runSubprocess),
       }),
-    /ancestor/u,
+    /tag, event SHA, and peeled commit differ/u,
   );
 });
 
@@ -472,6 +827,26 @@ test("release bundle rejects additions, symlinks, hash drift, identity drift, an
       /release bundle/u,
     );
   }
+});
+
+test("standalone bundle validation rejects a checksum-valid nonempty USTAR prefix", async () => {
+  const { release, bundleDirectory } = await createBundle();
+  const manifest = JSON.parse(
+    readFileSync(join(bundleDirectory, "release-manifest.json"), "utf8"),
+  );
+  const mutated = addRecomputedUstarPrefix(
+    readFileSync(join(bundleDirectory, manifest.tarball)),
+  );
+  rebindBundleTarball(bundleDirectory, mutated);
+  assert.throws(
+    () =>
+      release.validateReleaseBundle({
+        bundleDirectory,
+        expectedTag: tag,
+        expectedCommit: commit,
+      }),
+    /USTAR prefix/u,
+  );
 });
 
 test("registry view recognizes only the exact npm 11.19.0 missing response", async () => {
@@ -739,6 +1114,7 @@ test("provenance binds purl, digest, repository, workflow, tag, event, commit, a
 
 test("release workflow has exactly three least-privilege, hash-bound jobs", () => {
   const workflow = parse(readFileSync(workflowPath, "utf8"));
+  validateWorkflowSemantics(workflow);
   assert.deepEqual(workflow.permissions, {});
   assert.deepEqual(Object.keys(workflow.jobs), [
     "prepare",
@@ -841,6 +1217,52 @@ test("release workflow has exactly three least-privilege, hash-bound jobs", () =
   assert.deepEqual(githubRelease.env, { GH_TOKEN: "${{ github.token }}" });
 });
 
+test("workflow semantics reject trigger, order, history, output, and binding drift", () => {
+  const source = readFileSync(workflowPath, "utf8");
+  const mutations = [
+    (workflow) => (workflow.on.push.tags = ["v**"]),
+    (workflow) =>
+      workflow.jobs.prepare.steps.splice(
+        2,
+        2,
+        workflow.jobs.prepare.steps[3],
+        workflow.jobs.prepare.steps[2],
+      ),
+    (workflow) => (workflow.jobs.prepare.steps[0].with["fetch-depth"] = 1),
+    (workflow) => delete workflow.jobs.prepare.outputs["artifact-id"],
+    (workflow) => delete workflow.jobs.prepare.outputs["artifact-digest"],
+    (workflow) => delete workflow.jobs.prepare.outputs["manifest-sha256"],
+    (workflow) => delete workflow.jobs.prepare.outputs["verifier-sha256"],
+    (workflow) => delete workflow.jobs.prepare.outputs.commit,
+    (workflow) => delete workflow.jobs.prepare.outputs.tag,
+    (workflow) =>
+      (workflow.jobs.publish.steps[1].with["artifact-ids"] =
+        "${{ needs.prepare.outputs.artifact-digest }}"),
+    (workflow) =>
+      (workflow.jobs.publish.steps[2].env.EXPECTED_ARTIFACT_DIGEST =
+        "${{ needs.prepare.outputs.manifest-sha256 }}"),
+    (workflow) =>
+      (workflow.jobs.publish.steps[2].env.EXPECTED_MANIFEST_SHA256 =
+        "${{ needs.prepare.outputs.verifier-sha256 }}"),
+    (workflow) =>
+      (workflow.jobs.publish.steps[2].env.EXPECTED_VERIFIER_SHA256 =
+        "${{ needs.prepare.outputs.manifest-sha256 }}"),
+    (workflow) =>
+      (workflow.jobs.publish.steps[2].env.RELEASE_COMMIT = "${{ github.sha }}"),
+    (workflow) =>
+      (workflow.jobs.publish.steps[2].env.RELEASE_TAG =
+        "${{ github.ref_name }}"),
+    (workflow) => (workflow.jobs.publish.steps[4]["continue-on-error"] = true),
+    (workflow) => delete workflow.jobs.publish.steps[5]["continue-on-error"],
+    (workflow) => (workflow.jobs.publish.steps[6].if = "${{ always() }}"),
+  ];
+  for (const mutate of mutations) {
+    const workflow = parse(source);
+    mutate(workflow);
+    assert.throws(() => validateWorkflowSemantics(workflow));
+  }
+});
+
 test("the registry CLI uses fake npm without leaking token-shaped variables", async () => {
   const { bundleDirectory } = await createBundle();
   const fakeRoot = temporaryRoot("medical-symbols-release-fake-npm-");
@@ -858,7 +1280,7 @@ const args = process.argv.slice(2);
 const metadata = JSON.parse(process.env.FAKE_METADATA);
 if (args[0] === "view" && args[1] === "medical-device-symbols" && args.includes("dist-tags.latest")) process.stdout.write(JSON.stringify(metadata["dist-tags"].latest));
 else if (args[0] === "view" && args.includes("--json")) process.stdout.write(JSON.stringify(metadata));
-else if (args[0] === "pack") { const destination = args[args.indexOf("--pack-destination") + 1]; const target = path.join(destination, path.basename(process.env.FAKE_TARBALL)); fs.copyFileSync(process.env.FAKE_TARBALL, target); process.stdout.write(JSON.stringify([{ filename: path.basename(target) }])); }
+else if (args[0] === "pack") { const report = JSON.parse(process.env.FAKE_PACK_REPORT); const destination = args[args.indexOf("--pack-destination") + 1]; const target = path.join(destination, path.basename(report[0].filename)); fs.copyFileSync(process.env.FAKE_TARBALL, target); process.stdout.write(process.env.FAKE_PACK_REPORT); }
 else process.exit(97);
 `,
   );
@@ -876,6 +1298,13 @@ else process.exit(97);
         PATH: `${fakeRoot}:${process.env.PATH}`,
         FAKE_NPM_LOG: log,
         FAKE_TARBALL: sourceTarball,
+        FAKE_PACK_REPORT: JSON.stringify([
+          {
+            name: packageName,
+            version: packageVersion,
+            filename: `${packageName}-${packageVersion}.tgz`,
+          },
+        ]),
         FAKE_METADATA: JSON.stringify(
           registryMetadata({
             dist: { integrity, tarball: expectedTarballUrl },
@@ -896,6 +1325,98 @@ else process.exit(97);
   for (const entry of entries) {
     assert.deepEqual(entry.tokens, {});
   }
+
+  const rejectedReports = [];
+  for (const scenario of [
+    {
+      name: "wrong name",
+      report: [
+        {
+          name: `${packageName}-other`,
+          version: packageVersion,
+          filename: `${packageName}-${packageVersion}.tgz`,
+        },
+      ],
+    },
+    {
+      name: "wrong version",
+      report: [
+        {
+          name: packageName,
+          version: "2.2.1",
+          filename: `${packageName}-${packageVersion}.tgz`,
+        },
+      ],
+    },
+    {
+      name: "wrong filename",
+      report: [
+        { name: packageName, version: packageVersion, filename: "other.tgz" },
+      ],
+    },
+    {
+      name: "path filename",
+      report: [
+        {
+          name: packageName,
+          version: packageVersion,
+          filename: `subdir/${packageName}-${packageVersion}.tgz`,
+        },
+      ],
+    },
+    {
+      name: "suffix filename",
+      report: [
+        {
+          name: packageName,
+          version: packageVersion,
+          filename: `${packageName}-${packageVersion}.tgz.backup`,
+        },
+      ],
+    },
+    {
+      name: "near-version filename",
+      report: [
+        {
+          name: packageName,
+          version: packageVersion,
+          filename: `${packageName}-2.2.1.tgz`,
+        },
+      ],
+    },
+  ]) {
+    const rejected = spawnSync(
+      process.execPath,
+      [releaseScript, "registry-state", "--bundle", bundleDirectory],
+      {
+        cwd: fakeRoot,
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          PATH: `${fakeRoot}:${process.env.PATH}`,
+          FAKE_NPM_LOG: log,
+          FAKE_TARBALL: sourceTarball,
+          FAKE_PACK_REPORT: JSON.stringify(scenario.report),
+          FAKE_METADATA: JSON.stringify(
+            registryMetadata({
+              dist: { integrity, tarball: expectedTarballUrl },
+              "dist-tags": { latest: packageVersion },
+            }),
+          ),
+        },
+      },
+    );
+    rejectedReports.push({
+      name: scenario.name,
+      report: scenario.report,
+      status: rejected.status,
+      stderr: rejected.stderr,
+    });
+  }
+  for (const rejected of rejectedReports) {
+    assert.notEqual(rejected.status, 0, rejected.name);
+    assert.match(rejected.stderr, /registry tarball/u, rejected.name);
+  }
 });
 
 test("the registry verifier installs, locks, audits, and proves the exact published target", async () => {
@@ -909,8 +1430,7 @@ test("the registry verifier installs, locks, audits, and proves the exact publis
   const viewCount = join(fakeRoot, "view-count");
   const publishMarker = join(fakeRoot, "published");
   const runnerBundle = join(fakeRoot, "release-bundle");
-  cpSync(bundleDirectory, runnerBundle, { recursive: true });
-  const sourceTarball = join(runnerBundle, manifest.tarball);
+  const sourceTarball = join(bundleDirectory, manifest.tarball);
   const metadata = registryMetadata({
     dist: {
       integrity: manifest.integrity,
@@ -926,9 +1446,11 @@ const path = require("node:path");
 const args = process.argv.slice(2);
 const entry = { args, tokens: { NODE_AUTH_TOKEN: process.env.NODE_AUTH_TOKEN, NPM_TOKEN: process.env.NPM_TOKEN, GH_TOKEN: process.env.GH_TOKEN, GITHUB_TOKEN: process.env.GITHUB_TOKEN } };
 fs.appendFileSync(process.env.FAKE_NPM_LOG, JSON.stringify(entry) + "\\n");
-if (args[0] === "view" && args[1] === "medical-device-symbols" && args.includes("dist-tags.latest")) { const count = Number(fs.readFileSync(process.env.FAKE_VIEW_COUNT, "utf8")); process.stdout.write(JSON.stringify(count < 2 ? "2.1.9" : ${JSON.stringify(packageVersion)})); }
+if (args[0] === "--version") process.stdout.write("11.19.0\\n");
+else if (args[0] === "install" && args.includes("--global")) {}
+else if (args[0] === "view" && args[1] === "medical-device-symbols" && args.includes("dist-tags.latest")) { const count = Number(fs.readFileSync(process.env.FAKE_VIEW_COUNT, "utf8")); process.stdout.write(JSON.stringify(count < 2 ? "2.1.9" : ${JSON.stringify(packageVersion)})); }
 else if (args[0] === "view") { const count = fs.existsSync(process.env.FAKE_VIEW_COUNT) ? Number(fs.readFileSync(process.env.FAKE_VIEW_COUNT, "utf8")) + 1 : 1; fs.writeFileSync(process.env.FAKE_VIEW_COUNT, String(count)); if (count === 1) { process.stderr.write(JSON.stringify({ error: { code: "E404", summary: "No match found for version 2.2.0", detail: "'medical-device-symbols@2.2.0' is not in this registry.\\n\\nNote that you can also install from a\\ntarball, folder, http url, or git url." } })); process.exit(1); } process.stdout.write(process.env.FAKE_METADATA); }
-else if (args[0] === "pack") { const destination = args[args.indexOf("--pack-destination") + 1]; const target = path.join(destination, path.basename(process.env.FAKE_TARBALL)); fs.copyFileSync(process.env.FAKE_TARBALL, target); process.stdout.write(JSON.stringify([{ filename: path.basename(target) }])); }
+else if (args[0] === "pack") { const destination = args[args.indexOf("--pack-destination") + 1]; const target = path.join(destination, path.basename(process.env.FAKE_TARBALL)); fs.copyFileSync(process.env.FAKE_TARBALL, target); process.stdout.write(JSON.stringify([{ name: ${JSON.stringify(packageName)}, version: ${JSON.stringify(packageVersion)}, filename: path.basename(target) }])); }
 else if (args[0] === "publish") { fs.writeFileSync(process.env.FAKE_PUBLISH_MARKER, "published"); process.exit(73); }
 else if (args[0] === "install") { fs.mkdirSync(path.join(process.cwd(), "node_modules", ${JSON.stringify(packageName)}), { recursive: true }); fs.writeFileSync(path.join(process.cwd(), "package-lock.json"), JSON.stringify({ lockfileVersion: 3, packages: { ["node_modules/" + ${JSON.stringify(packageName)}]: { version: ${JSON.stringify(packageVersion)}, resolved: ${JSON.stringify(expectedTarballUrl)}, integrity: process.env.FAKE_INTEGRITY } } })); }
 else if (args[0] === "audit" && args[1] === "signatures") process.stdout.write(process.env.FAKE_AUDIT);
@@ -945,37 +1467,44 @@ else process.exit(97);
     FAKE_METADATA: JSON.stringify(metadata),
     FAKE_INTEGRITY: manifest.integrity,
     FAKE_AUDIT: JSON.stringify(audit),
-    NODE_AUTH_TOKEN: "npm_secret_value",
-    NPM_TOKEN: "npm_legacy_secret",
-    GH_TOKEN: "github_cli_secret",
-    GITHUB_TOKEN: "github_actions_secret",
   };
-  const workflow = parse(readFileSync(workflowPath, "utf8"));
-  const publishStep = workflow.jobs.publish.steps.find(
-    (step) => step.id === "publish",
-  );
-  const publishResult = spawnSync("bash", ["-c", publishStep.run], {
-    cwd: fakeRoot,
-    encoding: "utf8",
-    env: {
-      ...fakeEnvironment,
-      GITHUB_REF_NAME: tag,
-      RUNNER_TEMP: fakeRoot,
-    },
+  const result = await runPublishJob({
+    sourceBundle: bundleDirectory,
+    fakeRoot,
+    environment: fakeEnvironment,
   });
-  assert.equal(publishResult.status, 73);
-  assert.equal(readFileSync(publishMarker, "utf8"), "published");
-  const result = spawnSync(
-    process.execPath,
-    [releaseScript, "verify-registry", "--bundle", runnerBundle],
-    {
-      cwd: fakeRoot,
-      encoding: "utf8",
-      env: fakeEnvironment,
-    },
+  assert.equal(
+    result.status,
+    0,
+    JSON.stringify(
+      {
+        executions: result.executions,
+        npm: existsSync(log) ? readFileSync(log, "utf8") : "not called",
+      },
+      null,
+      2,
+    ),
   );
-  assert.equal(result.status, 0, result.stderr);
-  assert.deepEqual(JSON.parse(result.stdout), { state: "verified" });
+  const publishExecution = result.executions.find(
+    (entry) => entry.id === "publish",
+  );
+  assert.equal(publishExecution.status, 73);
+  const verificationExecution = result.executions.find(
+    (entry) => entry.id === "verify-registry",
+  );
+  assert.equal(verificationExecution.status, 0);
+  assert.deepEqual(JSON.parse(verificationExecution.stdout), {
+    state: "verified",
+  });
+  assert.ok(
+    result.executions.indexOf(verificationExecution) >
+      result.executions.indexOf(publishExecution),
+  );
+  for (const execution of result.executions) {
+    if (execution === publishExecution) continue;
+    assert.equal(execution.status, 0, execution.label);
+  }
+  assert.equal(readFileSync(publishMarker, "utf8"), "published");
   const entries = readFileSync(log, "utf8").trim().split("\n").map(JSON.parse);
   assert.equal(
     entries.filter(
@@ -999,7 +1528,9 @@ else process.exit(97);
     "--registry",
     "https://registry.npmjs.org",
   ]);
-  const install = entries.find((entry) => entry.args[0] === "install");
+  const install = entries.find(
+    (entry) => entry.args[0] === "install" && !entry.args.includes("--global"),
+  );
   assert.deepEqual(install.args.slice(0, 4), [
     "install",
     `${packageName}@${packageVersion}`,
@@ -1038,8 +1569,8 @@ const endpoint = args.at(-1);
 if (args[0] === "api" && endpoint.includes("/git/ref/tags/")) process.stdout.write(JSON.stringify({ object: { type: "tag", sha: "a".repeat(40) } }));
 else if (args[0] === "api" && endpoint.includes("/git/tags/")) process.stdout.write(JSON.stringify({ object: { type: "commit", sha: process.env.RELEASE_COMMIT } }));
 else if (args[0] === "api" && endpoint.includes("/releases/tags/") && args.includes("--include")) { const exists = fs.existsSync(process.env.FAKE_GH_MARKER); process.stdout.write("HTTP/2.0 " + (exists ? "200 OK" : "404 Not Found") + "\\ncontent-type: application/json\\n\\n" + JSON.stringify(exists ? { tag_name: process.env.RELEASE_TAG, name: process.env.RELEASE_TAG, draft: false, prerelease: false } : { message: "Not Found" })); process.exit(exists ? 0 : 1); }
-else if (args[0] === "release" && args[1] === "create") { fs.writeFileSync(process.env.FAKE_GH_MARKER, "created"); process.exit(73); }
-else if (args[0] === "api" && endpoint.includes("/releases/tags/")) process.stdout.write(JSON.stringify({ tag_name: process.env.RELEASE_TAG, name: process.env.RELEASE_TAG, draft: false, prerelease: false }));
+else if (args[0] === "release" && args[1] === "create") { const repo = args.indexOf("--repo"); if (repo < 0 || args[repo + 1] !== process.env.GITHUB_REPOSITORY) process.exit(98); fs.writeFileSync(process.env.FAKE_GH_MARKER, "created"); process.exit(73); }
+else if (args[0] === "api" && endpoint.includes("/releases/tags/") && fs.existsSync(process.env.FAKE_GH_MARKER)) process.stdout.write(JSON.stringify({ tag_name: process.env.RELEASE_TAG, name: process.env.RELEASE_TAG, draft: false, prerelease: false }));
 else process.exit(97);
 `,
   );
@@ -1078,6 +1609,8 @@ else process.exit(97);
     "--generate-notes",
     "--title",
     tag,
+    "--repo",
+    "t4dhg/medical-device-symbols",
   ]);
   assert.equal(
     entries.filter(
@@ -1089,36 +1622,64 @@ else process.exit(97);
   );
 });
 
-test("bundle validation failure cannot reach npm", async () => {
-  const { bundleDirectory } = await createBundle();
-  writeFileSync(join(bundleDirectory, "release-manifest.json"), "{}\n");
-  const fakeRoot = temporaryRoot("medical-symbols-release-barrier-");
-  const log = join(fakeRoot, "npm-called");
-  writeExecutable(
-    join(fakeRoot, "npm"),
-    `#!/usr/bin/env node\nrequire("node:fs").writeFileSync(process.env.FAKE_NPM_CALLED, "called");\n`,
-  );
-  const result = spawnSync(
-    process.execPath,
-    [
-      releaseScript,
-      "validate-bundle",
-      "--bundle",
-      bundleDirectory,
-      "--tag",
-      tag,
-      "--commit",
-      commit,
-    ],
+test("publish prerequisites fail before registry classification, publication, or verification", async () => {
+  const cases = [
     {
-      encoding: "utf8",
-      env: {
-        ...process.env,
+      name: "download failure",
+      options: { downloadFailure: true },
+      failureStep: "Download the reviewed bundle by artifact ID",
+    },
+    {
+      name: "artifact digest binding mismatch",
+      options: { artifactDigest: "not-a-sha256-digest" },
+      failureStep: "Bind and validate the downloaded bundle",
+    },
+    {
+      name: "manifest hash mismatch",
+      options: { manifestSha256: "00".repeat(32) },
+      failureStep: "Bind and validate the downloaded bundle",
+    },
+    {
+      name: "verifier hash mismatch",
+      options: { verifierSha256: "00".repeat(32) },
+      failureStep: "Bind and validate the downloaded bundle",
+    },
+    {
+      name: "bundle validation failure",
+      options: {
+        mutateDownloadedBundle: (directory) =>
+          writeFileSync(join(directory, "release-manifest.json"), "{}\n"),
+      },
+      failureStep: "Bind and validate the downloaded bundle",
+    },
+  ];
+  const outcomes = [];
+  for (const scenario of cases) {
+    const { bundleDirectory } = await createBundle();
+    const fakeRoot = temporaryRoot("medical-symbols-release-barrier-");
+    const log = join(fakeRoot, "npm-called");
+    writeExecutable(
+      join(fakeRoot, "npm"),
+      `#!/usr/bin/env node\nrequire("node:fs").appendFileSync(process.env.FAKE_NPM_CALLED, JSON.stringify(process.argv.slice(2)) + "\\n"); process.exit(97);\n`,
+    );
+    const result = await runPublishJob({
+      sourceBundle: bundleDirectory,
+      fakeRoot,
+      environment: {
         PATH: `${fakeRoot}:${process.env.PATH}`,
         FAKE_NPM_CALLED: log,
       },
-    },
-  );
-  assert.notEqual(result.status, 0);
-  assert.equal(readdirSync(fakeRoot).includes("npm-called"), false);
+      ...scenario.options,
+    });
+    outcomes.push({ scenario, result, npmCalled: existsSync(log) });
+  }
+  for (const { scenario, result, npmCalled } of outcomes) {
+    assert.notEqual(result.status, 0, scenario.name);
+    assert.equal(
+      result.failureStep,
+      scenario.failureStep,
+      `${scenario.name}: ${JSON.stringify(result.executions)}`,
+    );
+    assert.equal(npmCalled, false, scenario.name);
+  }
 });
