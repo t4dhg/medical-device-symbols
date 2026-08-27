@@ -6,18 +6,45 @@ on:
   pull_request:
     branches: [master]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build-test:
+  verify-node:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
+      fail-fast: false
       matrix:
-        node: [18, 20, 22]
+        node: [18, 20, 22, 24]
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: ${{ matrix.node }}
-          cache: npm
-      - run: npm ci
-      - run: npm run build
-      - run: npm test
+          package-manager-cache: false
+      - run: npm ci --ignore-scripts
+      - run: npm run verify
+
+  quality:
+    name: quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [verify-node]
+    if: ${{ always() }}
+    steps:
+      - name: Require verification success
+        shell: bash
+        env:
+          VERIFY_NODE_RESULT: ${{ needs.verify-node.result }}
+        run: |
+          if [ "$VERIFY_NODE_RESULT" != "success" ]; then
+            echo "verify-node result: $VERIFY_NODE_RESULT"
+            exit 1
+          fi

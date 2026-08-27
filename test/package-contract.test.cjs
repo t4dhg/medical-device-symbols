@@ -63,8 +63,18 @@ function tarHeader({
   writeTarString(header, 157, 100, linkName);
   writeTarString(header, 257, 6, "ustar\0");
   writeTarString(header, 263, 2, "00");
-  writeTarString(header, 329, 8, `${deviceMajor.toString(8).padStart(7, "0")}\0`);
-  writeTarString(header, 337, 8, `${deviceMinor.toString(8).padStart(7, "0")}\0`);
+  writeTarString(
+    header,
+    329,
+    8,
+    `${deviceMajor.toString(8).padStart(7, "0")}\0`,
+  );
+  writeTarString(
+    header,
+    337,
+    8,
+    `${deviceMinor.toString(8).padStart(7, "0")}\0`,
+  );
   writeTarString(header, 345, 155, prefix);
   header[500] = reservedByte;
   if (base256Size) header[124] = 0x80;
@@ -122,7 +132,10 @@ function archiveWithManifest(change) {
 test("the tarball contract accepts exactly the nine publishable files", async () => {
   const { EXPECTED_PACKAGE_FILES, validateTarball } = await modulePromise;
   assert.deepEqual(EXPECTED_PACKAGE_FILES, expectedFiles);
-  assert.deepEqual(validateTarball(makeTar(repositoryEntries())), expectedFiles);
+  assert.deepEqual(
+    validateTarball(makeTar(repositoryEntries())),
+    expectedFiles,
+  );
 });
 
 test("the tarball contract accepts npm-normalized blank ownership as zero", async () => {
@@ -259,7 +272,10 @@ test("archive termination requires exactly one final zero-block pair", async () 
   assert.throws(() => validateTarball(makeTar(entries, { terminalBlocks: 3 })));
   assert.throws(() =>
     validateTarball(
-      makeTar(entries, { terminalBlocks: 2, trailingBlock: Buffer.alloc(512, 1) }),
+      makeTar(entries, {
+        terminalBlocks: 2,
+        trailingBlock: Buffer.alloc(512, 1),
+      }),
     ),
   );
 });
@@ -267,15 +283,33 @@ test("archive termination requires exactly one final zero-block pair", async () 
 test("archived manifest rejects wrong identity, runtime dependencies, and contract drift", async () => {
   const { validateTarball } = await modulePromise;
   const mutations = [
-    (manifest) => { manifest.name = "other-package"; },
-    (manifest) => { manifest.version = "9.9.9"; },
-    (manifest) => { manifest.dependencies = { react: "19.2.8" }; },
-    (manifest) => { manifest.engines.node = ">=20"; },
-    (manifest) => { manifest.peerDependencies.react = "^19.0.0"; },
-    (manifest) => { manifest.sideEffects = true; },
-    (manifest) => { manifest.exports["."].import.types = "./lib/index.d.ts"; },
-    (manifest) => { manifest.exports["."].require.default = "./lib/index.mjs"; },
-    (manifest) => { manifest.main = "./src/index.tsx"; },
+    (manifest) => {
+      manifest.name = "other-package";
+    },
+    (manifest) => {
+      manifest.version = "9.9.9";
+    },
+    (manifest) => {
+      manifest.dependencies = { react: "19.2.8" };
+    },
+    (manifest) => {
+      manifest.engines.node = ">=20";
+    },
+    (manifest) => {
+      manifest.peerDependencies.react = "^19.0.0";
+    },
+    (manifest) => {
+      manifest.sideEffects = true;
+    },
+    (manifest) => {
+      manifest.exports["."].import.types = "./lib/index.d.ts";
+    },
+    (manifest) => {
+      manifest.exports["."].require.default = "./lib/index.mjs";
+    },
+    (manifest) => {
+      manifest.main = "./src/index.tsx";
+    },
   ];
   for (const mutate of mutations) {
     assert.throws(() => validateTarball(archiveWithManifest(mutate)));
@@ -284,7 +318,9 @@ test("archived manifest rejects wrong identity, runtime dependencies, and contra
 
 test("supplied tarball arguments require one absolute regular tgz", async () => {
   const { parseSuppliedTarballArgs } = await modulePromise;
-  const directory = mkdtempSync(join(tmpdir(), "medical-symbols-package-args-"));
+  const directory = mkdtempSync(
+    join(tmpdir(), "medical-symbols-package-args-"),
+  );
   const tarball = join(directory, "fixture.tgz");
   const symlink = join(directory, "symlink.tgz");
   writeFileSync(tarball, "fixture");
@@ -303,7 +339,11 @@ test("supplied tarball arguments require one absolute regular tgz", async () => 
       ["--unknown"],
       ["--tarball", tarball, "extra"],
     ]) {
-      assert.throws(() => parseSuppliedTarballArgs(args), undefined, args.join(" "));
+      assert.throws(
+        () => parseSuppliedTarballArgs(args),
+        undefined,
+        args.join(" "),
+      );
     }
     assert.equal(lstatSync(tarball).isFile(), true);
   } finally {

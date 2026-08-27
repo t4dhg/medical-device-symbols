@@ -68,8 +68,11 @@ function validateDocumentation(documents) {
     rootPackage,
   } = documents;
   const publicExamples = [readme, demo, extraction, reactExamples].join("\n");
-  const publicGuidance = [publicExamples, changelog, rootPackage.description]
-    .join("\n");
+  const publicGuidance = [
+    publicExamples,
+    changelog,
+    rootPackage.description,
+  ].join("\n");
 
   validatePackageDescription(rootPackage.description);
   assert.match(readme, /ISO 15223-1 symbols and separate regulatory marks/i);
@@ -100,7 +103,10 @@ function validateDocumentation(documents) {
 
   assert.equal(examplesPackage.private, true);
   assert.equal(examplesPackage.dependencies, undefined);
-  assert.equal(examplesPackage.devDependencies["medical-device-symbols"], "file:..");
+  assert.equal(
+    examplesPackage.devDependencies["medical-device-symbols"],
+    "file:..",
+  );
   assert.equal(examplesPackage.devDependencies.react, "19.2.8");
   assert.equal(examplesPackage.devDependencies["react-dom"], "19.2.8");
   assert.equal(examplesPackage.devDependencies["@types/react"], "19.2.18");
@@ -120,7 +126,7 @@ function validateDocumentation(documents) {
   );
   assert.match(rootPackage.scripts.verify, /npm run gallery:check/);
   assert.match(rootPackage.scripts.verify, /npm run build/);
-  assert.match(rootPackage.scripts.verify, /npm test/);
+  assert.match(rootPackage.scripts.verify, /npm run test/);
 }
 
 test("public guidance matches the tested component and maintenance behavior", () => {
@@ -156,8 +162,7 @@ test("the documentation validator rejects conflated compliance metadata", () => 
 
 test("the documentation validator rejects a package requirements guarantee without compliance wording", () => {
   const documents = repositoryDocuments();
-  documents.rootPackage.description =
-    `${safePackageDescription} Guaranteed to meet EU MDR and FDA labeling requirements.`;
+  documents.rootPackage.description = `${safePackageDescription} Guaranteed to meet EU MDR and FDA labeling requirements.`;
   assert.throws(() => validateDocumentation(documents), assert.AssertionError);
 });
 

@@ -31,7 +31,10 @@ const REACT_19_TOOLS = [
 const scriptsDirectory = dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = resolve(scriptsDirectory, "..");
 const expectedApi = JSON.parse(
-  readFileSync(join(repositoryRoot, "test", "fixtures", "public-api.json"), "utf8"),
+  readFileSync(
+    join(repositoryRoot, "test", "fixtures", "public-api.json"),
+    "utf8",
+  ),
 );
 let activeRoot;
 
@@ -93,13 +96,7 @@ function packOnce(root, runNpm) {
   const destination = join(root, "pack");
   mkdirSync(destination);
   const result = runNpm(
-    [
-      "pack",
-      "--json",
-      "--ignore-scripts",
-      "--pack-destination",
-      destination,
-    ],
+    ["pack", "--json", "--ignore-scripts", "--pack-destination", destination],
     { cwd: repositoryRoot, capture: true },
   );
   let report;
@@ -121,14 +118,27 @@ function assertInstalledPackageIsIsolated(consumerDirectory) {
     "medical-device-symbols",
   );
   const stats = lstatSync(installed);
-  assert.equal(stats.isDirectory(), true, "installed package must be a directory");
-  assert.equal(stats.isSymbolicLink(), false, "installed package must not be a symlink");
+  assert.equal(
+    stats.isDirectory(),
+    true,
+    "installed package must be a directory",
+  );
+  assert.equal(
+    stats.isSymbolicLink(),
+    false,
+    "installed package must not be a symlink",
+  );
   const resolvedConsumer = realpathSync(consumerDirectory);
   const resolvedInstalled = realpathSync(installed);
   const fromConsumer = relative(resolvedConsumer, resolvedInstalled);
-  assert.equal(isAbsolute(fromConsumer), false, "installed package escaped consumer root");
   assert.equal(
-    fromConsumer === ".." || fromConsumer.startsWith(`..${process.platform === "win32" ? "\\" : "/"}`),
+    isAbsolute(fromConsumer),
+    false,
+    "installed package escaped consumer root",
+  );
+  assert.equal(
+    fromConsumer === ".." ||
+      fromConsumer.startsWith(`..${process.platform === "win32" ? "\\" : "/"}`),
     false,
     "installed package escaped consumer root",
   );
@@ -139,11 +149,12 @@ function runtimeSource(moduleFormat, reactVersion) {
   const reactDomServer = ["16.14.0", "17.0.2"].includes(reactVersion)
     ? "react-dom/server.js"
     : "react-dom/server";
-  const load = moduleFormat === "cjs"
-    ? `const React = require("react");\nconst { renderToStaticMarkup } = require("react-dom/server");\nconst api = require("medical-device-symbols");`
-    : `import React from "react";\nimport ReactDOMServer from ${JSON.stringify(reactDomServer)};\nimport * as api from "medical-device-symbols";\nconst { renderToStaticMarkup } = ReactDOMServer;`;
+  const load =
+    moduleFormat === "cjs"
+      ? `const React = require("react");\nconst { renderToStaticMarkup } = require("react-dom/server");\nconst api = require("medical-device-symbols");`
+      : `import React from "react";\nimport ReactDOMServer from ${JSON.stringify(reactDomServer)};\nimport * as api from "medical-device-symbols";\nconst { renderToStaticMarkup } = ReactDOMServer;`;
   return `
-${moduleFormat === "cjs" ? "const assert = require(\"node:assert/strict\");" : "import assert from \"node:assert/strict\";"}
+${moduleFormat === "cjs" ? 'const assert = require("node:assert/strict");' : 'import assert from "node:assert/strict";'}
 ${load}
 const expected = ${expected};
 const rootExports = [...expected.components, "ICON_NAMES", "icons"].sort();
@@ -241,7 +252,13 @@ function runTreeShakingConsumer(consumerDirectory) {
   assert.doesNotMatch(bundle, /\bicons\b/u);
 }
 
-async function verifyConsumer({ root, cacheDirectory, tarball, reactVersion, runNpm }) {
+async function verifyConsumer({
+  root,
+  cacheDirectory,
+  tarball,
+  reactVersion,
+  runNpm,
+}) {
   const consumerDirectory = join(root, `react-${reactVersion}`);
   mkdirSync(consumerDirectory);
   writeFileSync(
@@ -295,9 +312,17 @@ async function main() {
     const tarball = suppliedTarball ?? packOnce(root, runNpm);
     validateTarball(readFileSync(tarball));
     for (const reactVersion of REACT_VERSIONS) {
-      await verifyConsumer({ root, cacheDirectory, tarball, reactVersion, runNpm });
+      await verifyConsumer({
+        root,
+        cacheDirectory,
+        tarball,
+        reactVersion,
+        runNpm,
+      });
     }
-    console.log(`verified exact tarball across ${REACT_VERSIONS.length} isolated consumers`);
+    console.log(
+      `verified exact tarball across ${REACT_VERSIONS.length} isolated consumers`,
+    );
   } finally {
     cleanupActiveRoot();
   }

@@ -12,7 +12,9 @@ const { dirname, join } = require("node:path");
 const test = require("node:test");
 
 const expected = require("./fixtures/public-api.json");
-const { validateRepositoryFixtures } = require("./helpers/public-api-contract.cjs");
+const {
+  validateRepositoryFixtures,
+} = require("./helpers/public-api-contract.cjs");
 
 const root = join(__dirname, "..");
 
@@ -51,4 +53,16 @@ test("the assertive test scripts replace the print-only root scripts", () => {
   assert.equal(pkg.scripts["test:unit"], "node --test test/*.test.cjs");
   assert.equal(pkg.scripts["test:package"], "node scripts/test-package.mjs");
   assert.equal(pkg.scripts.test, "npm run test:unit && npm run test:package");
+  assert.equal(pkg.scripts.format, "prettier --write .");
+  assert.equal(pkg.scripts["format:check"], "prettier --check .");
+  assert.equal(
+    pkg.scripts["audit:ci"],
+    "npm audit --omit=dev --audit-level=high",
+  );
+  assert.equal(
+    pkg.scripts.verify,
+    "npm run format:check && npm run generate:check && npm run gallery:check && npm run typecheck && npm run build && npm run test && npm run audit:ci",
+  );
+  assert.equal(pkg.devDependencies.prettier, "3.9.6");
+  assert.equal(pkg.devDependencies.yaml, "2.9.0");
 });

@@ -66,52 +66,65 @@ function makeRepositoryTarball() {
 }
 
 function fakeNpmMain() {
-const { appendFileSync, mkdirSync, writeFileSync } = require("node:fs");
-const { dirname, join } = require("node:path");
-const { gunzipSync } = require("node:zlib");
+  const { appendFileSync, mkdirSync, writeFileSync } = require("node:fs");
+  const { dirname, join } = require("node:path");
+  const { gunzipSync } = require("node:zlib");
 
-const args = process.argv.slice(2);
-appendFileSync(process.env.FAKE_NPM_RECORD, JSON.stringify(args) + "\n");
-if (args.includes("pack")) process.exit(97);
+  const args = process.argv.slice(2);
+  appendFileSync(process.env.FAKE_NPM_RECORD, JSON.stringify(args) + "\n");
+  if (args.includes("pack")) process.exit(97);
 
-const command = args.find((argument) => argument === "install" || argument === "ls");
-if (command === "ls") process.exit(0);
-if (command !== "install") process.exit(98);
+  const command = args.find(
+    (argument) => argument === "install" || argument === "ls",
+  );
+  if (command === "ls") process.exit(0);
+  if (command !== "install") process.exit(98);
 
-const tarball = args.find((argument) => argument.endsWith(".tgz"));
-const reactSpec = args.find((argument) => /^react@/.test(argument));
-if (!tarball || !reactSpec) process.exit(99);
-const reactVersion = reactSpec.slice("react@".length);
-const modules = join(process.cwd(), "node_modules");
-const packageRoot = join(modules, "medical-device-symbols");
-mkdirSync(packageRoot, { recursive: true });
+  const tarball = args.find((argument) => argument.endsWith(".tgz"));
+  const reactSpec = args.find((argument) => /^react@/.test(argument));
+  if (!tarball || !reactSpec) process.exit(99);
+  const reactVersion = reactSpec.slice("react@".length);
+  const modules = join(process.cwd(), "node_modules");
+  const packageRoot = join(modules, "medical-device-symbols");
+  mkdirSync(packageRoot, { recursive: true });
 
-const archive = gunzipSync(require("node:fs").readFileSync(tarball));
-let offset = 0;
-while (offset + 512 <= archive.length) {
-  const header = archive.subarray(offset, offset + 512);
-  if (header.every((byte) => byte === 0)) break;
-  const nul = header.indexOf(0, 0);
-  const name = header.subarray(0, nul === -1 ? 100 : nul).toString("utf8");
-  const sizeText = header.subarray(124, 136).toString("ascii").replace(/[\0 ]+$/g, "");
-  const size = Number.parseInt(sizeText || "0", 8);
-  const contentStart = offset + 512;
-  if (name.startsWith("package/")) {
-    const destination = join(packageRoot, name.slice("package/".length));
-    mkdirSync(dirname(destination), { recursive: true });
-    writeFileSync(destination, archive.subarray(contentStart, contentStart + size));
+  const archive = gunzipSync(require("node:fs").readFileSync(tarball));
+  let offset = 0;
+  while (offset + 512 <= archive.length) {
+    const header = archive.subarray(offset, offset + 512);
+    if (header.every((byte) => byte === 0)) break;
+    const nul = header.indexOf(0, 0);
+    const name = header.subarray(0, nul === -1 ? 100 : nul).toString("utf8");
+    const sizeText = header
+      .subarray(124, 136)
+      .toString("ascii")
+      .replace(/[\0 ]+$/g, "");
+    const size = Number.parseInt(sizeText || "0", 8);
+    const contentStart = offset + 512;
+    if (name.startsWith("package/")) {
+      const destination = join(packageRoot, name.slice("package/".length));
+      mkdirSync(dirname(destination), { recursive: true });
+      writeFileSync(
+        destination,
+        archive.subarray(contentStart, contentStart + size),
+      );
+    }
+    offset = contentStart + Math.ceil(size / 512) * 512;
   }
-  offset = contentStart + Math.ceil(size / 512) * 512;
-}
 
-function writeModule(relative, source) {
-  const destination = join(modules, relative);
-  mkdirSync(dirname(destination), { recursive: true });
-  writeFileSync(destination, source);
-}
+  function writeModule(relative, source) {
+    const destination = join(modules, relative);
+    mkdirSync(dirname(destination), { recursive: true });
+    writeFileSync(destination, source);
+  }
 
-writeModule("react/package.json", JSON.stringify({ name: "react", version: reactVersion, main: "index.js" }));
-writeModule("react/index.js", String.raw`
+  writeModule(
+    "react/package.json",
+    JSON.stringify({ name: "react", version: reactVersion, main: "index.js" }),
+  );
+  writeModule(
+    "react/index.js",
+    String.raw`
 function createElement(type, props, ...children) {
   return { type, props: { ...(props || {}), ...(children.length ? { children } : {}) } };
 }
@@ -120,17 +133,23 @@ function forwardRef(render) {
   return ForwardRef;
 }
 module.exports = { createElement, forwardRef, version: ${JSON.stringify(reactVersion)} };
-`);
-writeModule("react-dom/package.json", JSON.stringify({
-  name: "react-dom",
-  version: reactVersion,
-  main: "index.js",
-  ...(/^(?:18|19)\./.test(reactVersion)
-    ? { exports: { ".": "./index.js", "./server": "./server.js" } }
-    : {}),
-}));
-writeModule("react-dom/index.js", "module.exports = {};\n");
-writeModule("react-dom/server.js", String.raw`
+`,
+  );
+  writeModule(
+    "react-dom/package.json",
+    JSON.stringify({
+      name: "react-dom",
+      version: reactVersion,
+      main: "index.js",
+      ...(/^(?:18|19)\./.test(reactVersion)
+        ? { exports: { ".": "./index.js", "./server": "./server.js" } }
+        : {}),
+    }),
+  );
+  writeModule("react-dom/index.js", "module.exports = {};\n");
+  writeModule(
+    "react-dom/server.js",
+    String.raw`
 function escape(value) {
   return String(value).replace(/&/g, "&amp;").replace(/\"/g, "&quot;").replace(/</g, "&lt;");
 }
@@ -148,22 +167,32 @@ function renderToStaticMarkup(input) {
 const serverApi = {};
 serverApi.renderToStaticMarkup = renderToStaticMarkup;
 module.exports = serverApi;
-`);
+`,
+  );
 
-if (args.some((argument) => /^typescript@/.test(argument))) {
-  writeModule("typescript/package.json", JSON.stringify({ name: "typescript", version: "5.9.3" }));
-  writeModule("typescript/lib/tsc.js", "process.exit(0);\n");
-  writeModule("esbuild/package.json", JSON.stringify({ name: "esbuild", version: "0.28.2" }));
-  writeModule("esbuild/bin/esbuild", String.raw`
+  if (args.some((argument) => /^typescript@/.test(argument))) {
+    writeModule(
+      "typescript/package.json",
+      JSON.stringify({ name: "typescript", version: "5.9.3" }),
+    );
+    writeModule("typescript/lib/tsc.js", "process.exit(0);\n");
+    writeModule(
+      "esbuild/package.json",
+      JSON.stringify({ name: "esbuild", version: "0.28.2" }),
+    );
+    writeModule(
+      "esbuild/bin/esbuild",
+      String.raw`
 const { writeFileSync } = require("node:fs");
 const output = process.argv.slice(2).find((arg) => arg.startsWith("--outfile=")).slice("--outfile=".length);
 writeFileSync(output, "import React from 'react';\nconst CautionIcon = true;\nexport { CautionIcon as default };\n");
-`);
-}
-if (process.env.FAKE_NPM_SIGNAL_PARENT) {
-  writeFileSync(process.env.FAKE_NPM_ROOT_RECORD, dirname(process.cwd()));
-  process.kill(process.ppid, process.env.FAKE_NPM_SIGNAL_PARENT);
-}
+`,
+    );
+  }
+  if (process.env.FAKE_NPM_SIGNAL_PARENT) {
+    writeFileSync(process.env.FAKE_NPM_ROOT_RECORD, dirname(process.cwd()));
+    process.kill(process.ppid, process.env.FAKE_NPM_SIGNAL_PARENT);
+  }
 }
 
 const fakeNpmSource = `(${fakeNpmMain.toString()})();\n`;
@@ -190,7 +219,9 @@ test("the built ESM entry tree-shakes unrelated icon initializers", () => {
 });
 
 test("supplied mode runs the real consumer CLI without invoking npm pack", () => {
-  const directory = mkdtempSync(join(tmpdir(), "medical-symbols-supplied-mode-"));
+  const directory = mkdtempSync(
+    join(tmpdir(), "medical-symbols-supplied-mode-"),
+  );
   const consumerTmp = join(directory, "consumer-tmp");
   const tarball = join(directory, "fixture.tgz");
   const fakeNpm = join(directory, "npm-cli.js");
@@ -223,7 +254,10 @@ test("supplied mode runs the real consumer CLI without invoking npm pack", () =>
       .split("\n")
       .filter(Boolean)
       .map((line) => JSON.parse(line));
-    assert.equal(calls.some((args) => args.includes("pack")), false);
+    assert.equal(
+      calls.some((args) => args.includes("pack")),
+      false,
+    );
     assert.equal(calls.filter((args) => args.includes("install")).length, 4);
     assert.equal(calls.filter((args) => args.includes("ls")).length, 4);
     assert.deepEqual(readdirSync(consumerTmp), []);
@@ -232,61 +266,73 @@ test("supplied mode runs the real consumer CLI without invoking npm pack", () =>
   }
 });
 
-test("signalled runners remove their exact disposable root and preserve the signal", { timeout: 30_000 }, async () => {
-  for (const expectedSignal of ["SIGINT", "SIGTERM"]) {
-    const directory = mkdtempSync(join(tmpdir(), "medical-symbols-signal-cleanup-"));
-    const consumerTmp = join(directory, "consumer-tmp");
-    const tarball = join(directory, "fixture.tgz");
-    const fakeNpm = join(directory, "npm-cli.js");
-    const record = join(directory, "npm-argv.jsonl");
-    const rootRecord = join(directory, "consumer-root.txt");
-    mkdirSync(consumerTmp);
-    writeFileSync(tarball, makeRepositoryTarball());
-    writeFileSync(fakeNpm, fakeNpmSource);
-    writeFileSync(record, "");
+test(
+  "signalled runners remove their exact disposable root and preserve the signal",
+  { timeout: 30_000 },
+  async () => {
+    for (const expectedSignal of ["SIGINT", "SIGTERM"]) {
+      const directory = mkdtempSync(
+        join(tmpdir(), "medical-symbols-signal-cleanup-"),
+      );
+      const consumerTmp = join(directory, "consumer-tmp");
+      const tarball = join(directory, "fixture.tgz");
+      const fakeNpm = join(directory, "npm-cli.js");
+      const record = join(directory, "npm-argv.jsonl");
+      const rootRecord = join(directory, "consumer-root.txt");
+      mkdirSync(consumerTmp);
+      writeFileSync(tarball, makeRepositoryTarball());
+      writeFileSync(fakeNpm, fakeNpmSource);
+      writeFileSync(record, "");
 
-    let child;
-    let timer;
-    let stdout = "";
-    let stderr = "";
-    try {
-      child = spawn(process.execPath, [runner, "--tarball", tarball], {
-        cwd: root,
-        env: {
-          ...process.env,
-          FAKE_NPM_RECORD: record,
-          FAKE_NPM_ROOT_RECORD: rootRecord,
-          FAKE_NPM_SIGNAL_PARENT: expectedSignal,
-          TMPDIR: consumerTmp,
-          npm_execpath: fakeNpm,
-        },
-        shell: false,
-        stdio: "pipe",
-      });
-      child.stdout.on("data", (chunk) => { stdout += chunk; });
-      child.stderr.on("data", (chunk) => { stderr += chunk; });
-      const completed = once(child, "close");
-      const timedOut = new Promise((_, reject) => {
-        timer = setTimeout(() => {
+      let child;
+      let timer;
+      let stdout = "";
+      let stderr = "";
+      try {
+        child = spawn(process.execPath, [runner, "--tarball", tarball], {
+          cwd: root,
+          env: {
+            ...process.env,
+            FAKE_NPM_RECORD: record,
+            FAKE_NPM_ROOT_RECORD: rootRecord,
+            FAKE_NPM_SIGNAL_PARENT: expectedSignal,
+            TMPDIR: consumerTmp,
+            npm_execpath: fakeNpm,
+          },
+          shell: false,
+          stdio: "pipe",
+        });
+        child.stdout.on("data", (chunk) => {
+          stdout += chunk;
+        });
+        child.stderr.on("data", (chunk) => {
+          stderr += chunk;
+        });
+        const completed = once(child, "close");
+        const timedOut = new Promise((_, reject) => {
+          timer = setTimeout(() => {
+            child.kill("SIGKILL");
+            reject(
+              new Error(`runner did not terminate after ${expectedSignal}`),
+            );
+          }, 10_000);
+        });
+        const [code, signal] = await Promise.race([completed, timedOut]);
+        clearTimeout(timer);
+        timer = undefined;
+
+        assert.equal(code, null, `stdout:\n${stdout}\nstderr:\n${stderr}`);
+        assert.equal(signal, expectedSignal);
+        const createdRoot = readFileSync(rootRecord, "utf8").trim();
+        assert.equal(existsSync(createdRoot), false, `leaked ${createdRoot}`);
+        assert.deepEqual(readdirSync(consumerTmp), []);
+      } finally {
+        if (timer !== undefined) clearTimeout(timer);
+        if (child && child.exitCode === null && child.signalCode === null) {
           child.kill("SIGKILL");
-          reject(new Error(`runner did not terminate after ${expectedSignal}`));
-        }, 10_000);
-      });
-      const [code, signal] = await Promise.race([completed, timedOut]);
-      clearTimeout(timer);
-      timer = undefined;
-
-      assert.equal(code, null, `stdout:\n${stdout}\nstderr:\n${stderr}`);
-      assert.equal(signal, expectedSignal);
-      const createdRoot = readFileSync(rootRecord, "utf8").trim();
-      assert.equal(existsSync(createdRoot), false, `leaked ${createdRoot}`);
-      assert.deepEqual(readdirSync(consumerTmp), []);
-    } finally {
-      if (timer !== undefined) clearTimeout(timer);
-      if (child && child.exitCode === null && child.signalCode === null) {
-        child.kill("SIGKILL");
+        }
+        rmSync(directory, { recursive: true, force: true });
       }
-      rmSync(directory, { recursive: true, force: true });
     }
-  }
-});
+  },
+);

@@ -47,11 +47,11 @@ npm rm mdr-label-icons && npm i medical-device-symbols
 
 Six components kept their names (`CautionIcon`, `CeIcon`, `ManufacturerIcon`, `ManufactureDateIcon`, `MdIcon`, `UdiIcon`). Three were renamed to their full ISO 15223-1 titles:
 
-| `mdr-label-icons` | `medical-device-symbols` |
-| ----------------- | ------------------------ |
-| `EcIcon` | `AuthorizedRepresentativeInTheEuropeanCommunityIcon` |
-| `LotIcon` | `BatchCodeIcon` |
-| `ReadIfuIcon` | `ConsultInstructionsForUseIcon` |
+| `mdr-label-icons` | `medical-device-symbols`                             |
+| ----------------- | ---------------------------------------------------- |
+| `EcIcon`          | `AuthorizedRepresentativeInTheEuropeanCommunityIcon` |
+| `LotIcon`         | `BatchCodeIcon`                                      |
+| `ReadIfuIcon`     | `ConsultInstructionsForUseIcon`                      |
 
 The last `mdr-label-icons` release just re-exports this package (with the old names aliased back), so existing installs keep working, but only `medical-device-symbols` receives new symbols and fixes.
 
@@ -80,6 +80,7 @@ function App() {
 
 29 symbols, each exported as a `PascalCase` component.
 
+<!-- prettier-ignore -->
 | Symbol | Component | Title |
 | :----: | --------- | ----- |
 | <img src="https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v2.2.0/src/icons/atmospheric-pressure-limitation.svg" width="44" height="44" alt="Atmospheric Pressure Limitation" /> | `AtmosphericPressureLimitationIcon` | Atmospheric Pressure Limitation |
@@ -177,7 +178,8 @@ function DeviceLabel() {
 
       <div className="info">
         <BatchCodeIcon size={16} aria-hidden="true" /> <span>LOT: ABC123</span>
-        <ManufactureDateIcon size={16} aria-hidden="true" /> <span>2024-06</span>
+        <ManufactureDateIcon size={16} aria-hidden="true" />{" "}
+        <span>2024-06</span>
       </div>
     </div>
   );
@@ -195,7 +197,7 @@ import { CautionIcon, IconProps } from "medical-device-symbols";
 const BrandedCaution = React.forwardRef<SVGSVGElement, IconProps>(
   ({ size = 24, ...props }, ref) => (
     <CautionIcon ref={ref} size={size} {...props} />
-  )
+  ),
 );
 ```
 
@@ -203,21 +205,21 @@ const BrandedCaution = React.forwardRef<SVGSVGElement, IconProps>(
 
 Every icon accepts:
 
-| Prop       | Type                            | Default | Description                             |
-| ---------- | ------------------------------- | ------- | --------------------------------------- |
-| `size`     | `number \| string`              | `24`    | Width and height, in pixels or any CSS length |
-| `title`    | `string`                        | -       | Accessible label. Sets `role="img"` and `aria-label`; use `aria-hidden="true"` for decorative icons |
+| Prop       | Type                            | Default | Description                                                                                                   |
+| ---------- | ------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------- |
+| `size`     | `number \| string`              | `24`    | Width and height, in pixels or any CSS length                                                                 |
+| `title`    | `string`                        | -       | Accessible label. Sets `role="img"` and `aria-label`; use `aria-hidden="true"` for decorative icons           |
 | `...props` | `React.SVGProps<SVGSVGElement>` | -       | Any standard SVG prop (`className`, `style`, `fill`, `stroke`, `onClick`, `aria-*`, `role`, `ref`, and so on) |
 
 ## API
 
 ```ts
 import {
-  CautionIcon,      // ...and every other named icon component
-  icons,            // Record<string, IconComponent> of all components, keyed by PascalCase name
-  ICON_NAMES,       // { CAUTION: "caution", BATCH_CODE: "batch-code", ... } kebab-case slugs
-  IconName,         // union type of every icon slug
-  IconProps,        // component props interface (extends React.SVGProps with size)
+  CautionIcon, // ...and every other named icon component
+  icons, // Record<string, IconComponent> of all components, keyed by PascalCase name
+  ICON_NAMES, // { CAUTION: "caution", BATCH_CODE: "batch-code", ... } kebab-case slugs
+  IconName, // union type of every icon slug
+  IconProps, // component props interface (extends React.SVGProps with size)
 } from "medical-device-symbols";
 ```
 

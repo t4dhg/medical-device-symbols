@@ -46,7 +46,9 @@ function declarationExportNames(source, filename) {
       if (statement.exportClause === undefined) {
         names.push("*");
       } else if (typescript.isNamedExports(statement.exportClause)) {
-        names.push(...statement.exportClause.elements.map(({ name }) => name.text));
+        names.push(
+          ...statement.exportClause.elements.map(({ name }) => name.text),
+        );
       } else {
         names.push(statement.exportClause.name.text);
       }
@@ -122,6 +124,8 @@ test("package scripts cannot publish, push, tag, or run on install", () => {
 
 test("package scripts use only the local direct-tool workflow", () => {
   assert.deepEqual(pkg.scripts, {
+    format: "prettier --write .",
+    "format:check": "prettier --check .",
     generate: "node scripts/generate-index.mjs",
     "generate:check": "node scripts/generate-index.mjs --check",
     "gallery:update": "node scripts/generate-table.mjs",
@@ -132,7 +136,9 @@ test("package scripts use only the local direct-tool workflow", () => {
     "test:unit": "node --test test/*.test.cjs",
     "test:package": "node scripts/test-package.mjs",
     test: "npm run test:unit && npm run test:package",
-    verify: "npm run gallery:check && npm run typecheck && npm run build && npm test",
+    "audit:ci": "npm audit --omit=dev --audit-level=high",
+    verify:
+      "npm run format:check && npm run generate:check && npm run gallery:check && npm run typecheck && npm run build && npm run test && npm run audit:ci",
   });
 });
 
@@ -196,8 +202,7 @@ test("build contract rejects a missing component declaration", () => {
 
 test("build contract rejects an extra declaration export", () => {
   const declarations = readFileSync(outputs.cjsTypes, "utf8");
-  const extraDeclaration =
-    `${declarations}export declare const UnexpectedIcon: unknown;\n`;
+  const extraDeclaration = `${declarations}export declare const UnexpectedIcon: unknown;\n`;
 
   assert.throws(
     () => validateDeclarationSurface(extraDeclaration, "index.d.ts"),

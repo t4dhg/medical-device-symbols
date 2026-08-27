@@ -20,8 +20,7 @@ function clean() {
 }
 
 const arguments_ = process.argv.slice(2);
-const cleanOnly =
-  arguments_.length === 1 && arguments_[0] === "--clean-only";
+const cleanOnly = arguments_.length === 1 && arguments_[0] === "--clean-only";
 
 if (arguments_.length > 0 && !cleanOnly) {
   throw new Error(`unknown argument ${JSON.stringify(arguments_[0])}`);
@@ -54,10 +53,8 @@ if (!cleanOnly) {
   ]);
 
   const typescriptCli = require.resolve("typescript/lib/tsc.js");
-  execFileSync(
-    process.execPath,
-    [typescriptCli, "-p", "tsconfig.build.json"],
-    { stdio: "inherit" },
-  );
+  execFileSync(process.execPath, [typescriptCli, "-p", "tsconfig.build.json"], {
+    stdio: "inherit",
+  });
   copyFileSync("lib/index.d.ts", "lib/index.d.mts");
 }

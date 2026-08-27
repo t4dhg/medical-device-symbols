@@ -37,7 +37,8 @@ const EXPECTED_EXPORTS = {
   },
   "./package.json": "./package.json",
 };
-const WINDOWS_RESERVED_BASENAME = /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i;
+const WINDOWS_RESERVED_BASENAME =
+  /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i;
 const FORBIDDEN_DIRECTORY = /^(?:src|source|sources|test|tests|__tests__)$/i;
 
 function isZeroBlock(block) {
@@ -73,7 +74,10 @@ function parseOctalField(
     ),
     `${label} contains an invalid raw byte`,
   );
-  const text = field.toString("ascii").replace(/[\0 ]+$/u, "").trimStart();
+  const text = field
+    .toString("ascii")
+    .replace(/[\0 ]+$/u, "")
+    .trimStart();
   if (text === "" && allowBlankZero) return 0;
   assert.match(text, /^[0-7]+$/u, `${label} is not strict octal`);
   const value = Number.parseInt(text, 8);
@@ -91,13 +95,28 @@ function validateHeaderChecksum(header) {
 
 function validatePortablePath(path) {
   assert.equal(path.startsWith("/"), false, `absolute archive path: ${path}`);
-  assert.doesNotMatch(path, /^[A-Za-z]:/u, `drive-qualified archive path: ${path}`);
+  assert.doesNotMatch(
+    path,
+    /^[A-Za-z]:/u,
+    `drive-qualified archive path: ${path}`,
+  );
   assert.doesNotMatch(path, /\\/u, `backslash in archive path: ${path}`);
-  assert.doesNotMatch(path, /[\0-\x1f\x7f]/u, `control byte in archive path: ${path}`);
+  assert.doesNotMatch(
+    path,
+    /[\0-\x1f\x7f]/u,
+    `control byte in archive path: ${path}`,
+  );
 
   const segments = path.split("/");
-  assert.equal(segments[0], "package", `archive path is outside package/: ${path}`);
-  assert.ok(segments.length > 1, `archive entry cannot be package root: ${path}`);
+  assert.equal(
+    segments[0],
+    "package",
+    `archive path is outside package/: ${path}`,
+  );
+  assert.ok(
+    segments.length > 1,
+    `archive entry cannot be package root: ${path}`,
+  );
   for (const [index, segment] of segments.entries()) {
     assert.notEqual(segment, "", `empty archive path segment: ${path}`);
     assert.notEqual(segment, ".", `dot archive path segment: ${path}`);
@@ -107,14 +126,30 @@ function validatePortablePath(path) {
       /^[A-Za-z0-9][A-Za-z0-9._-]*$/u,
       `nonportable archive basename: ${segment}`,
     );
-    assert.doesNotMatch(segment, WINDOWS_RESERVED_BASENAME, `reserved archive basename: ${segment}`);
-    assert.equal(/[. ]$/u.test(segment), false, `nonportable archive basename: ${segment}`);
+    assert.doesNotMatch(
+      segment,
+      WINDOWS_RESERVED_BASENAME,
+      `reserved archive basename: ${segment}`,
+    );
+    assert.equal(
+      /[. ]$/u.test(segment),
+      false,
+      `nonportable archive basename: ${segment}`,
+    );
     if (index > 0 && index < segments.length - 1) {
-      assert.doesNotMatch(segment, FORBIDDEN_DIRECTORY, `source or test archive directory: ${segment}`);
+      assert.doesNotMatch(
+        segment,
+        FORBIDDEN_DIRECTORY,
+        `source or test archive directory: ${segment}`,
+      );
     }
   }
   const basename_ = segments.at(-1);
-  assert.equal(basename_.startsWith("."), false, `private archive basename: ${basename_}`);
+  assert.equal(
+    basename_.startsWith("."),
+    false,
+    `private archive basename: ${basename_}`,
+  );
   return segments.slice(1).join("/");
 }
 
@@ -123,7 +158,9 @@ function validateManifest(content) {
   try {
     manifest = JSON.parse(utf8Decoder.decode(content));
   } catch (error) {
-    throw new Error("archived package.json is not valid UTF-8 JSON", { cause: error });
+    throw new Error("archived package.json is not valid UTF-8 JSON", {
+      cause: error,
+    });
   }
 
   assert.equal(manifest.name, "medical-device-symbols");
@@ -144,7 +181,11 @@ function validateManifest(content) {
     "bundledDependencies",
     "bundleDependencies",
   ]) {
-    assert.equal(manifest[key], undefined, `runtime dependency field must be absent: ${key}`);
+    assert.equal(
+      manifest[key],
+      undefined,
+      `runtime dependency field must be absent: ${key}`,
+    );
   }
 }
 
@@ -157,10 +198,17 @@ export function validatePackReport(report, tarball) {
   assert.equal(entry.version, repositoryPackage.version);
   assert.equal(entry.filename, basename(tarball));
   assert.equal(entry.entryCount, EXPECTED_PACKAGE_FILES.length);
-  assert.ok(Array.isArray(entry.files), "npm pack report files must be an array");
+  assert.ok(
+    Array.isArray(entry.files),
+    "npm pack report files must be an array",
+  );
   const paths = entry.files.map((file) => file.path).sort();
   assert.deepEqual(paths, EXPECTED_PACKAGE_FILES);
-  assert.equal(new Set(paths).size, paths.length, "npm pack report contains duplicate files");
+  assert.equal(
+    new Set(paths).size,
+    paths.length,
+    "npm pack report contains duplicate files",
+  );
   return entry;
 }
 
@@ -207,7 +255,11 @@ export function validateTarball(buffer) {
   assert.ok(Buffer.isBuffer(buffer), "tarball must be a Buffer");
   const archive = gunzipSingleMember(buffer);
   assert.ok(archive.length >= BLOCK_SIZE * 2, "tar archive is too short");
-  assert.equal(archive.length % BLOCK_SIZE, 0, "tar archive length is not block-aligned");
+  assert.equal(
+    archive.length % BLOCK_SIZE,
+    0,
+    "tar archive length is not block-aligned",
+  );
 
   const paths = [];
   const pathSet = new Set();
@@ -218,9 +270,19 @@ export function validateTarball(buffer) {
   while (offset < archive.length) {
     const header = archive.subarray(offset, offset + BLOCK_SIZE);
     if (isZeroBlock(header)) {
-      const second = archive.subarray(offset + BLOCK_SIZE, offset + BLOCK_SIZE * 2);
-      assert.equal(second.length, BLOCK_SIZE, "tar archive has only one terminal zero block");
-      assert.ok(isZeroBlock(second), "tar archive has only one terminal zero block");
+      const second = archive.subarray(
+        offset + BLOCK_SIZE,
+        offset + BLOCK_SIZE * 2,
+      );
+      assert.equal(
+        second.length,
+        BLOCK_SIZE,
+        "tar archive has only one terminal zero block",
+      );
+      assert.ok(
+        isZeroBlock(second),
+        "tar archive has only one terminal zero block",
+      );
       assert.equal(
         offset + BLOCK_SIZE * 2,
         archive.length,
@@ -231,13 +293,41 @@ export function validateTarball(buffer) {
     }
 
     validateHeaderChecksum(header);
-    assert.equal(header.subarray(257, 263).toString("latin1"), "ustar\0", "unsupported tar magic");
-    assert.equal(header.subarray(263, 265).toString("ascii"), "00", "unsupported tar version");
-    assert.equal(decodeStringField(header, 345, 155, "tar prefix"), "", "tar prefixes are forbidden");
-    assert.equal(decodeStringField(header, 157, 100, "tar link name"), "", "tar links are forbidden");
-    assert.equal(decodeStringField(header, 265, 32, "tar user name"), "", "tar user names are forbidden");
-    assert.equal(decodeStringField(header, 297, 32, "tar group name"), "", "tar group names are forbidden");
-    assert.equal(parseOctalField(header, 100, 8, "tar mode"), 0o644, "published files must use mode 0644");
+    assert.equal(
+      header.subarray(257, 263).toString("latin1"),
+      "ustar\0",
+      "unsupported tar magic",
+    );
+    assert.equal(
+      header.subarray(263, 265).toString("ascii"),
+      "00",
+      "unsupported tar version",
+    );
+    assert.equal(
+      decodeStringField(header, 345, 155, "tar prefix"),
+      "",
+      "tar prefixes are forbidden",
+    );
+    assert.equal(
+      decodeStringField(header, 157, 100, "tar link name"),
+      "",
+      "tar links are forbidden",
+    );
+    assert.equal(
+      decodeStringField(header, 265, 32, "tar user name"),
+      "",
+      "tar user names are forbidden",
+    );
+    assert.equal(
+      decodeStringField(header, 297, 32, "tar group name"),
+      "",
+      "tar group names are forbidden",
+    );
+    assert.equal(
+      parseOctalField(header, 100, 8, "tar mode"),
+      0o644,
+      "published files must use mode 0644",
+    );
     assert.equal(
       parseOctalField(header, 108, 8, "tar uid", { allowBlankZero: true }),
       0,
@@ -269,10 +359,17 @@ export function validateTarball(buffer) {
     parseOctalField(header, 136, 12, "tar mtime");
 
     const type = header[156];
-    assert.ok(type === 0 || type === 0x30, `non-regular tar entry type: ${String.fromCharCode(type)}`);
+    assert.ok(
+      type === 0 || type === 0x30,
+      `non-regular tar entry type: ${String.fromCharCode(type)}`,
+    );
     const path = decodeStringField(header, 0, 100, "tar path");
     const relativePath = validatePortablePath(path);
-    assert.equal(pathSet.has(relativePath), false, `duplicate tar entry: ${relativePath}`);
+    assert.equal(
+      pathSet.has(relativePath),
+      false,
+      `duplicate tar entry: ${relativePath}`,
+    );
     pathSet.add(relativePath);
     paths.push(relativePath);
 
@@ -280,15 +377,25 @@ export function validateTarball(buffer) {
     const contentStart = offset + BLOCK_SIZE;
     const paddedSize = Math.ceil(size / BLOCK_SIZE) * BLOCK_SIZE;
     const nextOffset = contentStart + paddedSize;
-    assert.ok(nextOffset <= archive.length, `tar entry exceeds archive: ${path}`);
+    assert.ok(
+      nextOffset <= archive.length,
+      `tar entry exceeds archive: ${path}`,
+    );
     const content = archive.subarray(contentStart, contentStart + size);
     const padding = archive.subarray(contentStart + size, nextOffset);
-    assert.ok(padding.every((byte) => byte === 0), `nonzero tar padding: ${path}`);
+    assert.ok(
+      padding.every((byte) => byte === 0),
+      `nonzero tar padding: ${path}`,
+    );
     if (relativePath === "package.json") packageJson = content;
     offset = nextOffset;
   }
 
-  assert.equal(terminated, true, "tar archive is missing its terminal zero-block pair");
+  assert.equal(
+    terminated,
+    true,
+    "tar archive is missing its terminal zero-block pair",
+  );
   assert.deepEqual(paths.sort(), EXPECTED_PACKAGE_FILES);
   assert.ok(packageJson !== undefined, "tar archive is missing package.json");
   validateManifest(packageJson);
@@ -299,19 +406,27 @@ export function parseSuppliedTarballArgs(args) {
   assert.ok(Array.isArray(args), "arguments must be an array");
   if (args.length === 0) return undefined;
   if (args.length !== 2 || args[0] !== "--tarball") {
-    throw new Error("usage: test-package.mjs [--tarball /absolute/package.tgz]");
+    throw new Error(
+      "usage: test-package.mjs [--tarball /absolute/package.tgz]",
+    );
   }
   const tarball = args[1];
-  if (!isAbsolute(tarball)) throw new Error("supplied tarball path must be absolute");
-  if (!tarball.endsWith(".tgz")) throw new Error("supplied tarball must use the .tgz extension");
+  if (!isAbsolute(tarball))
+    throw new Error("supplied tarball path must be absolute");
+  if (!tarball.endsWith(".tgz"))
+    throw new Error("supplied tarball must use the .tgz extension");
   let stats;
   try {
     stats = lstatSync(tarball);
   } catch {
-    throw new Error(`supplied tarball is not an existing regular file: ${tarball}`);
+    throw new Error(
+      `supplied tarball is not an existing regular file: ${tarball}`,
+    );
   }
   if (!stats.isFile()) {
-    throw new Error(`supplied tarball is not an existing regular file: ${tarball}`);
+    throw new Error(
+      `supplied tarball is not an existing regular file: ${tarball}`,
+    );
   }
   return tarball;
 }

@@ -20,7 +20,9 @@ const repositoryIcons = join(root, "src", "icons");
 const validFixture = join(__dirname, "fixtures", "svg", "valid-minimal.svg");
 
 function withTemporaryIcons(run) {
-  const temporaryRoot = mkdtempSync(join(tmpdir(), "medical-symbol-generator-"));
+  const temporaryRoot = mkdtempSync(
+    join(tmpdir(), "medical-symbol-generator-"),
+  );
   const iconsDirectory = join(temporaryRoot, "icons");
   mkdirSync(iconsDirectory);
   try {
@@ -52,7 +54,10 @@ test("invalid source filenames fail before identifiers are generated", async () 
     "space name.svg",
     "not-an-svg.txt",
   ]) {
-    assert.throws(() => iconNamesFromFilename(filename), /filename|identifier/i);
+    assert.throws(
+      () => iconNamesFromFilename(filename),
+      /filename|identifier/i,
+    );
   }
 });
 

@@ -61,12 +61,7 @@
     "UDI": "udi",
     "UPPER_LIMIT_OF_TEMPERATURE": "upper-limit-of-temperature"
   },
-  "retired": [
-    "EcIcon",
-    "Icon15MicraIcon",
-    "LotIcon",
-    "ReadIfuIcon"
-  ],
+  "retired": ["EcIcon", "Icon15MicraIcon", "LotIcon", "ReadIfuIcon"],
   "examples": [
     "examples/demo.html",
     "examples/node-svg-extraction.js",

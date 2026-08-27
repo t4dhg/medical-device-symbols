@@ -40,7 +40,7 @@ console.log(`CautionIcon: ${typeof CautionIcon}`);
 console.log(`CautionIcon.displayName: ${CautionIcon.displayName}`);
 console.log(`BatchCodeIcon: ${typeof BatchCodeIcon}`);
 console.log(
-  `LiquidFilterWithPoreSizeIcon: ${typeof LiquidFilterWithPoreSizeIcon}`
+  `LiquidFilterWithPoreSizeIcon: ${typeof LiquidFilterWithPoreSizeIcon}`,
 );
 
 console.log("\n2. Attempting to render to SVG string...");

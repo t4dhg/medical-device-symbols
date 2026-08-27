@@ -23,14 +23,17 @@ test("zero remains valid for non-negative drawing values", async () => {
   const { parseSvgSource } = await contractModule;
   const source = readFileSync(join(fixtures, "valid-zero-ranges.svg"), "utf8");
 
-  assert.deepEqual(parseSvgSource(source, { filename: "valid-zero-ranges.svg" }), {
-    viewBox: "0 0 200 200",
-    markup:
-      '<rect height="0" rx="0" ry="0" width="0"/>' +
-      '<circle r="0"/>' +
-      '<ellipse rx="0" ry="0"/>' +
-      '<path d="M0 0A0 0 0 0 0 10 10" stroke-width="0"/>',
-  });
+  assert.deepEqual(
+    parseSvgSource(source, { filename: "valid-zero-ranges.svg" }),
+    {
+      viewBox: "0 0 200 200",
+      markup:
+        '<rect height="0" rx="0" ry="0" width="0"/>' +
+        '<circle r="0"/>' +
+        '<ellipse rx="0" ry="0"/>' +
+        '<path d="M0 0A0 0 0 0 0 10 10" stroke-width="0"/>',
+    },
+  );
 });
 
 const invalidCases = [
@@ -76,11 +79,7 @@ const invalidCases = [
     "malformed-points.svg",
     /polygon points/i,
   ],
-  [
-    "rejects non-finite matrix values",
-    "non-finite-matrix.svg",
-    /transform/i,
-  ],
+  ["rejects non-finite matrix values", "non-finite-matrix.svg", /transform/i],
   [
     "rejects non-finite drawing numbers",
     "non-finite-drawing-number.svg",
@@ -136,7 +135,11 @@ const invalidCases = [
     "non-finite-root-number.svg",
     /root width/i,
   ],
-  ["rejects duplicate attributes", "duplicate-attribute.svg", /duplicate attribute/i],
+  [
+    "rejects duplicate attributes",
+    "duplicate-attribute.svg",
+    /duplicate attribute/i,
+  ],
   ["rejects unreviewed style text", "unreviewed-style.svg", /style/i],
   ["rejects drawing text", "text-content.svg", /text/i],
 ];

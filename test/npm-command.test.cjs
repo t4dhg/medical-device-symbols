@@ -112,10 +112,8 @@ test("spawn diagnostics distinguish errors, statuses, and signals", async () => 
     /terminated by signal SIGTERM/,
   );
   assert.doesNotThrow(() =>
-    assertSpawnSucceeded(
-      { error: undefined, status: 0, signal: null },
-      "npm",
-      ["install"],
-    ),
+    assertSpawnSucceeded({ error: undefined, status: 0, signal: null }, "npm", [
+      "install",
+    ]),
   );
 });

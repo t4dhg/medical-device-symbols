@@ -40,9 +40,7 @@ export default function NewIconDemo() {
             title="CE marking with BSI Notified Body 2797"
             role="img"
           />
-          <p style={{ marginTop: "10px", fontWeight: "bold" }}>
-            CE + BSI 2797
-          </p>
+          <p style={{ marginTop: "10px", fontWeight: "bold" }}>CE + BSI 2797</p>
           <p style={{ fontSize: "12px", color: "#666" }}>
             Use only when BSI 2797 is applicable to the device
           </p>

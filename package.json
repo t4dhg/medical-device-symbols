@@ -25,6 +25,8 @@
     "CONTRIBUTING.md"
   ],
   "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "generate": "node scripts/generate-index.mjs",
     "generate:check": "node scripts/generate-index.mjs --check",
     "gallery:update": "node scripts/generate-table.mjs",
@@ -35,7 +37,8 @@
     "test:unit": "node --test test/*.test.cjs",
     "test:package": "node scripts/test-package.mjs",
     "test": "npm run test:unit && npm run test:package",
-    "verify": "npm run gallery:check && npm run typecheck && npm run build && npm test"
+    "audit:ci": "npm audit --omit=dev --audit-level=high",
+    "verify": "npm run format:check && npm run generate:check && npm run gallery:check && npm run typecheck && npm run build && npm run test && npm run audit:ci"
   },
   "keywords": [
     "medical-device",
@@ -64,10 +67,12 @@
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.5",
     "esbuild": "0.28.2",
+    "prettier": "3.9.6",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "saxes": "6.0.0",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "yaml": "2.9.0"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"

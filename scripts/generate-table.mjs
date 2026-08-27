@@ -32,10 +32,13 @@ function toComponentName(iconName) {
 }
 
 function toTitle(iconName) {
-  return TITLE_OVERRIDES[iconName] ?? iconName
-    .split("-")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+  return (
+    TITLE_OVERRIDES[iconName] ??
+    iconName
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ")
+  );
 }
 
 export function renderGallery({ iconsDirectory, packageVersion }) {
@@ -44,6 +47,7 @@ export function renderGallery({ iconsDirectory, packageVersion }) {
     .filter((file) => file.endsWith(".svg"))
     .sort();
   const lines = [
+    "<!-- prettier-ignore -->",
     "| Symbol | Component | Title |",
     "| :----: | --------- | ----- |",
   ];
@@ -65,8 +69,14 @@ export function replaceGallery(readme, gallery) {
   const start = readme.indexOf(startMarker);
   const end = readme.indexOf(endMarker, start + startMarker.length);
 
-  if (start === -1 || end === -1 || readme.indexOf(startMarker, start + 1) !== -1) {
-    throw new Error("README must contain one Available Icons section before Usage");
+  if (
+    start === -1 ||
+    end === -1 ||
+    readme.indexOf(startMarker, start + 1) !== -1
+  ) {
+    throw new Error(
+      "README must contain one Available Icons section before Usage",
+    );
   }
 
   const section = `${startMarker}\n29 symbols, each exported as a \`PascalCase\` component.\n\n${gallery}`;
@@ -86,7 +96,10 @@ export function writeOrCheckGallery({
   );
 
   if (current === expected) return false;
-  if (check) throw new Error("README gallery is out of date; run npm run gallery:update");
+  if (check)
+    throw new Error(
+      "README gallery is out of date; run npm run gallery:update",
+    );
 
   const temporaryFile = join(
     dirname(readmeFile),
@@ -120,7 +133,10 @@ function main(args) {
   });
 }
 
-if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {
+if (
+  process.argv[1] &&
+  pathToFileURL(resolve(process.argv[1])).href === import.meta.url
+) {
   try {
     main(process.argv.slice(2));
   } catch (error) {

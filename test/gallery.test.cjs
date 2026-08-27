@@ -10,6 +10,7 @@ const {
 const { tmpdir } = require("node:os");
 const { join } = require("node:path");
 const test = require("node:test");
+const { format } = require("prettier");
 
 const root = join(__dirname, "..");
 const script = join(root, "scripts", "generate-table.mjs");
@@ -36,13 +37,24 @@ test("gallery rendering is deterministic and uses direct lexical icon ordering",
     );
     assert.equal((gallery.match(/^\| <img /gm) || []).length, 29);
     assert.ok(
-      gallery.indexOf("AtmosphericPressureLimitationIcon")
-        < gallery.indexOf("BatchCodeIcon"),
+      gallery.indexOf("AtmosphericPressureLimitationIcon") <
+        gallery.indexOf("BatchCodeIcon"),
     );
     assert.ok(gallery.indexOf("CeBsiIcon") < gallery.indexOf("CeIcon"));
   } finally {
     String.prototype.localeCompare = originalLocaleCompare;
   }
+});
+
+test("the generated gallery stays byte-stable under repository formatting", async () => {
+  const { renderGallery } = await galleryModule;
+  const gallery = renderGallery({
+    iconsDirectory: join(root, "src", "icons"),
+    packageVersion: "2.2.0",
+  });
+  const section = `## Available Icons\n\n29 symbols, each exported as a \`PascalCase\` component.\n\n${gallery}\n## Usage\n`;
+
+  assert.equal(await format(section, { parser: "markdown" }), section);
 });
 
 test("gallery check rejects a mutated row without changing the README", async () => {
@@ -51,8 +63,10 @@ test("gallery check rejects a mutated row without changing the README", async ()
   const readmeFile = join(temporaryRoot, "README.md");
 
   try {
-    const staleBeforeUpdate = readFileSync(join(root, "README.md"), "utf8")
-      .replace("Atmospheric Pressure Limitation", "Stale Before Update");
+    const staleBeforeUpdate = readFileSync(
+      join(root, "README.md"),
+      "utf8",
+    ).replace("Atmospheric Pressure Limitation", "Stale Before Update");
     writeFileSync(readmeFile, staleBeforeUpdate);
     assert.equal(
       writeOrCheckGallery({
@@ -74,12 +88,13 @@ test("gallery check rejects a mutated row without changing the README", async ()
     writeFileSync(readmeFile, mutated);
 
     assert.throws(
-      () => writeOrCheckGallery({
-        iconsDirectory: join(root, "src", "icons"),
-        readmeFile,
-        packageVersion: "2.2.0",
-        check: true,
-      }),
+      () =>
+        writeOrCheckGallery({
+          iconsDirectory: join(root, "src", "icons"),
+          readmeFile,
+          packageVersion: "2.2.0",
+          check: true,
+        }),
       /out of date/i,
     );
     assert.equal(readFileSync(readmeFile, "utf8"), mutated);

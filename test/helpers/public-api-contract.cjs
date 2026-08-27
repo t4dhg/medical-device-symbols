@@ -9,11 +9,23 @@ function validatePublicApi(packageApi, expected) {
   assert.deepEqual(components, expected.components);
   assert.deepEqual(packageApi.ICON_NAMES, expected.iconNames);
   for (const name of expected.components) {
-    assert.equal(packageApi[name], packageApi.icons[name], `${name} export drift`);
-    assert.equal(packageApi[name].displayName, name, `${name} displayName drift`);
+    assert.equal(
+      packageApi[name],
+      packageApi.icons[name],
+      `${name} export drift`,
+    );
+    assert.equal(
+      packageApi[name].displayName,
+      name,
+      `${name} displayName drift`,
+    );
   }
   for (const retired of expected.retired) {
-    assert.equal(Object.hasOwn(packageApi, retired), false, `${retired} returned`);
+    assert.equal(
+      Object.hasOwn(packageApi, retired),
+      false,
+      `${retired} returned`,
+    );
   }
 }
 
