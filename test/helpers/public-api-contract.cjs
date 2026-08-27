@@ -3,6 +3,8 @@ const { existsSync } = require("node:fs");
 const { join } = require("node:path");
 
 function validatePublicApi(packageApi, expected) {
+  const rootExports = [...expected.components, "ICON_NAMES", "icons"].sort();
+  assert.deepEqual(Object.keys(packageApi).sort(), rootExports);
   const components = Object.keys(packageApi.icons).sort();
   assert.deepEqual(components, expected.components);
   assert.deepEqual(packageApi.ICON_NAMES, expected.iconNames);

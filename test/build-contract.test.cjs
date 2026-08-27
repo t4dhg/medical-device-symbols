@@ -1,7 +1,15 @@
 const assert = require("node:assert/strict");
-const { existsSync, readFileSync } = require("node:fs");
+const {
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} = require("node:fs");
+const { tmpdir } = require("node:os");
 const { join } = require("node:path");
 const test = require("node:test");
+const typescript = require("typescript");
 
 const expectedApi = require("./fixtures/public-api.json");
 const { validatePublicApi } = require("./helpers/public-api-contract.cjs");
@@ -14,6 +22,90 @@ const outputs = {
   cjsTypes: join(root, "lib", "index.d.ts"),
   esmTypes: join(root, "lib", "index.d.mts"),
 };
+const declarationSurface = [
+  ...expectedApi.components,
+  "ICON_NAMES",
+  "IconName",
+  "IconProps",
+  "icons",
+].sort();
+
+function declarationExportNames(source, filename) {
+  const sourceFile = typescript.createSourceFile(
+    filename,
+    source,
+    typescript.ScriptTarget.Latest,
+    true,
+    typescript.ScriptKind.TS,
+  );
+  assert.equal(sourceFile.parseDiagnostics.length, 0);
+  const names = [];
+
+  for (const statement of sourceFile.statements) {
+    if (typescript.isExportDeclaration(statement)) {
+      if (statement.exportClause === undefined) {
+        names.push("*");
+      } else if (typescript.isNamedExports(statement.exportClause)) {
+        names.push(...statement.exportClause.elements.map(({ name }) => name.text));
+      } else {
+        names.push(statement.exportClause.name.text);
+      }
+      continue;
+    }
+    if (typescript.isExportAssignment(statement)) {
+      names.push("default");
+      continue;
+    }
+
+    const modifiers = typescript.canHaveModifiers(statement)
+      ? typescript.getModifiers(statement)
+      : undefined;
+    if (
+      !modifiers?.some(
+        ({ kind }) => kind === typescript.SyntaxKind.ExportKeyword,
+      )
+    ) {
+      continue;
+    }
+    if (
+      modifiers.some(
+        ({ kind }) => kind === typescript.SyntaxKind.DefaultKeyword,
+      )
+    ) {
+      names.push("default");
+      continue;
+    }
+    if (typescript.isVariableStatement(statement)) {
+      for (const declaration of statement.declarationList.declarations) {
+        names.push(
+          typescript.isIdentifier(declaration.name)
+            ? declaration.name.text
+            : "<binding-pattern>",
+        );
+      }
+      continue;
+    }
+    names.push(statement.name?.text ?? "<anonymous>");
+  }
+
+  return names.sort();
+}
+
+function validateOutputFileSurface(libDirectory) {
+  assert.deepEqual(readdirSync(libDirectory).sort(), [
+    "index.d.mts",
+    "index.d.ts",
+    "index.js",
+    "index.mjs",
+  ]);
+}
+
+function validateDeclarationSurface(source, filename) {
+  assert.deepEqual(
+    declarationExportNames(source, filename),
+    declarationSurface,
+  );
+}
 
 test("package scripts cannot publish, push, tag, or run on install", () => {
   for (const name of [
@@ -48,10 +140,69 @@ test("package entry points route each module format to matching declarations", (
   assert.equal(pkg.dependencies, undefined);
 });
 
-test("built entry points preserve the public API and keep React external", async () => {
-  for (const output of Object.values(outputs)) {
-    assert.equal(existsSync(output), true, `${output} is missing`);
+test("build contract rejects an unexpected fifth lib entry", () => {
+  const temporaryLib = mkdtempSync(
+    join(tmpdir(), "medical-device-symbols-build-contract-"),
+  );
+
+  try {
+    for (const filename of [
+      "index.d.mts",
+      "index.d.ts",
+      "index.js",
+      "index.mjs",
+      "unexpected-output.js",
+    ]) {
+      writeFileSync(join(temporaryLib, filename), "");
+    }
+    assert.throws(
+      () => validateOutputFileSurface(temporaryLib),
+      assert.AssertionError,
+    );
+  } finally {
+    rmSync(temporaryLib, { recursive: true, force: true });
   }
+});
+
+test("public API contract rejects the same extra root export in both formats", async () => {
+  const cjsApi = { ...require(outputs.cjs), UnexpectedExport: true };
+  const esmApi = { ...(await import(outputs.esm)), UnexpectedExport: true };
+
+  for (const packageApi of [cjsApi, esmApi]) {
+    assert.throws(
+      () => validatePublicApi(packageApi, expectedApi),
+      assert.AssertionError,
+    );
+  }
+});
+
+test("build contract rejects a missing component declaration", () => {
+  const declarations = readFileSync(outputs.cjsTypes, "utf8");
+  assert.match(declarations, /^export declare const CautionIcon:.*\n/m);
+  const missingComponent = declarations.replace(
+    /^export declare const CautionIcon:.*\n/m,
+    "",
+  );
+
+  assert.throws(
+    () => validateDeclarationSurface(missingComponent, "index.d.ts"),
+    assert.AssertionError,
+  );
+});
+
+test("build contract rejects an extra declaration export", () => {
+  const declarations = readFileSync(outputs.cjsTypes, "utf8");
+  const extraDeclaration =
+    `${declarations}export declare const UnexpectedIcon: unknown;\n`;
+
+  assert.throws(
+    () => validateDeclarationSurface(extraDeclaration, "index.d.ts"),
+    assert.AssertionError,
+  );
+});
+
+test("built entry points preserve the public API and keep React external", async () => {
+  validateOutputFileSurface(join(root, "lib"));
 
   const cjsApi = require(outputs.cjs);
   const esmApi = await import(outputs.esm);
@@ -65,7 +216,7 @@ test("built entry points preserve the public API and keep React external", async
   assert.match(cjs, /require\(["']react["']\)/);
   assert.match(esm, /from\s+["']react["']/);
   assert.doesNotMatch(`${cjs}\n${esm}`, /react\.production/);
-  assert.match(declarations, /export type IconName\b/);
-  assert.match(declarations, /export (?:interface|type) IconProps\b/);
+  validateDeclarationSurface(declarations, "index.d.ts");
+  validateDeclarationSurface(esmDeclarations, "index.d.mts");
   assert.equal(esmDeclarations, declarations);
 });
