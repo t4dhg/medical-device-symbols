@@ -26,11 +26,16 @@ const root = resolve(__dirname, "..");
 const releaseScript = join(root, "scripts", "check-release.mjs");
 const workflowPath = join(root, ".github", "workflows", "release.yml");
 const packageName = "medical-device-symbols";
-const packageVersion = "2.2.0";
+const packageVersion = JSON.parse(
+  readFileSync(join(root, "package.json"), "utf8"),
+).version;
 const tag = `v${packageVersion}`;
+const [packageMajor, packageMinor, packagePatch] = packageVersion
+  .split(".")
+  .map(Number);
+const laterVersion = `${packageMajor}.${packageMinor}.${packagePatch + 1}`;
 const commit = "0123456789abcdef0123456789abcdef01234567";
-const expectedTarballUrl =
-  "https://registry.npmjs.org/medical-device-symbols/-/medical-device-symbols-2.2.0.tgz";
+const expectedTarballUrl = `https://registry.npmjs.org/medical-device-symbols/-/medical-device-symbols-${packageVersion}.tgz`;
 
 let releaseModule;
 let packFixture;
@@ -1000,7 +1005,7 @@ test("registry polling refuses a missing release unless latest is strictly older
     }),
     states[1],
   );
-  for (const latest of [packageVersion, "2.2.1", "latest", undefined]) {
+  for (const latest of [packageVersion, laterVersion, "latest", undefined]) {
     await assert.rejects(
       pollRegistry({
         name: packageName,
@@ -1449,7 +1454,7 @@ fs.appendFileSync(process.env.FAKE_NPM_LOG, JSON.stringify(entry) + "\\n");
 if (args[0] === "--version") process.stdout.write("11.19.0\\n");
 else if (args[0] === "install" && args.includes("--global")) {}
 else if (args[0] === "view" && args[1] === "medical-device-symbols" && args.includes("dist-tags.latest")) { const count = Number(fs.readFileSync(process.env.FAKE_VIEW_COUNT, "utf8")); process.stdout.write(JSON.stringify(count < 2 ? "2.1.9" : ${JSON.stringify(packageVersion)})); }
-else if (args[0] === "view") { const count = fs.existsSync(process.env.FAKE_VIEW_COUNT) ? Number(fs.readFileSync(process.env.FAKE_VIEW_COUNT, "utf8")) + 1 : 1; fs.writeFileSync(process.env.FAKE_VIEW_COUNT, String(count)); if (count === 1) { process.stderr.write(JSON.stringify({ error: { code: "E404", summary: "No match found for version 2.2.0", detail: "'medical-device-symbols@2.2.0' is not in this registry.\\n\\nNote that you can also install from a\\ntarball, folder, http url, or git url." } })); process.exit(1); } process.stdout.write(process.env.FAKE_METADATA); }
+else if (args[0] === "view") { const count = fs.existsSync(process.env.FAKE_VIEW_COUNT) ? Number(fs.readFileSync(process.env.FAKE_VIEW_COUNT, "utf8")) + 1 : 1; fs.writeFileSync(process.env.FAKE_VIEW_COUNT, String(count)); if (count === 1) { process.stderr.write(JSON.stringify({ error: { code: "E404", summary: "No match found for version ${packageVersion}", detail: "'medical-device-symbols@${packageVersion}' is not in this registry.\\n\\nNote that you can also install from a\\ntarball, folder, http url, or git url." } })); process.exit(1); } process.stdout.write(process.env.FAKE_METADATA); }
 else if (args[0] === "pack") { const destination = args[args.indexOf("--pack-destination") + 1]; const target = path.join(destination, path.basename(process.env.FAKE_TARBALL)); fs.copyFileSync(process.env.FAKE_TARBALL, target); process.stdout.write(JSON.stringify([{ name: ${JSON.stringify(packageName)}, version: ${JSON.stringify(packageVersion)}, filename: path.basename(target) }])); }
 else if (args[0] === "publish") { fs.writeFileSync(process.env.FAKE_PUBLISH_MARKER, "published"); process.exit(73); }
 else if (args[0] === "install") { fs.mkdirSync(path.join(process.cwd(), "node_modules", ${JSON.stringify(packageName)}), { recursive: true }); fs.writeFileSync(path.join(process.cwd(), "package-lock.json"), JSON.stringify({ lockfileVersion: 3, packages: { ["node_modules/" + ${JSON.stringify(packageName)}]: { version: ${JSON.stringify(packageVersion)}, resolved: ${JSON.stringify(expectedTarballUrl)}, integrity: process.env.FAKE_INTEGRITY } } })); }

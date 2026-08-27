@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+No changes yet.
+
+## 2.3.0 - Unreleased (release candidate)
+
+This candidate is not yet published, tagged, or a GitHub Release.
+
+### Added
+
+- Assertive public-API, component-behavior, generated-source, packed-artifact, documentation, CI, governance, and release-contract tests.
+- Isolated package consumers covering CommonJS, ESM, strict NodeNext TypeScript, ordinary bundler tree shaking, and React 16 through React 19.
+- Issue forms, a pull-request template, project conduct and security guidance, a dependency-risk record, and an explicitly unapplied repository-settings proposal.
+
+### Changed
+
+- Replaced the previous build wrapper with exact direct esbuild and TypeScript tooling, deterministic output cleanup, and dual CommonJS/ESM declarations.
+- Made SVG discovery, validation, component generation, and README gallery updates deterministic and fail closed on unreviewed input or drift.
+- Unified local and CI checks under `npm run verify`, with pinned dependencies, supported Node-version coverage, least-privilege workflow permissions, and a stable aggregate quality job.
+- Reworked public guidance and examples around tested accessibility behavior, `currentColor` theming, symbol-versus-mark scope, and the BSI 2797 applicability boundary.
+- Prepared three-stage release automation that separates verification, npm OIDC authority, and GitHub Release authority; the required repository and npm configuration remains unapplied.
+
+### Security
+
+- Removed local version, deployment, and publication lifecycle scripts that could mutate remote state from a developer command.
+- Added strict SVG, gzip/tar, release-bundle, registry-identity, signature, and provenance validation at the package trust boundaries.
+
 ## [2.2.0] - 2026-07-18
 
 ### Fixed

@@ -13,6 +13,9 @@ const test = require("node:test");
 const { gzipSync } = require("node:zlib");
 
 const root = join(__dirname, "..");
+const packageVersion = JSON.parse(
+  readFileSync(join(root, "package.json"), "utf8"),
+).version;
 const expectedFiles = [
   "CHANGELOG.md",
   "CONTRIBUTING.md",
@@ -149,11 +152,11 @@ test("the tarball contract accepts npm-normalized blank ownership as zero", asyn
 
 test("the pack report must describe one matching nine-file tarball", async () => {
   const { validatePackReport } = await modulePromise;
-  const tarball = "/tmp/pack/medical-device-symbols-2.2.0.tgz";
+  const tarball = `/tmp/pack/medical-device-symbols-${packageVersion}.tgz`;
   const report = [
     {
       name: "medical-device-symbols",
-      version: "2.2.0",
+      version: packageVersion,
       filename: basename(tarball),
       entryCount: 9,
       files: expectedFiles.map((path) => ({ path, size: 1, mode: 0o644 })),
@@ -164,6 +167,7 @@ test("the pack report must describe one matching nine-file tarball", async () =>
   for (const invalid of [
     [],
     [...report, report[0]],
+    [{ ...report[0], version: "9.9.9" }],
     [{ ...report[0], filename: "other.tgz" }],
     [{ ...report[0], entryCount: 8 }],
     [{ ...report[0], files: report[0].files.slice(1) }],
