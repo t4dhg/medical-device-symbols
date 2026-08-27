@@ -1,0 +1,97 @@
+name: Bug report
+description: Report a reproducible problem with the package.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping improve medical-device-symbols. Do not include vulnerability details here; use private vulnerability reporting instead.
+  - type: input
+    id: package_version
+    attributes:
+      label: Package version
+      description: The exact medical-device-symbols version, range, or commit tested.
+      placeholder: 2.2.0
+    validations:
+      required: true
+  - type: input
+    id: react_version
+    attributes:
+      label: React version
+      description: The exact React version used by the affected application.
+      placeholder: 19.2.8
+    validations:
+      required: true
+  - type: input
+    id: node_version
+    attributes:
+      label: Node.js version
+      description: The exact Node.js version used to install, build, or reproduce the problem.
+      placeholder: 24.0.0
+    validations:
+      required: true
+  - type: input
+    id: bundler_runtime
+    attributes:
+      label: Bundler or runtime
+      description: Name and version of the bundler, framework, browser, or other runtime involved.
+      placeholder: Vite 7 in Chrome 140
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Provide the smallest code sample or repository that reproduces the problem and the steps to run it.
+    validations:
+      required: true
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: Expected behavior
+      description: What should have happened?
+    validations:
+      required: true
+  - type: textarea
+    id: actual_behavior
+    attributes:
+      label: Actual behavior
+      description: What happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or diagnostics
+      description: Paste relevant output, with credentials and private data removed. Enter N/A if no output is available.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: accessibility
+    attributes:
+      label: Accessibility impact
+      description: Describe any effect on accessible names, roles, focus, contrast, or assistive technology. Enter N/A if none.
+    validations:
+      required: true
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibility impact
+      description: Describe affected import styles, React versions, Node versions, bundlers, or browsers. Enter N/A if unknown.
+    validations:
+      required: true
+  - type: dropdown
+    id: release_impact
+    attributes:
+      label: Expected release impact
+      description: Choose the smallest release category that may be needed if this report results in a change.
+      options:
+        - No package release
+        - Patch
+        - Minor
+        - Major or breaking
+        - Unsure
+    validations:
+      required: true

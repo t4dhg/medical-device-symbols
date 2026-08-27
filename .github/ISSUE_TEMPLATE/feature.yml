@@ -1,0 +1,57 @@
+name: Feature request
+description: Propose a focused improvement to the package.
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Explain the user need before proposing an implementation. New artwork must have a reviewable regulatory or standards source and applicability rationale.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user need or limitation should this change address?
+    validations:
+      required: true
+  - type: textarea
+    id: proposed_behavior
+    attributes:
+      label: Proposed behavior
+      description: Describe the observable behavior you want without assuming a specific implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Which workarounds or alternative designs have you considered?
+    validations:
+      required: true
+  - type: textarea
+    id: public_api_impact
+    attributes:
+      label: Public API and compatibility impact
+      description: Identify proposed exports, filenames, import paths, rendering changes, or compatibility effects. Enter None if there is no impact.
+    validations:
+      required: true
+  - type: textarea
+    id: tests_documentation
+    attributes:
+      label: Tests and documentation
+      description: Describe the behavior tests and public documentation this change would require.
+    validations:
+      required: true
+  - type: dropdown
+    id: release_impact
+    attributes:
+      label: Expected release impact
+      description: Choose the smallest release category that may be needed.
+      options:
+        - No package release
+        - Patch
+        - Minor
+        - Major or breaking
+        - Unsure
+    validations:
+      required: true

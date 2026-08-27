@@ -5,6 +5,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      non-major-development-dependencies:
+        dependency-type: development
+        update-types: [minor, patch]
     ignore:
       # TypeScript 7 (native compiler) breaks the current build; stay on 5.x.
       - dependency-name: "typescript"

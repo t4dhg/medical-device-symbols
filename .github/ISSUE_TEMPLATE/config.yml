@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/t4dhg/medical-device-symbols/security/advisories/new
+    about: Send vulnerability details privately to the maintainers.
+  - name: Ask a question
+    url: https://github.com/t4dhg/medical-device-symbols/discussions
+    about: Ask usage and support questions in GitHub Discussions.

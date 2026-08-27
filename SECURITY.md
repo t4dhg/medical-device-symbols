@@ -11,11 +11,11 @@ Only the latest 2.x release line receives security updates.
 
 ## Reporting a Vulnerability
 
-Please do not report security vulnerabilities through public GitHub issues.
+Do not report vulnerability details in a public issue, discussion, or pull request.
 
 Instead, use GitHub's private vulnerability reporting: open the repository's **Security** tab and choose **Report a vulnerability**, or go directly to https://github.com/t4dhg/medical-device-symbols/security/advisories/new.
 
-Please include a description of the issue, the affected version(s), and steps to reproduce where applicable. You can expect an initial response within a few days.
+Include a description of the issue, the affected version(s), and steps to reproduce where applicable. Reports are handled as maintainer availability permits; no response or resolution time is promised.
 
 ## Security Model
 
