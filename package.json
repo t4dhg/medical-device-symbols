@@ -20,7 +20,8 @@
     "CONTRIBUTING.md"
   ],
   "scripts": {
-    "generate": "node scripts/generate-index.js",
+    "generate": "node scripts/generate-index.mjs",
+    "generate:check": "node scripts/generate-index.mjs --check",
     "build": "npm run generate && tsup",
     "prepare": "npm run build",
     "pretest": "npm run build",
@@ -63,6 +64,7 @@
     "@types/react-dom": "19.2.5",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "saxes": "6.0.0",
     "tsup": "^8.0.0",
     "typescript": "^5.7.0"
   },
