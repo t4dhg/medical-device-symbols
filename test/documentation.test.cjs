@@ -4,13 +4,23 @@ const { join } = require("node:path");
 const test = require("node:test");
 
 const root = join(__dirname, "..");
+const safePackageDescription =
+  "React components for ISO 15223-1 symbols and separate regulatory marks. TypeScript, currentColor theming, and zero runtime dependencies.";
+const safeThemingEntry =
+  "- **Theming**: all 29 symbols now inherit `currentColor` instead of hardcoded black. Use the `color` prop or CSS `color` to recolor them; a plain `fill` prop does not recolor artwork paths that use `currentColor`.";
 
 function validatePackageDescription(description) {
-  assert.match(
-    description,
-    /ISO 15223-1 symbols and separate regulatory marks/i,
+  assert.equal(description, safePackageDescription);
+}
+
+function validateChangelogTheming(changelog) {
+  const versionSection = changelog.match(
+    /^## \[2\.2\.0\][\s\S]*?(?=^## \[|$(?![\s\S]))/m,
   );
-  assert.doesNotMatch(description, /\bcompliance\b/i);
+
+  assert.ok(versionSection);
+  assert.equal(versionSection[0].split(safeThemingEntry).length - 1, 1);
+  assert.doesNotMatch(changelog.replace(safeThemingEntry, ""), /\bfill\b/i);
 }
 
 function validateRecoloringGuidance(guidance) {
@@ -76,6 +86,7 @@ function validateDocumentation(documents) {
   assert.match(publicExamples, /(?:\bcolor\s*=|\bcolor\s*:)/i);
   assert.doesNotMatch(publicExamples, /\bCE\s+0123\b/);
   validateRecoloringGuidance(publicGuidance);
+  validateChangelogTheming(changelog);
 
   assert.match(changelog, /^## \[Unreleased\]/m);
   assert.doesNotMatch(changelog, /^## \[2\.0\.[23]\]/m);
@@ -124,6 +135,7 @@ test("package metadata distinguishes symbols from regulatory marks", () => {
 test("changelog guidance does not claim fill recolors currentColor artwork", () => {
   const { changelog } = repositoryDocuments();
   validateRecoloringGuidance(changelog);
+  validateChangelogTheming(changelog);
 });
 
 test("the documentation validator rejects an omitted BSI applicability warning", () => {
@@ -142,6 +154,20 @@ test("the documentation validator rejects conflated compliance metadata", () => 
   assert.throws(() => validateDocumentation(documents), assert.AssertionError);
 });
 
+test("the documentation validator rejects a package requirements guarantee without compliance wording", () => {
+  const documents = repositoryDocuments();
+  documents.rootPackage.description =
+    `${safePackageDescription} Guaranteed to meet EU MDR and FDA labeling requirements.`;
+  assert.throws(() => validateDocumentation(documents), assert.AssertionError);
+});
+
+test("the documentation validator rejects package metadata that conflates symbols and regulatory requirements", () => {
+  const documents = repositoryDocuments();
+  documents.rootPackage.description =
+    "React components for ISO 15223-1 symbols and separate regulatory marks under EU MDR and FDA labeling requirements. TypeScript, currentColor theming, and zero runtime dependencies.";
+  assert.throws(() => validateDocumentation(documents), assert.AssertionError);
+});
+
 test("the documentation validator rejects fill-based recoloring guidance", () => {
   const documents = repositoryDocuments();
   documents.demo = documents.demo.replace(/color=/i, "fill=");
@@ -153,6 +179,24 @@ test("the documentation validator rejects misleading changelog fill guidance", (
   documents.changelog = documents.changelog.replace(
     "### Fixed",
     "### Fixed\n\n- The fill prop is a supported recoloring mechanism for every icon.",
+  );
+  assert.throws(() => validateDocumentation(documents), assert.AssertionError);
+});
+
+test("the documentation validator rejects changelog guidance that uses fill or color to theme every icon", () => {
+  const documents = repositoryDocuments();
+  documents.changelog = documents.changelog.replace(
+    safeThemingEntry,
+    "- **Theming**: all 29 symbols now inherit `currentColor` instead of hardcoded black. Use either `fill` or `color` to theme every icon.",
+  );
+  assert.throws(() => validateDocumentation(documents), assert.AssertionError);
+});
+
+test("the documentation validator rejects extra positive fill theming guidance", () => {
+  const documents = repositoryDocuments();
+  documents.changelog = documents.changelog.replace(
+    safeThemingEntry,
+    `${safeThemingEntry}\n- The \`fill\` prop can theme every icon just like \`color\`.`,
   );
   assert.throws(() => validateDocumentation(documents), assert.AssertionError);
 });
