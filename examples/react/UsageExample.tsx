@@ -28,12 +28,24 @@ function App() {
         {/* Responsive sizing */}
         <CautionIcon size="2rem" />
 
-        {/* With click handler */}
-        <CeIcon
-          size={40}
+        {/* Interactive icons belong inside native controls */}
+        <button
+          type="button"
+          aria-label="Log the CE icon selection"
           onClick={() => console.log("CE icon clicked")}
-          style={{ cursor: "pointer" }}
-        />
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 0,
+            border: 0,
+            background: "transparent",
+            color: "inherit",
+            cursor: "pointer",
+          }}
+        >
+          <CeIcon size={40} aria-hidden="true" />
+        </button>
       </div>
     </div>
   );

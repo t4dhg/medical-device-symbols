@@ -7,6 +7,7 @@ import {
   BatchCodeIcon,
   SerialNumberIcon,
   SterileIcon,
+  SterilizedUsingEthyleneOxideIcon,
   DoNotReUseIcon,
   ConsultInstructionsForUseIcon,
   LatexIcon,
@@ -62,8 +63,11 @@ const ComprehensiveDemo: React.FC = () => {
             </div>
 
             <div className="label-item">
-              <SterileIcon className="icon success" size={24} />
-              <span>Sterile - EO</span>
+              <SterilizedUsingEthyleneOxideIcon
+                className="icon success"
+                size={24}
+              />
+              <span>Sterilized using ethylene oxide</span>
             </div>
 
             <div className="label-item">
@@ -107,7 +111,7 @@ const ComprehensiveDemo: React.FC = () => {
           <div className="spec-item">
             <NonPyrogenicIcon className="icon success" size={32} />
             <h4>Non-Pyrogenic</h4>
-            <p>Fever-free guarantee</p>
+            <p>Non-pyrogenic symbol</p>
           </div>
 
           <div className="spec-item">
@@ -146,25 +150,29 @@ const ComprehensiveDemo: React.FC = () => {
           <div className="style-group">
             <h4>Interactive Icons</h4>
             <div className="interactive-demo">
-              <CautionIcon
-                size={40}
+              <button
+                type="button"
+                aria-label="Show caution guidance"
                 className="interactive-icon"
                 onClick={() => alert("Caution: Read all instructions!")}
-                style={{ cursor: "pointer" }}
-              />
-              <ConsultInstructionsForUseIcon
-                size={40}
+              >
+                <CautionIcon size={40} aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                aria-label="Open instructions for use"
                 className="interactive-icon"
                 onClick={() => window.open("/instructions.pdf", "_blank")}
-                style={{ cursor: "pointer" }}
-              />
+              >
+                <ConsultInstructionsForUseIcon size={40} aria-hidden="true" />
+              </button>
             </div>
           </div>
         </div>
       </section>
 
       <section className="demo-section">
-        <h2>📋 All Available Icons</h2>
+        <h2>📋 Selected Icons</h2>
         <div className="all-icons-grid">
           <div className="icon-showcase">
             <CautionIcon size={24} />

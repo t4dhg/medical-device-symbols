@@ -36,6 +36,10 @@ const [packageMajor, packageMinor, packagePatch] = packageVersion
 const laterVersion = `${packageMajor}.${packageMinor}.${packagePatch + 1}`;
 const commit = "0123456789abcdef0123456789abcdef01234567";
 const expectedTarballUrl = `https://registry.npmjs.org/medical-device-symbols/-/medical-device-symbols-${packageVersion}.tgz`;
+const npmRegistry = "https://registry.npmjs.org";
+const npmPublishPredicateType =
+  "https://github.com/npm/attestation/tree/main/specs/publish/v0.1";
+const slsaPredicateType = "https://slsa.dev/provenance/v1";
 
 let releaseModule;
 let packFixture;
@@ -331,7 +335,57 @@ function provenanceStatement(sha512Hex) {
   };
 }
 
-function auditFixture(sha512Hex, statement = provenanceStatement(sha512Hex)) {
+function publishStatement(sha512Hex) {
+  return {
+    _type: "https://in-toto.io/Statement/v0.1",
+    subject: [
+      {
+        name: `pkg:npm/${packageName}@${packageVersion}`,
+        digest: { sha512: sha512Hex },
+      },
+    ],
+    predicateType: npmPublishPredicateType,
+    predicate: {
+      name: packageName,
+      version: packageVersion,
+      registry: npmRegistry,
+    },
+  };
+}
+
+function attestationBundle(statement, { keyed }) {
+  return {
+    predicateType: statement.predicateType,
+    bundle: {
+      mediaType: keyed
+        ? "application/vnd.dev.sigstore.bundle+json;version=0.2"
+        : "application/vnd.dev.sigstore.bundle.v0.3+json",
+      verificationMaterial: keyed
+        ? { publicKey: { hint: "SHA256:registry-key" }, tlogEntries: [{}] }
+        : {
+            certificate: { rawBytes: "verified-certificate" },
+            tlogEntries: [{}],
+          },
+      dsseEnvelope: {
+        payloadType: "application/vnd.in-toto+json",
+        payload: Buffer.from(JSON.stringify(statement)).toString("base64"),
+        signatures: [
+          {
+            sig: "verified-by-npm",
+            keyid: keyed ? "SHA256:registry-key" : "",
+          },
+        ],
+      },
+    },
+    signedAccessSignatureUrl: "",
+  };
+}
+
+function auditFixture(
+  sha512Hex,
+  statement = provenanceStatement(sha512Hex),
+  publish = publishStatement(sha512Hex),
+) {
   return {
     invalid: [],
     missing: [],
@@ -342,21 +396,11 @@ function auditFixture(sha512Hex, statement = provenanceStatement(sha512Hex)) {
         location: `node_modules/${packageName}`,
         registry: "https://registry.npmjs.org/",
         attestations: {
-          provenance: { predicateType: "https://slsa.dev/provenance/v1" },
+          provenance: { predicateType: slsaPredicateType },
         },
         attestationBundles: [
-          {
-            predicateType: "https://slsa.dev/provenance/v1",
-            bundle: {
-              dsseEnvelope: {
-                payloadType: "application/vnd.in-toto+json",
-                payload: Buffer.from(JSON.stringify(statement)).toString(
-                  "base64",
-                ),
-                signatures: [{ sig: "verified-by-npm" }],
-              },
-            },
-          },
+          attestationBundle(publish, { keyed: true }),
+          attestationBundle(statement, { keyed: false }),
         ],
       },
     ],
@@ -1031,7 +1075,7 @@ test("registry polling refuses a missing release unless latest is strictly older
   );
 });
 
-test("signature validation locates exactly one verified release target", async () => {
+test("signature validation accepts npm 11.19's two-bundle verified release target", async () => {
   const { validateAuditSignatures } = await loadReleaseModule();
   const sha512Hex = "ab".repeat(64);
   const audit = auditFixture(sha512Hex);
@@ -1053,7 +1097,127 @@ test("signature validation locates exactly one verified release target", async (
   }
 });
 
-test("provenance binds purl, digest, repository, workflow, tag, event, commit, and builder", async () => {
+test("attestations are selected by predicate type independently of bundle order", async () => {
+  const { validateProvenance } = await loadReleaseModule();
+  const sha512Hex = "ab".repeat(64);
+  const verified = auditFixture(sha512Hex).verified[0];
+  const reordered = structuredClone(verified);
+  reordered.attestationBundles.reverse();
+  for (const candidate of [verified, reordered]) {
+    assert.doesNotThrow(() =>
+      validateProvenance(candidate, {
+        name: packageName,
+        version: packageVersion,
+        tag,
+        commit,
+        sha512: sha512Hex,
+      }),
+    );
+  }
+});
+
+test("attestation validation rejects missing, duplicate, malformed, and unknown bundles", async () => {
+  const { validateProvenance } = await loadReleaseModule();
+  const sha512Hex = "ab".repeat(64);
+  const validate = (verified) =>
+    validateProvenance(verified, {
+      name: packageName,
+      version: packageVersion,
+      tag,
+      commit,
+      sha512: sha512Hex,
+    });
+  const mutations = [
+    ["missing SLSA", (value) => value.attestationBundles.pop()],
+    [
+      "duplicate SLSA",
+      (value) =>
+        value.attestationBundles.push(
+          structuredClone(value.attestationBundles[1]),
+        ),
+    ],
+    ["missing publish", (value) => value.attestationBundles.shift()],
+    [
+      "duplicate publish",
+      (value) =>
+        value.attestationBundles.push(
+          structuredClone(value.attestationBundles[0]),
+        ),
+    ],
+    [
+      "unknown extra predicate",
+      (value) => {
+        const extra = structuredClone(value.attestationBundles[0]);
+        extra.predicateType = "https://example.invalid/attestation/v1";
+        value.attestationBundles.push(extra);
+      },
+    ],
+    [
+      "malformed SLSA DSSE",
+      (value) =>
+        (value.attestationBundles[1].bundle.dsseEnvelope.signatures = []),
+    ],
+    [
+      "malformed publish DSSE",
+      (value) =>
+        (value.attestationBundles[0].bundle.dsseEnvelope.payloadType =
+          "application/json"),
+    ],
+  ];
+  for (const [name, mutate] of mutations) {
+    const candidate = auditFixture(sha512Hex).verified[0];
+    mutate(candidate);
+    assert.throws(() => validate(candidate), /provenance/u, name);
+  }
+});
+
+test("npm publish attestation binds the specified subject and predicate fields", async () => {
+  const { validateProvenance } = await loadReleaseModule();
+  const sha512Hex = "ab".repeat(64);
+  const validate = (publish) => {
+    const verified = auditFixture(
+      sha512Hex,
+      provenanceStatement(sha512Hex),
+      publish,
+    ).verified[0];
+    return validateProvenance(verified, {
+      name: packageName,
+      version: packageVersion,
+      tag,
+      commit,
+      sha512: sha512Hex,
+    });
+  };
+  assert.doesNotThrow(() => validate(publishStatement(sha512Hex)));
+  for (const [name, mutate] of [
+    [
+      "statement type",
+      (value) => (value._type = "https://in-toto.io/Statement/v1"),
+    ],
+    ["predicate type", (value) => (value.predicateType = slsaPredicateType)],
+    [
+      "subject count",
+      (value) => value.subject.push(structuredClone(value.subject[0])),
+    ],
+    [
+      "subject purl",
+      (value) => (value.subject[0].name = "pkg:npm/other@2.3.0"),
+    ],
+    [
+      "subject digest",
+      (value) => (value.subject[0].digest.sha512 = "cd".repeat(64)),
+    ],
+    ["package name", (value) => (value.predicate.name = "other")],
+    ["package version", (value) => (value.predicate.version = laterVersion)],
+    ["registry", (value) => (value.predicate.registry = `${npmRegistry}/`)],
+  ]) {
+    const publish = publishStatement(sha512Hex);
+    mutate(publish);
+    assert.throws(() => validate(publish), /provenance/u, name);
+  }
+});
+
+test("SLSA provenance binds purl, digest, repository, workflow, tag, event, commit, and builder", async () => {
   const { validateProvenance } = await loadReleaseModule();
   const sha512Hex = "ab".repeat(64);
   const verified = auditFixture(sha512Hex).verified[0];

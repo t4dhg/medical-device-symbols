@@ -25,6 +25,7 @@ This candidate is not yet published, tagged, or a GitHub Release.
 - Made SVG discovery, validation, component generation, and README gallery updates deterministic and fail closed on unreviewed input or drift.
 - Unified local and CI checks under `npm run verify`, with pinned dependencies, supported Node-version coverage, least-privilege workflow permissions, and a stable aggregate quality job.
 - Reworked public guidance and examples around tested accessibility behavior, `currentColor` theming, symbol-versus-mark scope, and the BSI 2797 applicability boundary.
+- Added generated `/* @__PURE__ */` annotations and verified that ordinary bundlers omit unused icon exports.
 - Prepared three-stage release automation that separates verification, npm OIDC authority, and GitHub Release authority; the required repository and npm configuration remains unapplied.
 
 ### Security
@@ -44,7 +45,7 @@ This candidate is not yet published, tagged, or a GitHub Release.
 
 ### Added
 
-- **Dual ESM + CommonJS build** with an `exports` map and `sideEffects: false`, so the package is genuinely tree-shakeable.
+- **Dual ESM + CommonJS build** with an `exports` map and `sideEffects: false` metadata.
 - **`title` prop** on every icon: when set, the icon renders with `role="img"` and an `aria-label` for accessible labeling.
 - GitHub Actions **CI** (build and test on Node 18/20/22), a **provenance-enabled release** workflow, and **Dependabot**.
 - Hero banner and an accessibility usage section in the README.

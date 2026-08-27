@@ -26,6 +26,9 @@ const stableTag = /^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/u;
 const commitPattern = /^[0-9a-f]{40}$/u;
 const npmRegistry = "https://registry.npmjs.org";
 const npmVersion = "11.19.0";
+const npmPublishPredicateType =
+  "https://github.com/npm/attestation/tree/main/specs/publish/v0.1";
+const slsaPredicateType = "https://slsa.dev/provenance/v1";
 const expectedPackageFiles = [
   "CHANGELOG.md",
   "CONTRIBUTING.md",
@@ -775,12 +778,9 @@ export function validateAuditSignatures(audit, name, version) {
   if (
     verified.location !== `node_modules/${name}` ||
     verified.registry !== `${npmRegistry}/` ||
-    verified.attestations?.provenance?.predicateType !==
-      "https://slsa.dev/provenance/v1" ||
+    verified.attestations?.provenance?.predicateType !== slsaPredicateType ||
     !Array.isArray(verified.attestationBundles) ||
-    verified.attestationBundles.length !== 1 ||
-    verified.attestationBundles[0]?.predicateType !==
-      "https://slsa.dev/provenance/v1"
+    verified.attestationBundles.length < 1
   ) {
     fail(scope, "verified target attestation shape is incorrect");
   }
@@ -798,6 +798,53 @@ function decodePayload(payload) {
   return parseJson(utf8Decoder.decode(bytes), "provenance");
 }
 
+function selectAttestationBundle(bundles, predicateType, label) {
+  const matches = bundles.filter(
+    (bundle) => bundle?.predicateType === predicateType,
+  );
+  if (matches.length !== 1) {
+    fail("provenance", `expected exactly one verified ${label} bundle`);
+  }
+  return matches[0];
+}
+
+function decodeAttestationStatement(bundle, predicateType, label) {
+  const envelope = bundle?.bundle?.dsseEnvelope;
+  if (
+    bundle?.predicateType !== predicateType ||
+    envelope?.payloadType !== "application/vnd.in-toto+json" ||
+    !Array.isArray(envelope.signatures) ||
+    envelope.signatures.length < 1 ||
+    envelope.signatures.some(
+      (signature) =>
+        signature === null ||
+        typeof signature !== "object" ||
+        typeof signature.sig !== "string" ||
+        signature.sig === "",
+    )
+  ) {
+    fail("provenance", `${label} DSSE bundle is malformed`);
+  }
+  return decodePayload(envelope.payload);
+}
+
+function validateAttestationSubject(
+  statement,
+  { name, version, sha512 },
+  { statementType, predicateType, label },
+) {
+  if (
+    statement?._type !== statementType ||
+    statement?.predicateType !== predicateType ||
+    !Array.isArray(statement.subject) ||
+    statement.subject.length !== 1 ||
+    statement.subject[0]?.name !== `pkg:npm/${name}@${version}` ||
+    JSON.stringify(statement.subject[0]?.digest) !== JSON.stringify({ sha512 })
+  ) {
+    fail("provenance", `${label} statement subject does not bind the release`);
+  }
+}
+
 export function validateProvenance(
   verified,
   { name, version, tag, commit, sha512 },
@@ -807,28 +854,68 @@ export function validateProvenance(
   validateCommit(commit, scope);
   if (!/^[0-9a-f]{128}$/u.test(sha512))
     fail(scope, "expected SHA-512 hex digest");
-  const bundle = verified?.attestationBundles?.[0];
-  if (
-    verified?.attestationBundles?.length !== 1 ||
-    bundle?.predicateType !== "https://slsa.dev/provenance/v1" ||
-    bundle.bundle?.dsseEnvelope?.payloadType !==
-      "application/vnd.in-toto+json" ||
-    !Array.isArray(bundle.bundle.dsseEnvelope.signatures) ||
-    bundle.bundle.dsseEnvelope.signatures.length < 1
-  ) {
-    fail(scope, "expected one verified SLSA DSSE bundle");
+  const bundles = verified?.attestationBundles;
+  if (!Array.isArray(bundles)) {
+    fail(scope, "expected verified attestation bundles");
   }
-  const statement = decodePayload(bundle.bundle.dsseEnvelope.payload);
+  const recognizedPredicateTypes = new Set([
+    npmPublishPredicateType,
+    slsaPredicateType,
+  ]);
   if (
-    statement._type !== "https://in-toto.io/Statement/v1" ||
-    statement.predicateType !== "https://slsa.dev/provenance/v1" ||
-    !Array.isArray(statement.subject) ||
-    statement.subject.length !== 1 ||
-    statement.subject[0]?.name !== `pkg:npm/${name}@${version}` ||
-    JSON.stringify(statement.subject[0]?.digest) !== JSON.stringify({ sha512 })
+    bundles.some(
+      (bundle) => !recognizedPredicateTypes.has(bundle?.predicateType),
+    )
   ) {
-    fail(scope, "statement subject does not bind the release");
+    fail(scope, "unexpected attestation predicate type");
   }
+
+  const publishBundle = selectAttestationBundle(
+    bundles,
+    npmPublishPredicateType,
+    "npm publish attestation",
+  );
+  const slsaBundle = selectAttestationBundle(
+    bundles,
+    slsaPredicateType,
+    "SLSA provenance",
+  );
+  const publishStatement = decodeAttestationStatement(
+    publishBundle,
+    npmPublishPredicateType,
+    "npm publish attestation",
+  );
+  validateAttestationSubject(
+    publishStatement,
+    { name, version, sha512 },
+    {
+      statementType: "https://in-toto.io/Statement/v0.1",
+      predicateType: npmPublishPredicateType,
+      label: "npm publish attestation",
+    },
+  );
+  if (
+    publishStatement.predicate?.name !== name ||
+    publishStatement.predicate?.version !== version ||
+    publishStatement.predicate?.registry !== npmRegistry
+  ) {
+    fail(scope, "npm publish predicate does not bind the release");
+  }
+
+  const statement = decodeAttestationStatement(
+    slsaBundle,
+    slsaPredicateType,
+    "SLSA provenance",
+  );
+  validateAttestationSubject(
+    statement,
+    { name, version, sha512 },
+    {
+      statementType: "https://in-toto.io/Statement/v1",
+      predicateType: slsaPredicateType,
+      label: "SLSA provenance",
+    },
+  );
   const definition = statement.predicate?.buildDefinition;
   const workflow = definition?.externalParameters?.workflow;
   if (

@@ -151,12 +151,25 @@
 }
 
 .interactive-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .interactive-icon:hover {
   transform: scale(1.1);
   filter: brightness(1.2);
+}
+
+.interactive-icon:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
 }
 
 /* All Icons Grid */
