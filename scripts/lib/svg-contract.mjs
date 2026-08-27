@@ -349,8 +349,8 @@ function isValidPathData(value) {
     if (normalizedCommand === "a") {
       for (let offset = parametersStart; offset < index; offset += arity) {
         if (
-          tokens[offset].value < 0 ||
-          tokens[offset + 1].value < 0 ||
+          tokens[offset].raw.startsWith("-") ||
+          tokens[offset + 1].raw.startsWith("-") ||
           (tokens[offset + 3].raw !== "0" && tokens[offset + 3].raw !== "1") ||
           (tokens[offset + 4].raw !== "0" && tokens[offset + 4].raw !== "1")
         ) {
@@ -428,7 +428,7 @@ function validateAttributeValue(name, value, filename) {
     if (!NUMBER.test(value) || !Number.isFinite(Number(value))) {
       fail(filename, `invalid numeric ${name} ${JSON.stringify(value)}`);
     }
-    if (NON_NEGATIVE_ATTRIBUTES.has(name) && Number(value) < 0) {
+    if (NON_NEGATIVE_ATTRIBUTES.has(name) && value.startsWith("-")) {
       fail(filename, `invalid non-negative ${name} ${JSON.stringify(value)}`);
     }
   }

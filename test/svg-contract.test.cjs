@@ -19,6 +19,20 @@ test("a reviewed SVG is parsed into canonical embedded markup", async () => {
   });
 });
 
+test("zero remains valid for non-negative drawing values", async () => {
+  const { parseSvgSource } = await contractModule;
+  const source = readFileSync(join(fixtures, "valid-zero-ranges.svg"), "utf8");
+
+  assert.deepEqual(parseSvgSource(source, { filename: "valid-zero-ranges.svg" }), {
+    viewBox: "0 0 200 200",
+    markup:
+      '<rect height="0" rx="0" ry="0" width="0"/>' +
+      '<circle r="0"/>' +
+      '<ellipse rx="0" ry="0"/>' +
+      '<path d="M0 0A0 0 0 0 0 10 10" stroke-width="0"/>',
+  });
+});
+
 const invalidCases = [
   ["rejects a doctype", "doctype.svg", /DOCTYPE/i],
   ["rejects an entity declaration", "entity.svg", /entity/i],
@@ -81,6 +95,41 @@ const invalidCases = [
     "rejects a negative stroke width",
     "negative-stroke-width.svg",
     /stroke-width/i,
+  ],
+  [
+    "rejects an underflow-negative drawing width",
+    "negative-underflow-width.svg",
+    /width/i,
+  ],
+  [
+    "rejects an underflow-negative drawing height",
+    "negative-underflow-height.svg",
+    /height/i,
+  ],
+  [
+    "rejects an underflow-negative circle radius",
+    "negative-underflow-radius.svg",
+    /\br\b/i,
+  ],
+  [
+    "rejects an underflow-negative x radius",
+    "negative-underflow-rx.svg",
+    /rx/i,
+  ],
+  [
+    "rejects an underflow-negative y radius",
+    "negative-underflow-ry.svg",
+    /ry/i,
+  ],
+  [
+    "rejects an underflow-negative stroke width",
+    "negative-underflow-stroke-width.svg",
+    /stroke-width/i,
+  ],
+  [
+    "rejects an underflow-negative path arc radius",
+    "negative-underflow-arc-radius.svg",
+    /path data/i,
   ],
   [
     "rejects non-finite root numbers",
