@@ -17,6 +17,8 @@ Propose an active branch ruleset with these values:
 
 ## Release-tag ruleset
 
+The release-tag ruleset remains proposed and unapplied.
+
 Propose an active tag ruleset with these values:
 
 - Target: `refs/tags/v*`.
@@ -51,7 +53,7 @@ Propose the following settings:
 
 ## Publication prerequisites
 
-The following values are proposals only. The environment and trusted publisher do not exist merely because they are documented here:
+The environment and trusted publisher remain proposed and unapplied. They do not exist merely because they are documented here:
 
 - Environment: `npm-publish`.
 - Owner: `t4dhg`.
@@ -59,4 +61,4 @@ The following values are proposals only. The environment and trusted publisher d
 - Workflow: `release.yml`.
 - Allowed action: `npm publish`.
 
-Creating the protected environment, configuring the npm trusted publisher, and using either are deferred pending separate release implementation and separately authorized external execution. A checked-in workflow, merged pull request, or passing `quality` check does not grant that authorization.
+Creating the protected environment, configuring the npm trusted publisher, and using either are deferred pending separately authorized external execution. A checked-in workflow, merged pull request, or passing `quality` check does not grant that authorization.

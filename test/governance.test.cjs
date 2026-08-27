@@ -187,7 +187,9 @@ function validateRepositorySettings(settings) {
     "repository: `medical-device-symbols`",
     "workflow: `release.yml`",
     "allowed action: `npm publish`",
-    "deferred pending separate release implementation and separately authorized external execution",
+    "environment and trusted publisher remain proposed and unapplied",
+    "release-tag ruleset remains proposed and unapplied",
+    "deferred pending separately authorized external execution",
   ]) {
     assert.match(
       settings,
@@ -210,6 +212,17 @@ function validateRepositorySettings(settings) {
   assertNoAffirmativeLiveState(
     markdownSection(settings, "Publication prerequisites"),
     "npm-publish environment|publication environment|environment|npm trusted publisher|trusted publisher",
+  );
+}
+
+function validateReleaseAuthorization(contributing) {
+  assert.match(
+    contributing,
+    /Merging a pull request never authorizes a tag, npm publication, GitHub Release, or repository settings change\./,
+  );
+  assert.match(
+    contributing,
+    /Each release requires separate maintainer authorization after the reviewed release candidate and its verification evidence are available\./,
   );
 }
 
@@ -433,6 +446,21 @@ test("repository settings remain an exact proposal with no live-state claim", ()
   const settings = readRequired("docs/REPOSITORY_SETTINGS.md");
 
   validateRepositorySettings(settings);
+});
+
+test("contribution guidance keeps merge and release authorization separate", () => {
+  validateReleaseAuthorization(readRequired("CONTRIBUTING.md"));
+});
+
+test("contribution guidance rejects merge-as-release authorization", () => {
+  const contributing = readRequired("CONTRIBUTING.md").replace(
+    "Merging a pull request never authorizes a tag, npm publication, GitHub Release, or repository settings change.",
+    "Merging a pull request authorizes the release workflow.",
+  );
+  assert.throws(
+    () => validateReleaseAuthorization(contributing),
+    assert.AssertionError,
+  );
 });
 
 for (const [description, heading, claim] of [

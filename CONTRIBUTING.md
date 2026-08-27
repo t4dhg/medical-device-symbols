@@ -77,6 +77,8 @@ npm run verify
 3. Write clear commit messages in the imperative mood, referencing issues where relevant.
 4. Open a pull request against `master` with a short description of the change.
 
+Merging a pull request never authorizes a tag, npm publication, GitHub Release, or repository settings change. Each release requires separate maintainer authorization after the reviewed release candidate and its verification evidence are available.
+
 ### Commit message example
 
 ```
