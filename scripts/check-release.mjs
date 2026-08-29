@@ -623,14 +623,16 @@ function registryTarballUrl(name, version) {
 }
 
 function validateRegistryMetadata(metadata, name, version) {
+  assertExactKeys(
+    metadata,
+    ["dist.integrity", "dist.tarball", "name", "version"],
+    "registry response",
+  );
   if (
-    metadata === null ||
-    typeof metadata !== "object" ||
-    Array.isArray(metadata) ||
     metadata.name !== name ||
     metadata.version !== version ||
-    typeof metadata.dist?.integrity !== "string" ||
-    metadata.dist.tarball !== registryTarballUrl(name, version)
+    typeof metadata["dist.integrity"] !== "string" ||
+    metadata["dist.tarball"] !== registryTarballUrl(name, version)
   ) {
     fail("registry response", "published metadata identity mismatch");
   }
@@ -721,7 +723,7 @@ export function validateRegistryTarball({
     fail(scope, "downloaded bytes differ from reviewed bytes");
   }
   const integrity = `sha512-${hash(downloadedTarball, "sha512", "base64")}`;
-  if (metadata.dist.integrity !== integrity) fail(scope, "SRI mismatch");
+  if (metadata["dist.integrity"] !== integrity) fail(scope, "SRI mismatch");
   if (latest !== version) fail(scope, "existing version must be latest");
   try {
     validateArchive(downloadedTarball, name, version);
