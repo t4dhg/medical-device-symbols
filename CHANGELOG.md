@@ -9,15 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No changes yet.
 
-## 2.3.0 - Unreleased (release candidate)
+## 2.3.0 - 2026-08-29
 
-This candidate is not yet published, tagged, or a GitHub Release.
+Finalized for the reviewed 2.3.0 release on 2026-08-29.
 
 ### Added
 
 - Assertive public-API, component-behavior, generated-source, packed-artifact, documentation, CI, governance, and release-contract tests.
 - Isolated package consumers covering CommonJS, ESM, strict NodeNext TypeScript, ordinary bundler tree shaking, and React 16 through React 19.
-- Issue forms, a pull-request template, project conduct and security guidance, a dependency-risk record, and an explicitly unapplied repository-settings proposal.
+- Issue forms, a pull-request template, project conduct and security guidance, a dependency-risk record, and a verified repository-settings baseline.
 
 ### Changed
 
@@ -26,7 +26,7 @@ This candidate is not yet published, tagged, or a GitHub Release.
 - Unified local and CI checks under `npm run verify`, with pinned dependencies, supported Node-version coverage, least-privilege workflow permissions, and a stable aggregate quality job.
 - Reworked public guidance and examples around tested accessibility behavior, `currentColor` theming, symbol-versus-mark scope, and the BSI 2797 applicability boundary.
 - Added generated `/* @__PURE__ */` annotations and verified that ordinary bundlers omit unused icon exports.
-- Prepared three-stage release automation that separates verification, npm OIDC authority, and GitHub Release authority; the required repository and npm configuration remains unapplied.
+- Hardened three-stage release automation that separates verification, npm OIDC authority, and GitHub Release authority, backed by protected tags, a gated environment, and an exact npm trusted-publisher identity.
 
 ### Security
 

@@ -37,10 +37,7 @@ function changelogSection(changelog, heading) {
 
 function validateChangelogPackaging(changelog) {
   const version22 = changelogSection(changelog, "## [2.2.0]");
-  const version23 = changelogSection(
-    changelog,
-    "## 2.3.0 - Unreleased (release candidate)",
-  );
+  const version23 = changelogSection(changelog, "## 2.3.0 - 2026-08-29");
   assert.equal(version22.split(safeVersion22PackagingEntry).length - 1, 1);
   assert.doesNotMatch(
     version22,
