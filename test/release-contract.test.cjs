@@ -289,10 +289,8 @@ function registryMetadata(overrides = {}) {
   return {
     name: packageName,
     version: packageVersion,
-    dist: {
-      integrity: "sha512-placeholder",
-      tarball: expectedTarballUrl,
-    },
+    "dist.integrity": "sha512-placeholder",
+    "dist.tarball": expectedTarballUrl,
     ...overrides,
   };
 }
@@ -971,10 +969,7 @@ test("registry view accepts exact metadata and rejects near or malformed identit
     JSON.stringify(registryMetadata({ version: "2.2.1" })),
     JSON.stringify(
       registryMetadata({
-        dist: {
-          integrity: "sha512-placeholder",
-          tarball: "https://example.invalid/package.tgz",
-        },
+        "dist.tarball": "https://example.invalid/package.tgz",
       }),
     ),
   ]) {
@@ -990,13 +985,45 @@ test("registry view accepts exact metadata and rejects near or malformed identit
   }
 });
 
+test("registry verification accepts npm 11.19 flattened selected-field metadata", async () => {
+  const { classifyRegistryView, validateRegistryTarball } =
+    await loadReleaseModule();
+  const bytes = readFileSync(getPackFixture().tarballPath);
+  const { createHash } = require("node:crypto");
+  const metadata = {
+    name: packageName,
+    version: packageVersion,
+    "dist.integrity": `sha512-${createHash("sha512").update(bytes).digest("base64")}`,
+    "dist.tarball": expectedTarballUrl,
+  };
+
+  assert.deepEqual(
+    classifyRegistryView(
+      { status: 0, signal: null, stdout: JSON.stringify(metadata), stderr: "" },
+      packageName,
+      packageVersion,
+    ),
+    { state: "existing", metadata },
+  );
+  assert.doesNotThrow(() =>
+    validateRegistryTarball({
+      metadata,
+      downloadedTarball: bytes,
+      reviewedTarball: bytes,
+      name: packageName,
+      version: packageVersion,
+      latest: packageVersion,
+    }),
+  );
+});
+
 test("registry tarball validation binds downloaded bytes, SRI, package, and latest", async () => {
   const { validateRegistryTarball } = await loadReleaseModule();
   const bytes = readFileSync(getPackFixture().tarballPath);
   const { createHash } = require("node:crypto");
   const integrity = `sha512-${createHash("sha512").update(bytes).digest("base64")}`;
   const metadata = registryMetadata({
-    dist: { integrity, tarball: expectedTarballUrl },
+    "dist.integrity": integrity,
   });
   assert.doesNotThrow(() =>
     validateRegistryTarball({
@@ -1017,7 +1044,7 @@ test("registry tarball validation binds downloaded bytes, SRI, package, and late
     {
       metadata: {
         ...metadata,
-        dist: { ...metadata.dist, integrity: "sha512-invalid" },
+        "dist.integrity": "sha512-invalid",
       },
     },
   ]) {
@@ -1454,7 +1481,7 @@ fs.appendFileSync(process.env.FAKE_NPM_LOG, JSON.stringify(entry) + "\\n");
 const args = process.argv.slice(2);
 const metadata = JSON.parse(process.env.FAKE_METADATA);
 if (args[0] === "view" && args[1] === "medical-device-symbols" && args.includes("dist-tags.latest")) process.stdout.write(JSON.stringify(metadata["dist-tags"].latest));
-else if (args[0] === "view" && args.includes("--json")) process.stdout.write(JSON.stringify(metadata));
+else if (args[0] === "view" && args.includes("--json")) process.stdout.write(JSON.stringify({ name: metadata.name, version: metadata.version, "dist.integrity": metadata["dist.integrity"], "dist.tarball": metadata["dist.tarball"] }));
 else if (args[0] === "pack") { const report = JSON.parse(process.env.FAKE_PACK_REPORT); const destination = args[args.indexOf("--pack-destination") + 1]; const target = path.join(destination, path.basename(report[0].filename)); fs.copyFileSync(process.env.FAKE_TARBALL, target); process.stdout.write(process.env.FAKE_PACK_REPORT); }
 else process.exit(97);
 `,
@@ -1482,7 +1509,7 @@ else process.exit(97);
         ]),
         FAKE_METADATA: JSON.stringify(
           registryMetadata({
-            dist: { integrity, tarball: expectedTarballUrl },
+            "dist.integrity": integrity,
             "dist-tags": { latest: packageVersion },
           }),
         ),
@@ -1574,7 +1601,7 @@ else process.exit(97);
           FAKE_PACK_REPORT: JSON.stringify(scenario.report),
           FAKE_METADATA: JSON.stringify(
             registryMetadata({
-              dist: { integrity, tarball: expectedTarballUrl },
+              "dist.integrity": integrity,
               "dist-tags": { latest: packageVersion },
             }),
           ),
@@ -1607,10 +1634,7 @@ test("the registry verifier installs, locks, audits, and proves the exact publis
   const runnerBundle = join(fakeRoot, "release-bundle");
   const sourceTarball = join(bundleDirectory, manifest.tarball);
   const metadata = registryMetadata({
-    dist: {
-      integrity: manifest.integrity,
-      tarball: expectedTarballUrl,
-    },
+    "dist.integrity": manifest.integrity,
   });
   const audit = auditFixture(manifest.sha512);
   writeExecutable(
