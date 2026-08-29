@@ -652,13 +652,17 @@ export function classifyRegistryView(result, name, version) {
       ),
     };
   }
-  if (result?.status !== 1 || result.stdout !== "") {
+  if (
+    result?.status !== 1 ||
+    typeof result.stdout !== "string" ||
+    result.stdout.trim() === ""
+  ) {
     fail(scope, "unexpected npm view status");
   }
-  const error = parseJson(result.stderr, scope);
+  const error = parseJson(result.stdout, scope);
   assertExactKeys(error, ["error"], scope);
   assertExactKeys(error.error, ["code", "detail", "summary"], scope);
-  const expectedDetail = `'${name}@${version}' is not in this registry.\n\nNote that you can also install from a\ntarball, folder, http url, or git url.`;
+  const expectedDetail = `The requested resource '${name}@${version}' could not be found or you do not have permission to access it.\n\nNote that you can also install from a\ntarball, folder, http url, or git url.`;
   if (
     error.error.code !== "E404" ||
     error.error.summary !== `No match found for version ${version}` ||
