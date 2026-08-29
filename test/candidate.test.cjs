@@ -5,9 +5,9 @@ const test = require("node:test");
 
 const root = join(__dirname, "..");
 const candidateVersion = "2.3.0";
-const candidateHeading = "2.3.0 - Unreleased (release candidate)";
+const candidateHeading = "2.3.0 - 2026-08-29";
 const publicationBoundary =
-  "This candidate is not yet published, tagged, or a GitHub Release.";
+  "Finalized for the reviewed 2.3.0 release on 2026-08-29.";
 const cdnPrefix = "https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v";
 
 function repositoryState() {
@@ -122,11 +122,11 @@ ${publicationBoundary}
   return state;
 }
 
-test("the repository is a local 2.3.0 candidate without release lifecycle hooks", () => {
+test("the repository is finalized for 2.3.0 without release lifecycle hooks", () => {
   validateCandidateState(repositoryState());
 });
 
-test("the candidate contract accepts the complete intended state", () => {
+test("the finalized release contract accepts the complete intended state", () => {
   validateCandidateState(validFixture());
 });
 
@@ -148,8 +148,9 @@ test("the candidate contract rejects every partial package and lockfile version 
   }
 });
 
-test("the candidate contract rejects missing or contradicted non-publication status", () => {
+test("the finalized release contract rejects missing status or premature publication claims", () => {
   for (const replacement of [
+    "This candidate is not yet published, tagged, or a GitHub Release.",
     "Version 2.3.0 is published, tagged, and a GitHub Release.",
     `${publicationBoundary}\n\nVersion 2.3.0 is published.`,
     `${publicationBoundary}\n\nVersion 2.3.0 is tagged.`,
@@ -161,7 +162,7 @@ test("the candidate contract rejects missing or contradicted non-publication sta
   }
 });
 
-test("the candidate contract rejects a populated or misplaced Unreleased section", () => {
+test("the finalized release contract rejects a populated or misplaced Unreleased section", () => {
   for (const mutate of [
     (changelog) => changelog.replace("No changes yet.", "- A later change."),
     (changelog) =>
@@ -181,7 +182,7 @@ test("the candidate contract rejects a populated or misplaced Unreleased section
   }
 });
 
-test("the candidate contract rejects stale banner and gallery versions independently", () => {
+test("the finalized release contract rejects stale banner and gallery versions independently", () => {
   for (const mutate of [
     (readme) =>
       readme.replace(
@@ -200,7 +201,7 @@ test("the candidate contract rejects stale banner and gallery versions independe
   }
 });
 
-test("the candidate contract rejects restored release lifecycle scripts", () => {
+test("the finalized release contract rejects restored release lifecycle scripts", () => {
   for (const scriptName of [
     "prepare",
     "prepublishOnly",

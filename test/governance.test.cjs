@@ -108,16 +108,6 @@ function markdownSection(source, heading) {
   );
 }
 
-function assertNoAffirmativeLiveState(section, subjects) {
-  const state = String.raw`(?:is|are|was|were|has\s+been|have\s+been)\s+(?!not\b)(?:currently\s+)?(?:enabled|active|applied|configured|live|created|set\s+up)\b`;
-  const claim = new RegExp(
-    String.raw`\b(?:${subjects})\b.{0,100}\b${state}`,
-    "i",
-  );
-
-  for (const line of section.split("\n")) assert.doesNotMatch(line, claim);
-}
-
 function validateSecurityPolicy(security) {
   assert.deepEqual(tableRows(security, ["Version", "Supported"]), [
     ["2.x", ":white_check_mark:"],
@@ -149,7 +139,7 @@ function validateSecurityPolicy(security) {
 function validateRepositorySettings(settings) {
   assert.match(
     settings,
-    /^# Repository settings\n\n> \*\*Proposed — not yet applied\.\*\*/,
+    /^# Repository settings\n\n> \*\*Applied baseline — verified 2026-08-29\.\*\*/,
   );
   for (const term of [
     "quality",
@@ -159,6 +149,9 @@ function validateRepositorySettings(settings) {
     "private vulnerability reporting",
     "Dependabot security updates",
     "CodeQL",
+    "Master ruleset ID: `21795394`",
+    "Release-tag ruleset ID: `21795395`",
+    "GitHub Actions environment ID: `20830043044`",
   ]) {
     assert.match(
       settings,
@@ -167,29 +160,31 @@ function validateRepositorySettings(settings) {
   }
 
   for (const term of [
-    "require a pull request",
-    "require linear history",
-    "require conversation resolution",
-    "block force pushes",
-    "restrict deletions",
-    "bypass list: none",
-    "after GitHub records a successful `quality` check",
-    "restrict updates",
-    "do not restrict creations",
+    "pull requests are required",
+    "linear history is required",
+    "review conversations must be resolved",
+    "force pushes and deletions are blocked",
+    "bypass list is empty",
+    "required status check is exactly `quality`",
+    "updates and deletions are blocked",
+    "new matching tags may be created",
     "secret scanning",
     "push protection",
     "Dependabot alerts",
     "full-length commit SHA",
-    "squash merging only",
-    "automatically delete head branches",
-    "enable GitHub Discussions",
-    "owner: `t4dhg`",
-    "repository: `medical-device-symbols`",
-    "workflow: `release.yml`",
-    "allowed action: `npm publish`",
-    "environment and trusted publisher remain proposed and unapplied",
-    "release-tag ruleset remains proposed and unapplied",
-    "deferred pending separately authorized external execution",
+    "squash merges are the only merge method",
+    "merged head branches are deleted automatically",
+    "GitHub Discussions is enabled",
+    "five-minute wait timer",
+    "No required reviewer is configured",
+    "Administrators can bypass",
+    "only tags matching `v*`",
+    "npm trusted publisher was configured and re-read on 2026-08-29",
+    "Owner: `t4dhg`",
+    "Repository: `medical-device-symbols`",
+    "Workflow: `release.yml`",
+    "Environment: `npm-publish`",
+    "Allowed action: `npm publish`",
   ]) {
     assert.match(
       settings,
@@ -197,21 +192,9 @@ function validateRepositorySettings(settings) {
     );
   }
 
-  assertNoAffirmativeLiveState(
-    markdownSection(settings, "Branch ruleset"),
-    "branch ruleset|ruleset",
-  );
-  assertNoAffirmativeLiveState(
-    markdownSection(settings, "Release-tag ruleset"),
-    "release-tag ruleset|tag ruleset|ruleset",
-  );
-  assertNoAffirmativeLiveState(
-    markdownSection(settings, "Security features"),
-    "secret scanning|push protection|private vulnerability reporting|Dependabot alerts?|Dependabot security updates?|CodeQL(?: default setup)?",
-  );
-  assertNoAffirmativeLiveState(
-    markdownSection(settings, "Publication prerequisites"),
-    "npm-publish environment|publication environment|environment|npm trusted publisher|trusted publisher",
+  assert.doesNotMatch(
+    settings,
+    /Proposed — not yet applied|remain proposed and unapplied/iu,
   );
 }
 
@@ -442,7 +425,7 @@ test("dependency risk records the complete zero-finding audit snapshot", () => {
   );
 });
 
-test("repository settings remain an exact proposal with no live-state claim", () => {
+test("repository settings record the exact applied live baseline", () => {
   const settings = readRequired("docs/REPOSITORY_SETTINGS.md");
 
   validateRepositorySettings(settings);
@@ -463,33 +446,37 @@ test("contribution guidance rejects merge-as-release authorization", () => {
   );
 });
 
-for (const [description, heading, claim] of [
+for (const [description, expected, replacement] of [
   [
-    "currently enabled security control",
-    "Security features",
-    "Secret scanning is currently enabled in the live repository.",
+    "verification date",
+    "Applied baseline — verified 2026-08-29.",
+    "Applied baseline — verified 2026-08-28.",
   ],
   [
-    "live applied ruleset",
-    "Branch ruleset",
-    "The branch ruleset is live and applied.",
+    "master ruleset identifier",
+    "Master ruleset ID: `21795394`",
+    "Master ruleset ID: `999`",
   ],
   [
-    "configured publication environment",
-    "Publication prerequisites",
-    "The npm-publish environment is currently configured.",
+    "release-tag ruleset identifier",
+    "Release-tag ruleset ID: `21795395`",
+    "Release-tag ruleset ID: `999`",
   ],
   [
-    "configured trusted publisher",
-    "Publication prerequisites",
-    "The trusted publisher has been configured and is active.",
+    "publishing environment identifier",
+    "GitHub Actions environment ID: `20830043044`",
+    "GitHub Actions environment ID: `999`",
+  ],
+  [
+    "trusted-publisher workflow",
+    "Workflow: `release.yml`",
+    "Workflow: `publish.yml`",
   ],
 ]) {
-  test(`repository settings reject a ${description} claim`, () => {
-    const settings = appendToSection(
-      readRequired("docs/REPOSITORY_SETTINGS.md"),
-      heading,
-      claim,
+  test(`repository settings reject a wrong ${description}`, () => {
+    const settings = readRequired("docs/REPOSITORY_SETTINGS.md").replace(
+      expected,
+      replacement,
     );
 
     assert.throws(
