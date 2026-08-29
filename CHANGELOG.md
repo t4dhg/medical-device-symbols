@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No changes yet.
 
+## 2.3.1 - 2026-08-29
+
+Finalized for the reviewed 2.3.1 release on 2026-08-29.
+
+### Fixed
+
+- Updated the npm 11.19 missing-version classifier for its JSON stdout response while retaining exact package/version binding and fail-closed handling.
+
 ## 2.3.0 - 2026-08-29
 
 Finalized for the reviewed 2.3.0 release on 2026-08-29.

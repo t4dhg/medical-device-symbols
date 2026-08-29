@@ -900,18 +900,18 @@ test("standalone bundle validation rejects a checksum-valid nonempty USTAR prefi
 
 test("registry view recognizes only the exact npm 11.19.0 missing response", async () => {
   const { classifyRegistryView } = await loadReleaseModule();
-  const detail = `'${packageName}@${packageVersion}' is not in this registry.\n\nNote that you can also install from a\ntarball, folder, http url, or git url.`;
+  const detail = `The requested resource '${packageName}@${packageVersion}' could not be found or you do not have permission to access it.\n\nNote that you can also install from a\ntarball, folder, http url, or git url.`;
   const missing = {
     status: 1,
     signal: null,
-    stdout: "",
-    stderr: JSON.stringify({
+    stdout: JSON.stringify({
       error: {
         code: "E404",
         summary: `No match found for version ${packageVersion}`,
         detail,
       },
     }),
+    stderr: "npm error code E404\nnpm error 404 No match found for version\n",
   };
   assert.deepEqual(classifyRegistryView(missing, packageName, packageVersion), {
     state: "missing",
@@ -919,22 +919,28 @@ test("registry view recognizes only the exact npm 11.19.0 missing response", asy
 
   for (const mutate of [
     (value) => (value.status = 0),
+    (value) => (value.status = 2),
     (value) => (value.signal = "SIGTERM"),
-    (value) => (value.stderr = `noise\n${value.stderr}`),
+    (value) => (value.stdout = ""),
     (value) => {
-      const body = JSON.parse(value.stderr);
+      const body = JSON.parse(value.stdout);
       body.error.code = "E403";
-      value.stderr = JSON.stringify(body);
+      value.stdout = JSON.stringify(body);
     },
     (value) => {
-      const body = JSON.parse(value.stderr);
+      const body = JSON.parse(value.stdout);
       body.error.summary = "No match found for version 2.2.1";
-      value.stderr = JSON.stringify(body);
+      value.stdout = JSON.stringify(body);
     },
     (value) => {
-      const body = JSON.parse(value.stderr);
+      const body = JSON.parse(value.stdout);
       body.error.detail += "\n";
-      value.stderr = JSON.stringify(body);
+      value.stdout = JSON.stringify(body);
+    },
+    (value) => {
+      const body = JSON.parse(value.stdout);
+      body.error.detail = `'${packageName}@${packageVersion}' is not in this registry.\n\nNote that you can also install from a\ntarball, folder, http url, or git url.`;
+      value.stdout = JSON.stringify(body);
     },
   ]) {
     const value = structuredClone(missing);
@@ -1618,7 +1624,7 @@ fs.appendFileSync(process.env.FAKE_NPM_LOG, JSON.stringify(entry) + "\\n");
 if (args[0] === "--version") process.stdout.write("11.19.0\\n");
 else if (args[0] === "install" && args.includes("--global")) {}
 else if (args[0] === "view" && args[1] === "medical-device-symbols" && args.includes("dist-tags.latest")) { const count = Number(fs.readFileSync(process.env.FAKE_VIEW_COUNT, "utf8")); process.stdout.write(JSON.stringify(count < 2 ? "2.1.9" : ${JSON.stringify(packageVersion)})); }
-else if (args[0] === "view") { const count = fs.existsSync(process.env.FAKE_VIEW_COUNT) ? Number(fs.readFileSync(process.env.FAKE_VIEW_COUNT, "utf8")) + 1 : 1; fs.writeFileSync(process.env.FAKE_VIEW_COUNT, String(count)); if (count === 1) { process.stderr.write(JSON.stringify({ error: { code: "E404", summary: "No match found for version ${packageVersion}", detail: "'medical-device-symbols@${packageVersion}' is not in this registry.\\n\\nNote that you can also install from a\\ntarball, folder, http url, or git url." } })); process.exit(1); } process.stdout.write(process.env.FAKE_METADATA); }
+else if (args[0] === "view") { const count = fs.existsSync(process.env.FAKE_VIEW_COUNT) ? Number(fs.readFileSync(process.env.FAKE_VIEW_COUNT, "utf8")) + 1 : 1; fs.writeFileSync(process.env.FAKE_VIEW_COUNT, String(count)); if (count === 1) { process.stderr.write("npm error code E404\\nnpm error 404 No match found for version\\n"); process.stdout.write(JSON.stringify({ error: { code: "E404", summary: "No match found for version ${packageVersion}", detail: "The requested resource 'medical-device-symbols@${packageVersion}' could not be found or you do not have permission to access it.\\n\\nNote that you can also install from a\\ntarball, folder, http url, or git url." } })); process.exit(1); } process.stdout.write(process.env.FAKE_METADATA); }
 else if (args[0] === "pack") { const destination = args[args.indexOf("--pack-destination") + 1]; const target = path.join(destination, path.basename(process.env.FAKE_TARBALL)); fs.copyFileSync(process.env.FAKE_TARBALL, target); process.stdout.write(JSON.stringify([{ name: ${JSON.stringify(packageName)}, version: ${JSON.stringify(packageVersion)}, filename: path.basename(target) }])); }
 else if (args[0] === "publish") { fs.writeFileSync(process.env.FAKE_PUBLISH_MARKER, "published"); process.exit(73); }
 else if (args[0] === "install") { fs.mkdirSync(path.join(process.cwd(), "node_modules", ${JSON.stringify(packageName)}), { recursive: true }); fs.writeFileSync(path.join(process.cwd(), "package-lock.json"), JSON.stringify({ lockfileVersion: 3, packages: { ["node_modules/" + ${JSON.stringify(packageName)}]: { version: ${JSON.stringify(packageVersion)}, resolved: ${JSON.stringify(expectedTarballUrl)}, integrity: process.env.FAKE_INTEGRITY } } })); }

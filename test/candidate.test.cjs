@@ -4,10 +4,10 @@ const { join } = require("node:path");
 const test = require("node:test");
 
 const root = join(__dirname, "..");
-const candidateVersion = "2.3.0";
-const candidateHeading = "2.3.0 - 2026-08-29";
+const candidateVersion = "2.3.1";
+const candidateHeading = "2.3.1 - 2026-08-29";
 const publicationBoundary =
-  "Finalized for the reviewed 2.3.0 release on 2026-08-29.";
+  "Finalized for the reviewed 2.3.1 release on 2026-08-29.";
 const cdnPrefix = "https://cdn.jsdelivr.net/gh/t4dhg/medical-device-symbols@v";
 
 function repositoryState() {
@@ -117,12 +117,12 @@ ${publicationBoundary}
 `;
   state.readme = state.readme.replaceAll(
     "medical-device-symbols@v2.2.0",
-    "medical-device-symbols@v2.3.0",
+    "medical-device-symbols@v2.3.1",
   );
   return state;
 }
 
-test("the repository is finalized for 2.3.0 without release lifecycle hooks", () => {
+test("the repository is finalized for 2.3.1 without release lifecycle hooks", () => {
   validateCandidateState(repositoryState());
 });
 
@@ -151,10 +151,10 @@ test("the candidate contract rejects every partial package and lockfile version 
 test("the finalized release contract rejects missing status or premature publication claims", () => {
   for (const replacement of [
     "This candidate is not yet published, tagged, or a GitHub Release.",
-    "Version 2.3.0 is published, tagged, and a GitHub Release.",
-    `${publicationBoundary}\n\nVersion 2.3.0 is published.`,
-    `${publicationBoundary}\n\nVersion 2.3.0 is tagged.`,
-    `${publicationBoundary}\n\nA GitHub Release is now available for version 2.3.0.`,
+    "Version 2.3.1 is published, tagged, and a GitHub Release.",
+    `${publicationBoundary}\n\nVersion 2.3.1 is published.`,
+    `${publicationBoundary}\n\nVersion 2.3.1 is tagged.`,
+    `${publicationBoundary}\n\nA GitHub Release is now available for version 2.3.1.`,
   ]) {
     const state = validFixture();
     state.changelog = state.changelog.replace(publicationBoundary, replacement);
@@ -186,12 +186,12 @@ test("the finalized release contract rejects stale banner and gallery versions i
   for (const mutate of [
     (readme) =>
       readme.replace(
-        `${cdnPrefix}2.3.0/assets/banner.png`,
+        `${cdnPrefix}2.3.1/assets/banner.png`,
         `${cdnPrefix}2.2.0/assets/banner.png`,
       ),
     (readme) =>
       readme.replace(
-        `${cdnPrefix}2.3.0/src/icons/atmospheric-pressure-limitation.svg`,
+        `${cdnPrefix}2.3.1/src/icons/atmospheric-pressure-limitation.svg`,
         `${cdnPrefix}2.2.0/src/icons/atmospheric-pressure-limitation.svg`,
       ),
   ]) {
