@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No changes yet.
 
+## 2.3.2 - 2026-11-25
+
+Finalized for the reviewed 2.3.2 release on 2026-11-25.
+
+### Fixed
+
+- Redrew the `ce` and `ce-bsi` symbols from the European Commission's CE marking artwork, so the letters follow the graduated drawing of the official mark. The previous drawing was wider than the official proportions. File names, import paths and component names are unchanged.
+
 ## 2.3.1 - 2026-08-29
 
 Finalized for the reviewed 2.3.1 release on 2026-08-29.
